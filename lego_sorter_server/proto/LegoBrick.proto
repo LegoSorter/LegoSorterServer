@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package remote;
+
+option java_package = "com.lsorter.detection.detectors";
+option java_outer_classname = "LegoBrickProto";
+
+message Image {
+  bytes image = 1;
+  int32 rotation = 2;
+}
+
+message Empty {
+
+}
+
+service LegoBrick {
+  rpc RecognizeLegoBrickInImage (Image) returns (Empty);
+}
