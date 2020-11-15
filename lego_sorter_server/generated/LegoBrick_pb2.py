@@ -6,130 +6,123 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
+
 # @@protoc_insertion_point(imports)
 
 _sym_db = _symbol_database.Default()
 
-
-
-
 DESCRIPTOR = _descriptor.FileDescriptor(
-  name='LegoBrick.proto',
-  package='remote',
-  syntax='proto3',
-  serialized_options=b'\n\037com.lsorter.detection.detectorsB\016LegoBrickProto',
-  create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"1\n\x0eLegoBrickImage\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"\x07\n\x05\x45mpty2?\n\tLegoBrick\x12\x32\n\tSendImage\x12\x16.remote.LegoBrickImage\x1a\r.remote.EmptyB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
+    name='LegoBrick.proto',
+    package='remote',
+    syntax='proto3',
+    serialized_options=b'\n\037com.lsorter.detection.detectorsB\016LegoBrickProto',
+    create_key=_descriptor._internal_create_key,
+    serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"(\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"\x07\n\x05\x45mpty2F\n\tLegoBrick\x12\x39\n\x19RecognizeLegoBrickInImage\x12\r.remote.Image\x1a\r.remote.EmptyB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
 )
 
-
-
-
-_LEGOBRICKIMAGE = _descriptor.Descriptor(
-  name='LegoBrickImage',
-  full_name='remote.LegoBrickImage',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='image', full_name='remote.LegoBrickImage.image', index=0,
-      number=1, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-    _descriptor.FieldDescriptor(
-      name='rotation', full_name='remote.LegoBrickImage.rotation', index=1,
-      number=2, type=5, cpp_type=1, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=27,
-  serialized_end=76,
+_IMAGE = _descriptor.Descriptor(
+    name='Image',
+    full_name='remote.Image',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+        _descriptor.FieldDescriptor(
+            name='image', full_name='remote.Image.image', index=0,
+            number=1, type=12, cpp_type=9, label=1,
+            has_default_value=False, default_value=b"",
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+        _descriptor.FieldDescriptor(
+            name='rotation', full_name='remote.Image.rotation', index=1,
+            number=2, type=5, cpp_type=1, label=1,
+            has_default_value=False, default_value=0,
+            message_type=None, enum_type=None, containing_type=None,
+            is_extension=False, extension_scope=None,
+            serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
+    ],
+    extensions=[
+    ],
+    nested_types=[],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=27,
+    serialized_end=67,
 )
-
 
 _EMPTY = _descriptor.Descriptor(
-  name='Empty',
-  full_name='remote.Empty',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=78,
-  serialized_end=85,
+    name='Empty',
+    full_name='remote.Empty',
+    filename=None,
+    file=DESCRIPTOR,
+    containing_type=None,
+    create_key=_descriptor._internal_create_key,
+    fields=[
+    ],
+    extensions=[
+    ],
+    nested_types=[],
+    enum_types=[
+    ],
+    serialized_options=None,
+    is_extendable=False,
+    syntax='proto3',
+    extension_ranges=[],
+    oneofs=[
+    ],
+    serialized_start=69,
+    serialized_end=76,
 )
 
-DESCRIPTOR.message_types_by_name['LegoBrickImage'] = _LEGOBRICKIMAGE
+DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-LegoBrickImage = _reflection.GeneratedProtocolMessageType('LegoBrickImage', (_message.Message,), {
-  'DESCRIPTOR' : _LEGOBRICKIMAGE,
-  '__module__' : 'LegoBrick_pb2'
-  # @@protoc_insertion_point(class_scope:remote.LegoBrickImage)
-  })
-_sym_db.RegisterMessage(LegoBrickImage)
+Image = _reflection.GeneratedProtocolMessageType('Image', (_message.Message,), {
+    'DESCRIPTOR': _IMAGE,
+    '__module__': 'LegoBrick_pb2'
+    # @@protoc_insertion_point(class_scope:remote.Image)
+})
+_sym_db.RegisterMessage(Image)
 
 Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), {
-  'DESCRIPTOR' : _EMPTY,
-  '__module__' : 'LegoBrick_pb2'
-  # @@protoc_insertion_point(class_scope:remote.Empty)
-  })
+    'DESCRIPTOR': _EMPTY,
+    '__module__': 'LegoBrick_pb2'
+    # @@protoc_insertion_point(class_scope:remote.Empty)
+})
 _sym_db.RegisterMessage(Empty)
-
 
 DESCRIPTOR._options = None
 
 _LEGOBRICK = _descriptor.ServiceDescriptor(
-  name='LegoBrick',
-  full_name='remote.LegoBrick',
-  file=DESCRIPTOR,
-  index=0,
-  serialized_options=None,
-  create_key=_descriptor._internal_create_key,
-  serialized_start=87,
-  serialized_end=150,
-  methods=[
-  _descriptor.MethodDescriptor(
-    name='SendImage',
-    full_name='remote.LegoBrick.SendImage',
+    name='LegoBrick',
+    full_name='remote.LegoBrick',
+    file=DESCRIPTOR,
     index=0,
-    containing_service=None,
-    input_type=_LEGOBRICKIMAGE,
-    output_type=_EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
-  ),
-])
+    serialized_start=78,
+    serialized_end=148,
+    methods=[
+        _descriptor.MethodDescriptor(
+            name='RecognizeLegoBrickInImage',
+            full_name='remote.LegoBrick.RecognizeLegoBrickInImage',
+            index=0,
+            containing_service=None,
+            input_type=_IMAGE,
+            output_type=_EMPTY,
+            serialized_options=None,
+            create_key=_descriptor._internal_create_key,
+        ),
+    ])
 _sym_db.RegisterServiceDescriptor(_LEGOBRICK)
 
 DESCRIPTOR.services_by_name['LegoBrick'] = _LEGOBRICK
