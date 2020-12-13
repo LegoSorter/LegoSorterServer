@@ -1,0 +1,6 @@
+/venv/
+/.idea/
+/lego_sorter_server/detection/test/
+/lego_sorter_server/detection/models/lego_detection_model/checkpoint/
+/lego_sorter_server/detection/models/lego_detection_model/saved_model/
+/lego_sorter_server/detection/models/lego_detection_model/pipeline.config
