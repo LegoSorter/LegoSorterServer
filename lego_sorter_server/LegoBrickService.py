@@ -1,5 +1,5 @@
-from lego_sorter_server.generated import LegoBrick_pb2_grpc
-from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty
+from generated import LegoBrick_pb2_grpc
+from generated.LegoBrick_pb2 import Image as LegoImage, Empty
 
 from PIL import Image
 from io import BytesIO

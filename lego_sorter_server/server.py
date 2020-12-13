@@ -2,8 +2,8 @@ from concurrent import futures
 
 import grpc
 
-from lego_sorter_server.generated import LegoBrick_pb2_grpc
-from lego_sorter_server.LegoBrickService import LegoBrickService
+from generated import LegoBrick_pb2_grpc
+from LegoBrickService import LegoBrickService
 
 
 class Server:
