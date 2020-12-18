@@ -10,10 +10,18 @@ message Image {
   int32 rotation = 2;
 }
 
+message ImageStore {
+  bytes image = 1;
+  int32 rotation = 2;
+  string label = 3;
+}
+
+
 message Empty {
 
 }
 
 service LegoBrick {
   rpc RecognizeLegoBrickInImage (Image) returns (Empty);
+  rpc CollectImages (ImageStore) returns (Empty);
 }
