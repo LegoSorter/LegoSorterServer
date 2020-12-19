@@ -24,6 +24,11 @@ class LegoBrickStub(object):
                 request_serializer=LegoBrick__pb2.ImageStore.SerializeToString,
                 response_deserializer=LegoBrick__pb2.Empty.FromString,
                 )
+        self.CollectCroppedImages = channel.unary_unary(
+                '/remote.LegoBrick/CollectCroppedImages',
+                request_serializer=LegoBrick__pb2.ImageStore.SerializeToString,
+                response_deserializer=LegoBrick__pb2.Empty.FromString,
+                )
         self.DetectBricks = channel.unary_unary(
                 '/remote.LegoBrick/DetectBricks',
                 request_serializer=LegoBrick__pb2.Image.SerializeToString,
@@ -46,6 +51,12 @@ class LegoBrickServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def CollectCroppedImages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def DetectBricks(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -62,6 +73,11 @@ def add_LegoBrickServicer_to_server(servicer, server):
             ),
             'CollectImages': grpc.unary_unary_rpc_method_handler(
                     servicer.CollectImages,
+                    request_deserializer=LegoBrick__pb2.ImageStore.FromString,
+                    response_serializer=LegoBrick__pb2.Empty.SerializeToString,
+            ),
+            'CollectCroppedImages': grpc.unary_unary_rpc_method_handler(
+                    servicer.CollectCroppedImages,
                     request_deserializer=LegoBrick__pb2.ImageStore.FromString,
                     response_serializer=LegoBrick__pb2.Empty.SerializeToString,
             ),
@@ -109,6 +125,23 @@ class LegoBrick(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/CollectImages',
+            LegoBrick__pb2.ImageStore.SerializeToString,
+            LegoBrick__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CollectCroppedImages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/CollectCroppedImages',
             LegoBrick__pb2.ImageStore.SerializeToString,
             LegoBrick__pb2.Empty.FromString,
             options, channel_credentials,

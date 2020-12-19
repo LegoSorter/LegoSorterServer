@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\037com.lsorter.detection.detectorsB\016LegoBrickProto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"(\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t\":\n\x13ListOfBoundingBoxes\x12#\n\x06packet\x18\x01 \x03(\x0b\x32\x13.remote.BoundingBox\"c\n\x0b\x42oundingBox\x12\x0c\n\x04ymin\x18\x01 \x01(\x05\x12\x0c\n\x04xmin\x18\x02 \x01(\x05\x12\x0c\n\x04ymax\x18\x03 \x01(\x05\x12\x0c\n\x04xmax\x18\x04 \x01(\x05\x12\r\n\x05label\x18\x05 \x01(\t\x12\r\n\x05score\x18\x06 \x01(\x02\"\x07\n\x05\x45mpty2\xae\x01\n\tLegoBrick\x12\x39\n\x19RecognizeLegoBrickInImage\x12\r.remote.Image\x1a\r.remote.Empty\x12\x32\n\rCollectImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12\x32\n\x0c\x44\x65tectBricks\x12\r.remote.Image\x1a\x13.remote.BoundingBoxB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
+  serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"(\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t\":\n\x13ListOfBoundingBoxes\x12#\n\x06packet\x18\x01 \x03(\x0b\x32\x13.remote.BoundingBox\"c\n\x0b\x42oundingBox\x12\x0c\n\x04ymin\x18\x01 \x01(\x05\x12\x0c\n\x04xmin\x18\x02 \x01(\x05\x12\x0c\n\x04ymax\x18\x03 \x01(\x05\x12\x0c\n\x04xmax\x18\x04 \x01(\x05\x12\r\n\x05label\x18\x05 \x01(\t\x12\r\n\x05score\x18\x06 \x01(\x02\"\x07\n\x05\x45mpty2\xe9\x01\n\tLegoBrick\x12\x39\n\x19RecognizeLegoBrickInImage\x12\r.remote.Image\x1a\r.remote.Empty\x12\x32\n\rCollectImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12\x39\n\x14\x43ollectCroppedImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12\x32\n\x0c\x44\x65tectBricks\x12\r.remote.Image\x1a\x13.remote.BoundingBoxB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
 )
 
 
@@ -287,7 +287,7 @@ _LEGOBRICK = _descriptor.ServiceDescriptor(
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
   serialized_start=302,
-  serialized_end=476,
+  serialized_end=535,
   methods=[
   _descriptor.MethodDescriptor(
     name='RecognizeLegoBrickInImage',
@@ -310,9 +310,19 @@ _LEGOBRICK = _descriptor.ServiceDescriptor(
     create_key=_descriptor._internal_create_key,
   ),
   _descriptor.MethodDescriptor(
+    name='CollectCroppedImages',
+    full_name='remote.LegoBrick.CollectCroppedImages',
+    index=2,
+    containing_service=None,
+    input_type=_IMAGESTORE,
+    output_type=_EMPTY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
     name='DetectBricks',
     full_name='remote.LegoBrick.DetectBricks',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_IMAGE,
     output_type=_BOUNDINGBOX,
