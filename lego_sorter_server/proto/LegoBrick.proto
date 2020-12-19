@@ -16,6 +16,19 @@ message ImageStore {
   string label = 3;
 }
 
+message ListOfBoundingBoxes {
+    repeated BoundingBox packet = 1;
+}
+
+message BoundingBox {
+    int32 ymin = 1;
+    int32 xmin = 2;
+    int32 ymax = 3;
+    int32 xmax = 4;
+    string label = 5;
+    float score = 6;
+}
+
 
 message Empty {
 
@@ -24,4 +37,5 @@ message Empty {
 service LegoBrick {
   rpc RecognizeLegoBrickInImage (Image) returns (Empty);
   rpc CollectImages (ImageStore) returns (Empty);
+  rpc DetectBricks (Image) returns (BoundingBox);
 }

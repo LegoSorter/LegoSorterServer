@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\037com.lsorter.detection.detectorsB\016LegoBrickProto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"(\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t\"\x07\n\x05\x45mpty2z\n\tLegoBrick\x12\x39\n\x19RecognizeLegoBrickInImage\x12\r.remote.Image\x1a\r.remote.Empty\x12\x32\n\rCollectImages\x12\x12.remote.ImageStore\x1a\r.remote.EmptyB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
+  serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"(\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t\":\n\x13ListOfBoundingBoxes\x12#\n\x06packet\x18\x01 \x03(\x0b\x32\x13.remote.BoundingBox\"c\n\x0b\x42oundingBox\x12\x0c\n\x04ymin\x18\x01 \x01(\x05\x12\x0c\n\x04xmin\x18\x02 \x01(\x05\x12\x0c\n\x04ymax\x18\x03 \x01(\x05\x12\x0c\n\x04xmax\x18\x04 \x01(\x05\x12\r\n\x05label\x18\x05 \x01(\t\x12\r\n\x05score\x18\x06 \x01(\x02\"\x07\n\x05\x45mpty2\xae\x01\n\tLegoBrick\x12\x39\n\x19RecognizeLegoBrickInImage\x12\r.remote.Image\x1a\r.remote.Empty\x12\x32\n\rCollectImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12\x32\n\x0c\x44\x65tectBricks\x12\r.remote.Image\x1a\x13.remote.BoundingBoxB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
 )
 
 
@@ -110,6 +110,105 @@ _IMAGESTORE = _descriptor.Descriptor(
 )
 
 
+_LISTOFBOUNDINGBOXES = _descriptor.Descriptor(
+  name='ListOfBoundingBoxes',
+  full_name='remote.ListOfBoundingBoxes',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='packet', full_name='remote.ListOfBoundingBoxes.packet', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=131,
+  serialized_end=189,
+)
+
+
+_BOUNDINGBOX = _descriptor.Descriptor(
+  name='BoundingBox',
+  full_name='remote.BoundingBox',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='ymin', full_name='remote.BoundingBox.ymin', index=0,
+      number=1, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='xmin', full_name='remote.BoundingBox.xmin', index=1,
+      number=2, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='ymax', full_name='remote.BoundingBox.ymax', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='xmax', full_name='remote.BoundingBox.xmax', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='label', full_name='remote.BoundingBox.label', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='score', full_name='remote.BoundingBox.score', index=5,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=191,
+  serialized_end=290,
+)
+
+
 _EMPTY = _descriptor.Descriptor(
   name='Empty',
   full_name='remote.Empty',
@@ -130,12 +229,15 @@ _EMPTY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=131,
-  serialized_end=138,
+  serialized_start=292,
+  serialized_end=299,
 )
 
+_LISTOFBOUNDINGBOXES.fields_by_name['packet'].message_type = _BOUNDINGBOX
 DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
 DESCRIPTOR.message_types_by_name['ImageStore'] = _IMAGESTORE
+DESCRIPTOR.message_types_by_name['ListOfBoundingBoxes'] = _LISTOFBOUNDINGBOXES
+DESCRIPTOR.message_types_by_name['BoundingBox'] = _BOUNDINGBOX
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -152,6 +254,20 @@ ImageStore = _reflection.GeneratedProtocolMessageType('ImageStore', (_message.Me
   # @@protoc_insertion_point(class_scope:remote.ImageStore)
   })
 _sym_db.RegisterMessage(ImageStore)
+
+ListOfBoundingBoxes = _reflection.GeneratedProtocolMessageType('ListOfBoundingBoxes', (_message.Message,), {
+  'DESCRIPTOR' : _LISTOFBOUNDINGBOXES,
+  '__module__' : 'LegoBrick_pb2'
+  # @@protoc_insertion_point(class_scope:remote.ListOfBoundingBoxes)
+  })
+_sym_db.RegisterMessage(ListOfBoundingBoxes)
+
+BoundingBox = _reflection.GeneratedProtocolMessageType('BoundingBox', (_message.Message,), {
+  'DESCRIPTOR' : _BOUNDINGBOX,
+  '__module__' : 'LegoBrick_pb2'
+  # @@protoc_insertion_point(class_scope:remote.BoundingBox)
+  })
+_sym_db.RegisterMessage(BoundingBox)
 
 Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), {
   'DESCRIPTOR' : _EMPTY,
@@ -170,8 +286,8 @@ _LEGOBRICK = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=140,
-  serialized_end=262,
+  serialized_start=302,
+  serialized_end=476,
   methods=[
   _descriptor.MethodDescriptor(
     name='RecognizeLegoBrickInImage',
@@ -190,6 +306,16 @@ _LEGOBRICK = _descriptor.ServiceDescriptor(
     containing_service=None,
     input_type=_IMAGESTORE,
     output_type=_EMPTY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='DetectBricks',
+    full_name='remote.LegoBrick.DetectBricks',
+    index=2,
+    containing_service=None,
+    input_type=_IMAGE,
+    output_type=_BOUNDINGBOX,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
