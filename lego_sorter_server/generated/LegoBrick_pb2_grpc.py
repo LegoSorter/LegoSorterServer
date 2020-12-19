@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import LegoBrick_pb2 as LegoBrick__pb2
+import generated.LegoBrick_pb2 as LegoBrick__pb2
 
 
 class LegoBrickStub(object):

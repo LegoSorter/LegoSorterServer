@@ -6,7 +6,7 @@ from PIL import Image
 from io import BytesIO
 import time
 import os
-from detection import LegoDetector
+from detection.LegoDetector import LegoDetector
 import numpy as np
 
 
@@ -20,6 +20,10 @@ def resize(img, target):
 
 
 class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
+    def __init__(self):
+        self.lego_detector = LegoDetector(
+            'C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\models\\lego_detection_model\\saved_model')
+        self.lego_detector.__initialize__()
 
     # Support rate limiting - we don't want a flood of images
     def RecognizeLegoBrickInImage(self, request: LegoImage, context):
@@ -53,14 +57,11 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
             image = image.transpose(Image.ROTATE_90)
 
         # TODO Detect lego bricks and tag an image
-
-        lego_detector = LegoDetector(
-            'C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\models\\lego_detection_model\\saved_model')
-        image_resized, scale = resize(image, 640) 
-        detections = lego_detector.detect_lego(np.array(image_resized))
+        image_resized, scale = resize(image, 640)
+        detections = self.lego_detector.detect_lego(np.array(image_resized))
         # TODO: selecting a single bb... for now
         ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][0]]
-        image = image.crop([xmin, ymin, xmax, ymax]).show()
+        image = image.crop([xmin, ymin, xmax, ymax])
 
         if not os.path.exists('collected_cropped_images'):
             os.makedirs('collected_cropped_images')
@@ -91,12 +92,10 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         return Empty()
 
     def DetectBricks(self, request: BoundingBox, context):
-        lego_detector = LegoDetector(
-            'C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\models\\lego_detection_model\\saved_model')
         image = Image.open(BytesIO(request.image))
         image = image.convert('RGB')
         image_resized, scale = resize(image, 640)  # image.resize((640, 640), 0)
-        detections = lego_detector.detect_lego(np.array(image_resized))
+        detections = self.lego_detector.detect_lego(np.array(image_resized))
         # TODO: selecting a single bb... for now
         # best_detection = np.argmax(detections['detection_scores'])
         bb = BoundingBox()
