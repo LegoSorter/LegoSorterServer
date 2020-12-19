@@ -1,6 +1,5 @@
 from generated import LegoBrick_pb2_grpc
-from generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox, \
-    ListOfBoundingBoxes
+from generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox
 
 from PIL import Image
 from io import BytesIO
@@ -9,6 +8,8 @@ import os
 from detection.LegoDetector import LegoDetector
 import numpy as np
 import uuid
+
+from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
 
 def resize(img, target):
@@ -22,12 +23,12 @@ def resize(img, target):
 
 class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
-        self.lego_detector = LegoDetector('./models/lego_detection_model/saved_model')
+        self.lego_detector = LegoDetector()
+        self.lego_storage = LegoImageStorage()
         self.lego_detector.__initialize__()
 
-    # Support rate limiting - we don't want a flood of images
-    def RecognizeLegoBrickInImage(self, request: LegoImage, context):
-        # TODO Add service for processing images
+    @staticmethod
+    def _prepare_image(request: LegoImage):
         image = Image.open(BytesIO(request.image))
 
         if request.rotation == 90:
@@ -37,10 +38,13 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         if request.rotation == 270:
             image = image.transpose(Image.ROTATE_90)
 
-        # TODO Detect lego bricks and tag an image
-        if not os.path.exists('images'):
-            os.makedirs('images')
-        image.save(f'./images/image_{int(time.time())}.jpg')
+        return image
+
+    def RecognizeLegoBrickInImage(self, request: LegoImage, context):
+        image = self._prepare_image(request)
+
+        # Save the image as an unknown
+        self.lego_storage.save_image(image, "unknown")
 
         return Empty()
 
