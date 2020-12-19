@@ -1,4 +1,6 @@
 import time
+from pathlib import Path
+
 import numpy as np
 
 import tensorflow as tf
@@ -13,8 +15,8 @@ def prepare_input_tensor(image):
 class LegoDetector:
     __initialized = False
 
-    def __init__(self, model_path="./models/lego_detection_model/saved_model"):
-        self.model_path = model_path
+    def __init__(self, model_path="./detection/models/lego_detection_model/saved_model"):
+        self.model_path = Path(model_path).absolute()
 
     def __initialize__(self):
         if self.__initialized:
@@ -26,7 +28,7 @@ class LegoDetector:
             tf.config.experimental.set_memory_growth(gpu, True)
 
         start_time = time.time()
-        self.model = tf.saved_model.load(self.model_path)
+        self.model = tf.saved_model.load(str(self.model_path))
         elapsed_time = time.time() - start_time
 
         print("Loading model took {} seconds".format(elapsed_time))
