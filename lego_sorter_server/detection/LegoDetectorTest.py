@@ -31,7 +31,7 @@ def draw_bounding_boxes_on_image(image_path):
 
 
 if __name__ == '__main__':
-    for img_path in Path("C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\images\\").glob("*.jpg"):
+    for img_path in Path("C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\").glob("*.jpg"):
         img = draw_bounding_boxes_on_image(str(img_path.absolute()))
         img = Image.fromarray(img)
         img.save("C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\out_images\\" + img_path.name.split(".")[0] + ".jpg")

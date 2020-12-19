@@ -8,6 +8,7 @@ import time
 import os
 from detection.LegoDetector import LegoDetector
 import numpy as np
+import uuid
 
 
 def resize(img, target):
@@ -47,7 +48,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         # TODO Add service for processing images
         image = Image.open(BytesIO(request.image))
         image = image.convert('RGB')
-
+        width, height = image.size
         if request.rotation == 90:
             image = image.transpose(Image.ROTATE_270)
         if request.rotation == 180:
@@ -55,22 +56,26 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         if request.rotation == 270:
             image = image.transpose(Image.ROTATE_90)
 
-        # TODO Detect lego bricks and tag an image
-        image_resized, scale = resize(image, 640)
-        detections = self.lego_detector.detect_lego(np.array(image_resized))
-        if detections['detection_scores'][0] < 0.5:
-            return Empty()
-
-        # TODO: selecting a single bb... for now
-        ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][0]]
-        image = image.crop([xmin, ymin, xmax, ymax])
-
         if not os.path.exists('collected_cropped_images'):
             os.makedirs('collected_cropped_images')
         if not os.path.exists(os.path.join('collected_cropped_images', request.label)):
             os.makedirs(os.path.join('collected_cropped_images', request.label))
 
-        image.save(f'./collected_cropped_images/{request.label}/image_{int(time.time())}.jpg')
+        # TODO Detect lego bricks and tag an image
+        image_resized, scale = resize(image, 640)
+        detections = self.lego_detector.detect_lego(np.array(image_resized))
+        for i in range(0,100):
+            if detections['detection_scores'][i] < 0.5:
+                # continue # IF NOT SORTED
+                break # IF SORTED
+
+            ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
+            if ymax >= height or xmax >= width:
+                continue
+            image_new = image.crop([xmin, ymin, xmax, ymax])
+
+            image_new.save(f'./collected_cropped_images/{request.label}/image_{uuid.uuid4().hex}.jpg')
+
         return Empty()
 
     def CollectImages(self, request: LegoImageStore, context):
