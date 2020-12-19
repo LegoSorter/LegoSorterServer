@@ -21,8 +21,7 @@ def resize(img, target):
 
 class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
-        self.lego_detector = LegoDetector(
-            'C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\models\\lego_detection_model\\saved_model')
+        self.lego_detector = LegoDetector('./models/lego_detection_model/saved_model')
         self.lego_detector.__initialize__()
 
     # Support rate limiting - we don't want a flood of images
