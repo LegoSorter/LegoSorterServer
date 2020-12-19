@@ -9,6 +9,7 @@ from detection.LegoDetector import LegoDetector
 import numpy as np
 import uuid
 
+from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
 
@@ -25,17 +26,19 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
         self.lego_detector = LegoDetector()
         self.lego_storage = LegoImageStorage()
+        self.lego_processing_queue = ImageProcessingQueue()
         self.lego_detector.__initialize__()
 
     @staticmethod
     def _prepare_image(request: LegoImage):
         image = Image.open(BytesIO(request.image))
+        image = image.convert('RGB')
 
         if request.rotation == 90:
             image = image.transpose(Image.ROTATE_270)
-        if request.rotation == 180:
+        elif request.rotation == 180:
             image = image.rotate(180)
-        if request.rotation == 270:
+        elif request.rotation == 270:
             image = image.transpose(Image.ROTATE_90)
 
         return image
@@ -49,26 +52,16 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         return Empty()
 
     def CollectCroppedImages(self, request: LegoImageStore, context):
-        # TODO Add service for processing images
-        image = Image.open(BytesIO(request.image))
-        image = image.convert('RGB')
-        width, height = image.size
-        if request.rotation == 90:
-            image = image.transpose(Image.ROTATE_270)
-        if request.rotation == 180:
-            image = image.rotate(180)
-        if request.rotation == 270:
-            image = image.transpose(Image.ROTATE_90)
+        image = self._prepare_image(request)
 
-        if not os.path.exists('collected_cropped_images'):
-            os.makedirs('collected_cropped_images')
-        if not os.path.exists(os.path.join('collected_cropped_images', request.label)):
-            os.makedirs(os.path.join('collected_cropped_images', request.label))
+        self.lego_processing_queue.add(image, request.label)
+        image, lego_class = self.lego_processing_queue.next()
+        width, height = image.size
 
         # TODO Detect lego bricks and tag an image
         image_resized, scale = resize(image, 640)
         detections = self.lego_detector.detect_lego(np.array(image_resized))
-        for i in range(0,100):
+        for i in range(100):
             if detections['detection_scores'][i] < 0.5:
                 # continue # IF NOT SORTED
                 break # IF SORTED
@@ -78,7 +71,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
                 continue
             image_new = image.crop([xmin, ymin, xmax, ymax])
 
-            image_new.save(f'./collected_cropped_images/{request.label}/image_{uuid.uuid4().hex}.jpg')
+            self.lego_storage.save_image(image_new, lego_class)
 
         return Empty()
 

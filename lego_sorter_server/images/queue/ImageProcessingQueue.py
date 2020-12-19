@@ -12,7 +12,7 @@ class Singleton(type):
 
 
 class ImageProcessingQueue(metaclass=Singleton):
-    """Stores lego images for processing. Format of returned objects is {image, lego_class}"""
+    """Stores lego images for processing. Format of returned objects is a tuple (image, lego_class)"""
     def __init__(self, limit=1000):
         self.limit = limit
         self.in_memory_store = deque([])
@@ -22,7 +22,7 @@ class ImageProcessingQueue(metaclass=Singleton):
 
     def add(self, image: Image, lego_class='unknown'):
         self._check_limit()
-        self.in_memory_store.append({image, lego_class})
+        self.in_memory_store.append((image, lego_class))
 
     def _check_limit(self):
         if len(self.in_memory_store) >= self.limit:

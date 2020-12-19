@@ -7,7 +7,7 @@ from PIL.Image import Image
 class LegoImageStorage:
     """This class is responsible for storing images of lego bricks"""
 
-    def __init__(self, images_directory='./stored'):
+    def __init__(self, images_directory='./images/storage/stored'):
         self.images_base_path = Path(images_directory)
         self.create_directory(self.images_base_path, parents=True)
 
@@ -18,8 +18,10 @@ class LegoImageStorage:
         if not directory.exists():
             raise Exception("Couldn't create an images directory {}", directory.absolute())
 
+        return directory
+
     @staticmethod
-    def generate_file_name(lego_class, img_format=".jpg"):
+    def generate_file_name(lego_class, img_format="jpg"):
         return f'{lego_class}_{round(time() * 1000)}.{img_format}'
 
     @staticmethod
