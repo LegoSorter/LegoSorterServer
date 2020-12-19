@@ -41,8 +41,8 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         # TODO Detect lego bricks and tag an image
         if not os.path.exists('collected_images'):
             os.makedirs('collected_images')
-        if not os.path.exists(request.label):
-            os.makedirs(request.label)
+        if not os.path.exists(os.path.join('collected_images', request.label)):
+            os.makedirs(os.path.join('collected_images', request.label))
         image.save(f'./collected_images/{request.label}/image_{int(time.time()) }.jpg')
 
         return Empty()
