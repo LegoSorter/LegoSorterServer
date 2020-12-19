@@ -1,7 +1,6 @@
-from concurrent import futures
-
 import grpc
 
+from concurrent import futures
 from generated import LegoBrick_pb2_grpc
 from LegoBrickService import LegoBrickService
 

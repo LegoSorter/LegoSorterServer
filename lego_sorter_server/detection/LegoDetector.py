@@ -1,22 +1,33 @@
+import threading
 import time
+import numpy as np
+import tensorflow as tf
 from pathlib import Path
 
-import numpy as np
 
-import tensorflow as tf
+class ThreadSafeSingleton(type):
+    _instances = {}
+    _singleton_lock = threading.Lock()
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            with cls._singleton_lock:
+                if cls not in cls._instances:
+                    cls._instances[cls] = super(ThreadSafeSingleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
-def prepare_input_tensor(image):
-    input_tensor = tf.convert_to_tensor(image)
-    input_tensor = input_tensor[tf.newaxis, ...]
-    return input_tensor
-
-
-class LegoDetector:
-    __initialized = False
+class LegoDetector(metaclass=ThreadSafeSingleton):
 
     def __init__(self, model_path="./detection/models/lego_detection_model/saved_model"):
+        self.__initialized = False
         self.model_path = Path(model_path).absolute()
+
+    @staticmethod
+    def prepare_input_tensor(image):
+        input_tensor = tf.convert_to_tensor(image)
+        input_tensor = input_tensor[tf.newaxis, ...]
+        return input_tensor
 
     def __initialize__(self):
         if self.__initialized:
@@ -39,14 +50,11 @@ class LegoDetector:
             print("LegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
-        input_tensor = prepare_input_tensor(image)
-
+        input_tensor = self.prepare_input_tensor(image)
         detections = self.model(input_tensor)
         num_detections = int(detections.pop('num_detections'))
-
         detections = {key: value[0, :num_detections].numpy() for key, value in detections.items()}
         detections['num_detections'] = num_detections
-
         # detection_classes should be ints.
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 

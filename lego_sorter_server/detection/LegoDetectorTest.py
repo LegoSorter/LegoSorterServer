@@ -1,10 +1,10 @@
-from detection.LegoDetector import LegoDetector
+from lego_sorter_server.detection.LegoDetector import LegoDetector
 from PIL import Image
 from object_detection.utils import visualization_utils as viz_utils
 from pathlib import Path
 import numpy as np
 
-lego_detector = LegoDetector('C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\models\\lego_detection_model\\saved_model')
+lego_detector = LegoDetector()
 
 
 def draw_bounding_boxes_on_image(image_path):
@@ -31,7 +31,7 @@ def draw_bounding_boxes_on_image(image_path):
 
 
 if __name__ == '__main__':
-    for img_path in Path("C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\").glob("*.jpg"):
+    for img_path in Path(".").glob("*.jpg"):
         img = draw_bounding_boxes_on_image(str(img_path.absolute()))
         img = Image.fromarray(img)
-        img.save("C:\\Users\\Konrad\\dev\\LegoSorterServer\\lego_sorter_server\\out_images\\" + img_path.name.split(".")[0] + ".jpg")
+        img.save("./" + img_path.name.split(".")[0] + ".jpg")

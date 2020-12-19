@@ -47,6 +47,8 @@ class LegoImageStorage:
 
         image.save(str(target_directory / filename))
 
+        print(f"Saved the image {filename} of {lego_class} class\n")
+
         return filename
 
     def get_images(self, lego_class, limit=10):

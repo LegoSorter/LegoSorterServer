@@ -24,6 +24,9 @@ class ImageProcessingQueue(metaclass=Singleton):
         self._check_limit()
         self.in_memory_store.append((image, lego_class))
 
+    def len(self):
+        return len(self.in_memory_store)
+
     def _check_limit(self):
         if len(self.in_memory_store) >= self.limit:
             raise Exception("Queue out of bound!")
