@@ -58,6 +58,9 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         # TODO Detect lego bricks and tag an image
         image_resized, scale = resize(image, 640)
         detections = self.lego_detector.detect_lego(np.array(image_resized))
+        if detections['detection_scores'][0] < 0.5:
+            return Empty()
+
         # TODO: selecting a single bb... for now
         ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][0]]
         image = image.crop([xmin, ymin, xmax, ymax])
