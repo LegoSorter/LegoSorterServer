@@ -1,5 +1,5 @@
-from PIL import Image
 from collections import deque
+from PIL.Image import Image
 
 
 class Singleton(type):
@@ -17,23 +17,11 @@ class ImageProcessingQueue(metaclass=Singleton):
         self.limit = limit
         self.in_memory_store = deque([])
 
-    @staticmethod
-    def rotate_image(image, rotation):
-        if rotation == 90:
-            image = image.transpose(Image.ROTATE_270)
-        if rotation == 180:
-            image = image.rotate(180)
-        if rotation == 270:
-            image = image.transpose(Image.ROTATE_90)
-
-        return image
-
     def next(self):
         return self.in_memory_store.popleft()
 
-    def add(self, image, lego_class='unknown', rotation=0):
+    def add(self, image: Image, lego_class='unknown'):
         self._check_limit()
-        image = self.rotate_image(image, rotation)
         self.in_memory_store.append({image, lego_class})
 
     def _check_limit(self):
