@@ -35,7 +35,6 @@ class LegoDetectionRunner:
             image, lego_class = self.queue.next()
             width, height = image.size
 
-            # TODO Detect lego bricks and tag an image
             image_resized, scale = DetectionUtils.resize(image, 640)
             detections = self.detector.detect_lego(np.array(image_resized))
 

@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import generated.LegoBrick_pb2 as LegoBrick__pb2
+import lego_sorter_server.generated.LegoBrick_pb2 as LegoBrick__pb2
 
 
 class LegoBrickStub(object):
@@ -32,7 +32,7 @@ class LegoBrickStub(object):
         self.DetectBricks = channel.unary_unary(
                 '/remote.LegoBrick/DetectBricks',
                 request_serializer=LegoBrick__pb2.Image.SerializeToString,
-                response_deserializer=LegoBrick__pb2.BoundingBox.FromString,
+                response_deserializer=LegoBrick__pb2.ListOfBoundingBoxes.FromString,
                 )
 
 
@@ -84,7 +84,7 @@ def add_LegoBrickServicer_to_server(servicer, server):
             'DetectBricks': grpc.unary_unary_rpc_method_handler(
                     servicer.DetectBricks,
                     request_deserializer=LegoBrick__pb2.Image.FromString,
-                    response_serializer=LegoBrick__pb2.BoundingBox.SerializeToString,
+                    response_serializer=LegoBrick__pb2.ListOfBoundingBoxes.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -160,6 +160,6 @@ class LegoBrick(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/DetectBricks',
             LegoBrick__pb2.Image.SerializeToString,
-            LegoBrick__pb2.BoundingBox.FromString,
+            LegoBrick__pb2.ListOfBoundingBoxes.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

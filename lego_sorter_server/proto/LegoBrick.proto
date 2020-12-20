@@ -38,5 +38,5 @@ service LegoBrick {
   rpc RecognizeLegoBrickInImage (Image) returns (Empty);
   rpc CollectImages (ImageStore) returns (Empty);
   rpc CollectCroppedImages (ImageStore) returns (Empty);
-  rpc DetectBricks (Image) returns (BoundingBox);
+  rpc DetectBricks (Image) returns (ListOfBoundingBoxes);
 }

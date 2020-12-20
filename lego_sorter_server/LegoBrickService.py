@@ -1,5 +1,6 @@
 from generated import LegoBrick_pb2_grpc
-from generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox
+from generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox, \
+    ListOfBoundingBoxes
 
 from PIL import Image
 from io import BytesIO
@@ -55,16 +56,28 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
 
         return Empty()
 
-    def DetectBricks(self, request: BoundingBox, context):
-        image = Image.open(BytesIO(request.image))
-        image = image.convert('RGB')
+    def DetectBricks(self, request: LegoImage, context):
+        image = self._prepare_image(request)
+        width, height = image.size
         image_resized, scale = DetectionUtils.resize(image, 640)  # image.resize((640, 640), 0)
         detections = self.detector.detect_lego(np.array(image_resized))
-        # TODO: selecting a single bb... for now
-        # best_detection = np.argmax(detections['detection_scores'])
-        bb = BoundingBox()
-        bb.ymin, bb.xmin, bb.ymax, bb.xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][0]]
 
-        bb.score = detections['detection_scores'][0]
-        bb.label = 'DUMMY_LABEL'
-        return bb
+        bbs = []
+        for i in range(100):
+            if detections['detection_scores'][i] < 0.5:
+                # continue # IF NOT SORTED
+                break  # IF SORTED
+
+            bb = BoundingBox()
+
+            bb.ymin, bb.xmin, bb.ymax, bb.xmax  = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
+            if bb.ymax >= height or bb.xmax >= width:
+                continue
+
+            bb.score = detections['detection_scores'][i]
+            bb.label = 'lego'
+            bbs.append(bb)
+
+        bb_list = ListOfBoundingBoxes()
+        bb_list.packet.extend(bbs)
+        return bb_list
