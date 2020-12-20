@@ -1,3 +1,5 @@
+from concurrent import futures
+
 from generated import LegoBrick_pb2_grpc
 from generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox, \
     ListOfBoundingBoxes
@@ -19,6 +21,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         self.storage = LegoImageStorage()
         self.processing_queue = ImageProcessingQueue()
         self.detection_runner = LegoDetectionRunner(self.processing_queue, self.detector, self.storage)
+        self.executor = futures.ThreadPoolExecutor(max_workers=4)
 
         self.detector.__initialize__()
         self.detection_runner.start_detecting()
@@ -44,11 +47,13 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         return Empty()
 
     def CollectCroppedImages(self, request: LegoImageStore, context):
-        image = self._prepare_image(request)
-
-        self.processing_queue.add(image, request.label)
+        self.executor.submit(self._handle_collect_cropped_images, request)
 
         return Empty()
+
+    def _handle_collect_cropped_images(self, request: LegoImageStore):
+        image = self._prepare_image(request)
+        self.processing_queue.add(image, request.label)
 
     def CollectImages(self, request: LegoImageStore, context):
         image = self._prepare_image(request)

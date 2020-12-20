@@ -1,3 +1,5 @@
+import random
+import string
 import time
 from concurrent import futures
 
@@ -33,20 +35,28 @@ class LegoDetectionRunner:
                 time.sleep(1)
                 continue
             image, lego_class = self.queue.next()
-            width, height = image.size
+            prefix = self._get_random_hash() + "_"
 
+            width, height = image.size
             image_resized, scale = DetectionUtils.resize(image, 640)
             detections = self.detector.detect_lego(np.array(image_resized))
 
+            detected_counter = 0
             for i in range(100):
                 if detections['detection_scores'][i] < 0.5:
-                    # continue # IF NOT SORTED
                     break  # IF SORTED
 
+                detected_counter += 1
                 ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
                 if ymax >= height or xmax >= width:
                     continue
                 image_new = image.crop([xmin, ymin, xmax, ymax])
 
-                self.storage.save_image(image_new, lego_class)
+                self.storage.save_image(image_new, lego_class, prefix)
 
+            prefix = f'{detected_counter}_{prefix}'
+            self.storage.save_image(image, 'original', prefix)
+
+    @staticmethod
+    def _get_random_hash(length=4):
+        return ''.join(random.choices(string.ascii_letters + string.digits, k=length))

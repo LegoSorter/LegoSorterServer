@@ -21,8 +21,8 @@ class LegoImageStorage:
         return directory
 
     @staticmethod
-    def generate_file_name(lego_class, img_format="jpg"):
-        return f'{lego_class}_{round(time() * 1000)}.{img_format}'
+    def generate_file_name(lego_class, img_format="jpg", prefix=''):
+        return f'{prefix}{lego_class}_{round(time() * 1000)}.{img_format}'
 
     @staticmethod
     def extract_lego_class_from_file_name(filename):
@@ -40,10 +40,10 @@ class LegoImageStorage:
 
         return self.create_directory(target_directory, parents=False)
 
-    def save_image(self, image: Image, lego_class):
+    def save_image(self, image: Image, lego_class, prefix=''):
         """Save the image as representation of specified lego_class. Returns a name of the saved image"""
         target_directory = self.get_target_directory_for_lego_class(lego_class)
-        filename = self.generate_file_name(lego_class)
+        filename = self.generate_file_name(lego_class, prefix=prefix)
 
         image.save(str(target_directory / filename))
 
@@ -75,7 +75,3 @@ class LegoImageStorage:
     def remove_lego_class(self, lego_class):
         lego_class_directory = self.images_base_path / lego_class
         lego_class_directory.rmdir()
-
-
-
-
