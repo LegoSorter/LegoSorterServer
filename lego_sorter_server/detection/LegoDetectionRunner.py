@@ -1,6 +1,7 @@
 import random
 import string
 import time
+import logging
 from concurrent import futures
 
 import numpy as np
@@ -18,20 +19,20 @@ class LegoDetectionRunner:
         self.storage = store
         # queue, detector and storage are not thread safe, so it limits the number of workers to one
         self.executor = futures.ThreadPoolExecutor(max_workers=1)
-        print("[LegoDetectionRunner] Initialized\n")
+        logging.info("[LegoDetectionRunner] Initialized\n")
 
     def start_detecting(self):
-        print("[LegoDetectionRunner] Started processing the queue\n")
+        logging.info("[LegoDetectionRunner] Started processing the queue\n")
         self.executor.submit(self._process_queue)
 
     def stop_detecting(self):
-        print("[LegoDetectionRunner] Processing is being terminated\n")
+        logging.info("[LegoDetectionRunner] Processing is being terminated\n")
         self.executor.shutdown()
 
     def _process_queue(self):
         while True:
             if self.queue.len() == 0:
-                print("Queue is empty. Waiting... ")
+                logging.debug("Queue is empty. Waiting... ")
                 time.sleep(1)
                 continue
             image, lego_class = self.queue.next()
