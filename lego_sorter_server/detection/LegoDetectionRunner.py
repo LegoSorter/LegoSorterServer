@@ -48,7 +48,7 @@ class LegoDetectionRunner:
             width, height = image.size
             image_resized, scale = DetectionUtils.resize(image, 640)
             detections = self.detector.detect_lego(np.array(image_resized))
-
+            margin = 10  # in pixels
             detected_counter = 0
             for i in range(100):
                 if detections['detection_scores'][i] < 0.5:
@@ -56,8 +56,17 @@ class LegoDetectionRunner:
 
                 detected_counter += 1
                 ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
+
+                # if bb is out of bounds
                 if ymax >= height or xmax >= width:
                     continue
+
+                # Apply margins
+                ymin = max(ymin - margin, 0)
+                xmin = max(xmin - margin, 0)
+                ymax = min(ymax + margin, height)
+                xmax = min(ymax + margin, width)
+
                 image_new = image.crop([xmin, ymin, xmax, ymax])
 
                 self.storage.save_image(image_new, lego_class, prefix)
