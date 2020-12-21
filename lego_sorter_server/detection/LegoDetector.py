@@ -1,3 +1,4 @@
+import os
 import threading
 import time
 import numpy as np
@@ -19,7 +20,7 @@ class ThreadSafeSingleton(type):
 
 class LegoDetector(metaclass=ThreadSafeSingleton):
 
-    def __init__(self, model_path="./detection/models/lego_detection_model/saved_model"):
+    def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "lego_detection_model", "saved_model")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
