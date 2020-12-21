@@ -7,7 +7,7 @@ import logging
 class LegoImageStorage:
     """This class is responsible for storing images of lego bricks"""
 
-    def __init__(self, images_directory='./images/storage/stored'):
+    def __init__(self, images_directory='./lego_sorter_server/images/storage/stored'):
         self.images_base_path = Path(images_directory)
         self.create_directory(self.images_base_path, parents=True)
 
