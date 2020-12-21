@@ -1,7 +1,7 @@
 from concurrent import futures
 
-from generated import LegoBrick_pb2_grpc
-from generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox, \
+from lego_sorter_server.generated import LegoBrick_pb2_grpc
+from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox, \
     ListOfBoundingBoxes
 
 from PIL import Image
