@@ -6,7 +6,7 @@ from generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as Leg
 
 from PIL import Image
 from io import BytesIO
-from detection.LegoDetector import LegoDetector
+from lego_sorter_server.detection.LegoDetector import LegoDetector
 import numpy as np
 
 from lego_sorter_server.detection import DetectionUtils

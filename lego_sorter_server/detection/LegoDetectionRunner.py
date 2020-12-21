@@ -32,14 +32,14 @@ class LegoDetectionRunner:
     def _process_queue(self):
         polling_rate = 0.2  # in seconds
         logging_rate = 2  # in seconds
-        counter = 0
+        logging_counter = 0
         while True:
             if self.queue.len() == 0:
-                if polling_rate * counter >= logging_rate:
+                if polling_rate * logging_counter >= logging_rate:
                     logging.debug("Queue is empty. Waiting... ")
-                    counter = 0
+                    logging_counter = 0
                 else:
-                    counter += 1
+                    logging_counter += 1
                 time.sleep(polling_rate)
                 continue
             image, lego_class = self.queue.next()
