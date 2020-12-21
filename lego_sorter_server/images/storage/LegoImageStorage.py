@@ -2,7 +2,7 @@ import itertools
 from pathlib import Path
 from time import time
 from PIL.Image import Image
-
+import logging
 
 class LegoImageStorage:
     """This class is responsible for storing images of lego bricks"""
@@ -47,7 +47,7 @@ class LegoImageStorage:
 
         image.save(str(target_directory / filename))
 
-        print(f"Saved the image {filename} of {lego_class} class\n")
+        logging.info(f"Saved the image {filename} of {lego_class} class\n")
 
         return filename
 

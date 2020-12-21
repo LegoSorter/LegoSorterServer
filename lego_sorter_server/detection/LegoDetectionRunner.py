@@ -31,12 +31,12 @@ class LegoDetectionRunner:
 
     def _process_queue(self):
         polling_rate = 0.2  # in seconds
-        logging_rate = 2  # in seconds
+        logging_rate = 5  # in seconds
         logging_counter = 0
         while True:
             if self.queue.len() == 0:
                 if polling_rate * logging_counter >= logging_rate:
-                    logging.debug("Queue is empty. Waiting... ")
+                    logging.info("Queue is empty. Waiting... ")
                     logging_counter = 0
                 else:
                     logging_counter += 1

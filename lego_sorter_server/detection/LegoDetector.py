@@ -3,6 +3,7 @@ import threading
 import time
 import numpy as np
 import tensorflow as tf
+import logging
 from pathlib import Path
 
 
@@ -44,12 +45,12 @@ class LegoDetector(metaclass=ThreadSafeSingleton):
         self.model = tf.saved_model.load(str(self.model_path))
         elapsed_time = time.time() - start_time
 
-        print("Loading model took {} seconds".format(elapsed_time))
+        logging.info("Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
 
     def detect_lego(self, image):
         if not self.__initialized:
-            print("LegoDetector is not initialized, this process can take a few seconds for the first time.")
+            logging.info("LegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
         input_tensor = self.prepare_input_tensor(image)
