@@ -75,7 +75,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
 
             bb = BoundingBox()
 
-            bb.ymin, bb.xmin, bb.ymax, bb.xmax  = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
+            bb.ymin, bb.xmin, bb.ymax, bb.xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
             if bb.ymax >= height or bb.xmax >= width:
                 continue
 

@@ -8,4 +8,3 @@ def resize(img, target):
     new_im = Image.new('RGB', (target, target), color=(0, 0, 0))
     new_im.paste(im_resized, (0, 0))
     return new_im, scaling_factor
-

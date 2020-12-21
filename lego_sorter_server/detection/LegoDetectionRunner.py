@@ -30,8 +30,8 @@ class LegoDetectionRunner:
         self.executor.shutdown()
 
     def _process_queue(self):
-        polling_rate = 0.2 # in seconds
-        logging_rate = 2 # in seconds
+        polling_rate = 0.2  # in seconds
+        logging_rate = 2  # in seconds
         counter = 0
         while True:
             if self.queue.len() == 0:
