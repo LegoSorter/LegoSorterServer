@@ -42,13 +42,15 @@ class LegoDetectionRunner:
                     logging_counter += 1
                 time.sleep(polling_rate)
                 continue
+            logging.info("Queue not empty - processing data")
             image, lego_class = self.queue.next()
             prefix = self._get_random_hash() + "_"
 
             width, height = image.size
             image_resized, scale = DetectionUtils.resize(image, 640)
             detections = self.detector.detect_lego(np.array(image_resized))
-            margin = 10  # in pixels
+            abs_margin = 0  # in pixels
+            rel_margin = 0.10
             detected_counter = 0
             for i in range(100):
                 if detections['detection_scores'][i] < 0.5:
@@ -62,10 +64,11 @@ class LegoDetectionRunner:
                     continue
 
                 # Apply margins
-                ymin = max(ymin - margin, 0)
-                xmin = max(xmin - margin, 0)
-                ymax = min(ymax + margin, height)
-                xmax = min(ymax + margin, width)
+                avg_length = ((xmax - xmin) + (ymax - ymin)) / 2
+                ymin = max(ymin - abs_margin - rel_margin * avg_length, 0)
+                xmin = max(xmin - abs_margin - rel_margin * avg_length, 0)
+                ymax = min(ymax + abs_margin + rel_margin * avg_length, height)
+                xmax = min(xmax + abs_margin + rel_margin * avg_length, width)
 
                 image_new = image.crop([xmin, ymin, xmax, ymax])
 
