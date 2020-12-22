@@ -8,3 +8,16 @@ def resize(img, target):
     new_im = Image.new('RGB', (target, target), color=(0, 0, 0))
     new_im.paste(im_resized, (0, 0))
     return new_im, scaling_factor
+
+
+def crop_with_margin(image, ymin, xmin, ymax, xmax, abs_margin=0, rel_margin=0.10):
+    width, height = image.size
+
+    # Apply margins
+    avg_length = ((xmax - xmin) + (ymax - ymin)) / 2
+    ymin = max(ymin - abs_margin - rel_margin * avg_length, 0)
+    xmin = max(xmin - abs_margin - rel_margin * avg_length, 0)
+    ymax = min(ymax + abs_margin + rel_margin * avg_length, height)
+    xmax = min(xmax + abs_margin + rel_margin * avg_length, width)
+
+    return image.crop([xmin, ymin, xmax, ymax])

@@ -34,11 +34,6 @@ class LegoDetector(metaclass=ThreadSafeSingleton):
         if self.__initialized:
             raise Exception("LegoDetector already initialized")
 
-        # Enable GPU dynamic memory allocation
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-
         start_time = time.time()
         self.model = tf.saved_model.load(str(self.model_path))
         elapsed_time = time.time() - start_time

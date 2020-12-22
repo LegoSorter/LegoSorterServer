@@ -1,0 +1,19 @@
+{
+  "CLEAR_DESTINATION_BEFORE": true,
+  "DESTINATION": "C:\\LEGO_repo\\LegoSorterServer\\images\\dataset",
+  "SOURCE_PATH": "C:\\LEGO_repo\\LegoSorterServer\\images\\storage\\stored",
+  "TRANSFORMATIONS": ["Simple"],
+  "RANDOM_SEED": 100,
+  "RANDOM_CLASSESS_COUNT": 50,
+  "TYPES": {
+    "train": {
+      "DIV_VALUE": 0.8
+    },
+    "test": {
+      "DIV_VALUE": null
+    },
+    "val": {
+      "DIV_VALUE": 0.15
+    }
+  }
+}

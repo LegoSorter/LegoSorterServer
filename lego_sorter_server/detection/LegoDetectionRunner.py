@@ -7,6 +7,7 @@ from concurrent import futures
 import numpy as np
 
 from lego_sorter_server.detection import DetectionUtils
+from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 from lego_sorter_server.detection.LegoDetector import LegoDetector
 from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
@@ -49,8 +50,7 @@ class LegoDetectionRunner:
             width, height = image.size
             image_resized, scale = DetectionUtils.resize(image, 640)
             detections = self.detector.detect_lego(np.array(image_resized))
-            abs_margin = 0  # in pixels
-            rel_margin = 0.10
+
             detected_counter = 0
             for i in range(100):
                 if detections['detection_scores'][i] < 0.5:
@@ -63,14 +63,7 @@ class LegoDetectionRunner:
                 if ymax >= height or xmax >= width:
                     continue
 
-                # Apply margins
-                avg_length = ((xmax - xmin) + (ymax - ymin)) / 2
-                ymin = max(ymin - abs_margin - rel_margin * avg_length, 0)
-                xmin = max(xmin - abs_margin - rel_margin * avg_length, 0)
-                ymax = min(ymax + abs_margin + rel_margin * avg_length, height)
-                xmax = min(xmax + abs_margin + rel_margin * avg_length, width)
-
-                image_new = image.crop([xmin, ymin, xmax, ymax])
+                image_new = crop_with_margin(image, ymin, xmin, ymax, xmax)
 
                 self.storage.save_image(image_new, lego_class, prefix)
 

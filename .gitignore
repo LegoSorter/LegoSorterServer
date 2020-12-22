@@ -4,3 +4,10 @@
 /lego_sorter_server/detection/models/lego_detection_model/checkpoint/
 /lego_sorter_server/detection/models/lego_detection_model/saved_model/
 /lego_sorter_server/detection/models/lego_detection_model/pipeline.config
+
+
+*__pycache__
+*checkpoints*
+images
+*saved_model.pb*
+lego_sorter_server/classifier/models/*

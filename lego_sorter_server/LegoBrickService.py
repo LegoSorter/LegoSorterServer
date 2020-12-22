@@ -1,10 +1,14 @@
 from concurrent import futures
 
+from lego_sorter_server.classifier.LegoClassifierRunner import LegoClassifierRunner
+from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 from lego_sorter_server.generated import LegoBrick_pb2_grpc
-from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, BoundingBox, \
+from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, \
+    BoundingBox, \
     ListOfBoundingBoxes
 
 from PIL import Image
+import tensorflow as tf
 from io import BytesIO
 from lego_sorter_server.detection.LegoDetector import LegoDetector
 import numpy as np
@@ -19,6 +23,8 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
         self.detector = LegoDetector()
         self.storage = LegoImageStorage()
+        self.classifier = LegoClassifierRunner()
+        self.classifier.load_trained_model()
         self.processing_queue = ImageProcessingQueue()
         self.detection_runner = LegoDetectionRunner(self.processing_queue, self.detector, self.storage)
         self.executor = futures.ThreadPoolExecutor(max_workers=4)
@@ -67,7 +73,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         image_resized, scale = DetectionUtils.resize(image, 640)  # image.resize((640, 640), 0)
         detections = self.detector.detect_lego(np.array(image_resized))
 
-        bbs = []
+        bbs_with_blobs = []
         for i in range(100):
             if detections['detection_scores'][i] < 0.5:
                 # continue # IF NOT SORTED
@@ -79,10 +85,16 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
             if bb.ymax >= height or bb.xmax >= width:
                 continue
 
+            cropped_brick = crop_with_margin(image, bb.ymin, bb.xmin, bb.ymax, bb.xmax)
+
             bb.score = detections['detection_scores'][i]
             bb.label = 'lego'
-            bbs.append(bb)
+            bbs_with_blobs.append((bb, cropped_brick))
 
+        bbs_labels = self.classifier.predict_from_pil([img for _, img in bbs_with_blobs])
+        bbs = [bb for bb, _ in bbs_with_blobs]
+        for i in range(0, len(bbs)):
+            bbs[i].label = bbs_labels[i]
         bb_list = ListOfBoundingBoxes()
         bb_list.packet.extend(bbs)
         return bb_list
