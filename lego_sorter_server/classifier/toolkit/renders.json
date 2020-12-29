@@ -1,11 +1,12 @@
 {
   "CLEAR_DESTINATION_BEFORE": true,
-  "DESTINATION": "C:\\LEGO_repo\\LegoSorterServer\\images\\dataset",
-  "SOURCE_PATH": "C:\\LEGO_repo\\LegoSorterServer\\images\\storage\\stored",
+  "DESTINATION": "C:\\LEGO_repo\\LegoSorterServer\\images\\dataset_renders",
+  "SOURCE_PATH": "C:\\dataset",
+  "PROCESSOR": "Renders",
   "TRANSFORMATIONS": ["Detect", "Simple"],
   "TYPES": {
     "train": {
-      "DIV_VALUE": 0.8
+      "DIV_VALUE": 0.7
     },
     "test": {
       "DIV_VALUE": null

@@ -1,11 +1,13 @@
 import os
 import random
+import shutil
 
 from PIL import Image
 from numpy.random import choice
 from shutil import copyfile
 
 from lego_sorter_server.classifier.toolkit.processors.processor import Processor
+from lego_sorter_server.classifier.toolkit.transformations.transformation import TransformationException
 
 
 class Renders(Processor):
@@ -53,6 +55,7 @@ class Renders(Processor):
 
     @staticmethod
     def run(src, dst, cls, types, transformations):
+        print(F"class: {src}")
         for type in types:
             dst_dir = os.path.join(dst, type, cls)
             if not os.path.isdir(dst_dir):
@@ -87,6 +90,14 @@ class Renders(Processor):
                 im.save(dst_file)
                 series_target[series_id] = target
                 candidates[target]["curr"] += 1
+            except TransformationException as ex:
+                print(F"TransformationException: {file}. Skipping")
+                print(ex)
+                src_file = os.path.join(src, file)
+                wrong_dir = os.path.join(dst, "wrong")
+                if not os.path.isdir(wrong_dir):
+                    os.makedirs(wrong_dir)
+                shutil.copyfile(src_file, os.path.join(wrong_dir, ex.prefix+"_"+file))
             except Exception as ex:
                 print(F"Unable to transform file: {file}. Skipping")
                 print(ex)

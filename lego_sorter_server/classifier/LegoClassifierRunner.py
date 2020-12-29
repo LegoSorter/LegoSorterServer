@@ -9,6 +9,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from lego_sorter_server.classifier.models.inception import Inception
+from lego_sorter_server.classifier.models.inceptionClear import InceptionClear
 from lego_sorter_server.classifier.toolkit.transformations.simple import Simple
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -23,7 +24,15 @@ DEFAULT_MODEL_PATH = os.path.abspath(os.path.join("lego_sorter_server", "classif
 
 CLASSES = [
     "3001",
+    "3002",
     "3003",
+    "3004",
+    "3710",
+    "3009",
+    "3010",
+    "3007",
+    "3034",
+    "3832"
 ]
 
 
@@ -35,7 +44,7 @@ class LegoClassifierRunner:
         self.classes = classes
         self.model = None
 
-    def prepare_model(self, model_cls=Inception, weights=None):
+    def prepare_model(self, model_cls, weights=None):
         self.model = model_cls.prepare_model(len(self.classes), weights)
 
     def load_trained_model(self, model_path=DEFAULT_MODEL_PATH):
@@ -101,11 +110,11 @@ class DataSet:
 def main():
     dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
     network = LegoClassifierRunner(dataSet=dataSet)
-
-    network.prepare_model(Inception)
+    # network.prepare_model(Inception)
+    network.prepare_model(InceptionClear)
     network.train(EPOCHS)
     network.eval()
-    im = Image.open(R"C:\LEGO_repo\LegoSorterServer\images\storage\stored\3003\ccRZ_3003_1608582857061.jpg")
+    # im = Image.open(R"C:\LEGO_repo\LegoSorterServer\images\storage\stored\3003\ccRZ_3003_1608582857061.jpg")
     # print(network.predict_from_pil([im]))
     network.save_model(DEFAULT_MODEL_PATH)
 

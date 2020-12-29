@@ -1,9 +1,13 @@
+import os
 import threading
 import time
 import numpy as np
 import tensorflow as tf
 import logging
 from pathlib import Path
+
+from lego_sorter_server.detection import DetectionUtils
+from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 
 
 class ThreadSafeSingleton(type):
@@ -20,7 +24,7 @@ class ThreadSafeSingleton(type):
 
 class LegoDetector(metaclass=ThreadSafeSingleton):
 
-    def __init__(self, model_path="./lego_sorter_server/detection/models/lego_detection_model/saved_model"):
+    def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "lego_detection_model", "saved_model")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
@@ -55,3 +59,24 @@ class LegoDetector(metaclass=ThreadSafeSingleton):
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
         return detections
+
+    def detect_and_crop(self, image):
+        width, height = image.size
+        image_resized, scale = DetectionUtils.resize(image, 640)
+        detections = self.detect_lego(np.array(image_resized))
+        detected_counter = 0
+        new_images = []
+        for i in range(100):
+            if detections['detection_scores'][i] < 0.5:
+                break  # IF SORTED
+
+            detected_counter += 1
+            ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
+
+            # if bb is out of bounds
+            if ymax >= height or xmax >= width:
+                continue
+
+            new_images += [crop_with_margin(image, ymin, xmin, ymax, xmax)]
+
+        return new_images

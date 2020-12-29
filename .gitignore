@@ -10,4 +10,4 @@
 *checkpoints*
 images
 *saved_model.pb*
-lego_sorter_server/classifier/models/*
+lego_sorter_server/classifier/models/saved
