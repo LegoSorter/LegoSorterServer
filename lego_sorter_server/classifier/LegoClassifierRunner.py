@@ -17,7 +17,7 @@ for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
 BATCH_SIZE = 32
-EPOCHS = 4
+EPOCHS = 3
 IMG_SIZE = (299, 299)
 DATASET_PATH = os.path.abspath(os.path.join("images", "dataset"))
 DEFAULT_MODEL_PATH = os.path.abspath(os.path.join("lego_sorter_server", "classifier", "models", "saved"))
@@ -67,8 +67,8 @@ class LegoClassifierRunner:
             callbacks=[checkpoint_callback]
         )
 
-    def eval(self):
-        self.model.evaluate(self.dataSet.get_data_generator("test", 1), steps=20)
+    def eval(self, input="test"):
+        self.model.evaluate(self.dataSet.get_data_generator(input, 1), steps=20)
 
     def save_model(self, path):
         self.model.save(path)
@@ -110,10 +110,11 @@ class DataSet:
 def main():
     dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
     network = LegoClassifierRunner(dataSet=dataSet)
-    # network.prepare_model(Inception)
-    network.prepare_model(InceptionClear)
+    network.prepare_model(Inception)
+    # network.prepare_model(InceptionClear)
     network.train(EPOCHS)
     network.eval()
+    network.eval("test_renders")
     # im = Image.open(R"C:\LEGO_repo\LegoSorterServer\images\storage\stored\3003\ccRZ_3003_1608582857061.jpg")
     # print(network.predict_from_pil([im]))
     network.save_model(DEFAULT_MODEL_PATH)

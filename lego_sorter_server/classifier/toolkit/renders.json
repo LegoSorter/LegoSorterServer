@@ -1,18 +1,17 @@
 {
-  "CLEAR_DESTINATION_BEFORE": true,
-  "DESTINATION": "C:\\LEGO_repo\\LegoSorterServer\\images\\dataset_renders",
-  "SOURCE_PATH": "C:\\dataset",
+  "DESTINATION": "C:\\LEGO_repo\\dataset\\transformed",
+  "SOURCE_PATH": "C:\\LEGO_repo\\dataset\\detected\\detected",
   "PROCESSOR": "Renders",
-  "TRANSFORMATIONS": ["Detect", "Simple"],
+  "TRANSFORMATIONS": ["Simple"],
   "TYPES": {
-    "train": {
-      "DIV_VALUE": 0.7
+    "train_renders": {
+      "DIV_VALUE": 0.9
     },
-    "test": {
+    "test_renders": {
       "DIV_VALUE": null
     },
-    "val": {
-      "DIV_VALUE": 0.15
+    "val_renders": {
+      "DIV_VALUE": 0.1
     }
   }
 }
