@@ -8,6 +8,6 @@
 
 *__pycache__
 *checkpoints*
-images
+lego_sorter_server/images/storage/stored
 *saved_model.pb*
 lego_sorter_server/classifier/models/saved
