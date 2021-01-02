@@ -1,8 +1,9 @@
 import itertools
 from pathlib import Path
 from time import time
-from PIL.Image import Image
+from PIL import Image
 import logging
+
 
 class LegoImageStorage:
     """This class is responsible for storing images of lego bricks"""
@@ -35,12 +36,14 @@ class LegoImageStorage:
         if not image_path.exists():
             raise Exception("The image does not exist {}", image_path)
 
+        return image_path
+
     def get_target_directory_for_lego_class(self, label):
         target_directory = self.images_base_path / label
 
         return self.create_directory(target_directory, parents=False)
 
-    def save_image(self, image: Image, lego_class, prefix=''):
+    def save_image(self, image: Image.Image, lego_class, prefix=''):
         """Save the image as representation of specified lego_class. Returns a name of the saved image"""
         target_directory = self.get_target_directory_for_lego_class(lego_class)
         filename = self.generate_file_name(lego_class, prefix=prefix)

@@ -9,6 +9,7 @@ import numpy as np
 from lego_sorter_server.detection import DetectionUtils
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 from lego_sorter_server.detection.LegoDetector import LegoDetector
+from lego_sorter_server.detection.LegoLabeler import LegoLabeler
 from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
@@ -30,7 +31,7 @@ class LegoDetectionRunner:
         logging.info("[LegoDetectionRunner] Processing is being terminated\n")
         self.executor.shutdown()
 
-    def _process_queue(self):
+    def _process_queue(self, save_cropped_image=True, save_label_file=False):
         polling_rate = 0.2  # in seconds
         logging_rate = 5  # in seconds
         logging_counter = 0
@@ -52,6 +53,7 @@ class LegoDetectionRunner:
             detections = self.detector.detect_lego(np.array(image_resized))
 
             detected_counter = 0
+            bbs = []
             for i in range(100):
                 if detections['detection_scores'][i] < 0.5:
                     break  # IF SORTED
@@ -59,16 +61,25 @@ class LegoDetectionRunner:
                 detected_counter += 1
                 ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
 
-                # if bb is out of bounds
-                if ymax >= height or xmax >= width:
-                    continue
+                # # if bb is out of bounds
+                # if ymax >= height or xmax >= width:
+                #     continue
 
-                image_new = crop_with_margin(image, ymin, xmin, ymax, xmax)
+                bbs.append((xmin, ymin, xmax, ymax))
 
-                self.storage.save_image(image_new, lego_class, prefix)
+                if save_cropped_image is True:
+                    image_new = crop_with_margin(image, ymin, xmin, ymax, xmax)
+                    self.storage.save_image(image_new, lego_class, prefix)
 
             prefix = f'{detected_counter}_{prefix}'
-            self.storage.save_image(image, 'original', prefix)
+            filename = self.storage.save_image(image, 'original', prefix)
+
+            if save_label_file is True:
+                path = self.storage.find_image_path(filename)
+                label_file = LegoLabeler().to_label_file(filename, str(path), width, height, bbs)
+                xml_path = path.parent.absolute() / (filename.split(".")[-2] + ".xml")
+                with open(xml_path, "w") as label_xml:
+                    label_xml.write(label_file)
 
     @staticmethod
     def _get_random_hash(length=4):

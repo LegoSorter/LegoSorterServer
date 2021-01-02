@@ -69,8 +69,8 @@ class LegoClassifierRunner:
             callbacks=[checkpoint_callback, reduce_lr_callback]
         )
 
-    def eval(self):
-        self.model.evaluate(self.dataSet.get_data_generator("test", 1), steps=20)
+    def eval(self, input="test"):
+        self.model.evaluate(self.dataSet.get_data_generator(input, 1), steps=20)
 
     def save_model(self, path):
         self.model.save(path)
@@ -108,6 +108,7 @@ class DataSet:
             batch_size=batch_size,
             class_mode='categorical')
 
+
 def parse_args():
     # Parse command line arguments
     ap = argparse.ArgumentParser(description="Train classifier")
@@ -136,6 +137,7 @@ def main(args):
     network.model.summary()
     network.train(args.epochs)
     network.eval()
+    network.eval("test_renders")
     # im = Image.open(R"C:\LEGO_repo\LegoSorterServer\images\storage\stored\3003\ccRZ_3003_1608582857061.jpg")
     # print(network.predict_from_pil([im]))
     network.save_model(DEFAULT_MODEL_PATH)

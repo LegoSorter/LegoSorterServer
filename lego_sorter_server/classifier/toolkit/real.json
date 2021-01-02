@@ -1,0 +1,16 @@
+{
+  "DESTINATION": "C:\\LEGO_repo\\dataset\\transformed",
+  "SOURCE_PATH": "C:\\LEGO_repo\\dataset\\real",
+  "TRANSFORMATIONS": ["Simple"],
+  "TYPES": {
+    "train": {
+      "DIV_VALUE": 0.6
+    },
+    "test": {
+      "DIV_VALUE": null
+    },
+    "val": {
+      "DIV_VALUE": 0.2
+    }
+  }
+}
