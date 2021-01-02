@@ -9,6 +9,8 @@ from pathlib import Path
 from lego_sorter_server.detection import DetectionUtils
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 
+from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
+
 
 class ThreadSafeSingleton(type):
     _instances = {}
@@ -37,6 +39,9 @@ class LegoDetector(metaclass=ThreadSafeSingleton):
     def __initialize__(self):
         if self.__initialized:
             raise Exception("LegoDetector already initialized")
+
+        if not self.model_path.exists():
+            KaskServerConnector().download_models()
 
         start_time = time.time()
         self.model = tf.saved_model.load(str(self.model_path))
