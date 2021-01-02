@@ -1,4 +1,6 @@
 import os
+import argparse
+from pydoc import locate
 
 import numpy as np
 import tensorflow as tf
@@ -8,8 +10,9 @@ from PIL import Image
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-from lego_sorter_server.classifier.models.inception import Inception
-from lego_sorter_server.classifier.models.inceptionClear import InceptionClear
+#from models.models import *
+#from lego_sorter_server.classifier.models.inceptionClear import InceptionClear
+from lego_sorter_server.classifier.models.models import *
 from lego_sorter_server.classifier.toolkit.transformations.simple import Simple
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -17,9 +20,7 @@ for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
 BATCH_SIZE = 32
-EPOCHS = 4
 IMG_SIZE = (299, 299)
-DATASET_PATH = os.path.abspath(os.path.join("images", "dataset"))
 DEFAULT_MODEL_PATH = os.path.abspath(os.path.join("lego_sorter_server", "classifier", "models", "saved"))
 
 CLASSES = [
@@ -56,15 +57,16 @@ class LegoClassifierRunner:
 
         filepath = os.path.join("checkpoints", "saved-model-{epoch:02d}-stage1.hdf5")
 
-        checkpoint_callback = ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1, save_best_only=False,
-                                              mode='max')
+        reduce_lr_callback = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=2, verbose=1)
+        checkpoint_callback = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True,
+                                              mode='min')
         return self.model.fit(
             train_generator,
             steps_per_epoch=len(train_generator),
             epochs=epochs,
             validation_data=validation_generator,
             validation_steps=len(validation_generator),
-            callbacks=[checkpoint_callback]
+            callbacks=[checkpoint_callback, reduce_lr_callback]
         )
 
     def eval(self):
@@ -103,16 +105,36 @@ class DataSet:
             os.path.join(self.path, type),
             target_size=self.img_size,
             shuffle=True,
-            batch_size=self.batch_size,
+            batch_size=batch_size,
             class_mode='categorical')
 
+def parse_args():
+    # Parse command line arguments
+    ap = argparse.ArgumentParser(description="Train classifier")
+    ap.add_argument("--input", "-i", default="images/dataset",
+                    help="path to a tsv file or folder with tsv files")
+    ap.add_argument("--epochs", "-e", default=10)
+    ap.add_argument("--model", "-m", default="InceptionClear",
+                    choices={"Inception", "InceptionClear", "VGG16", "Xception"})
 
-def main():
+
+    return ap.parse_args()
+
+def main(args):
+    DATASET_PATH = os.path.abspath(os.path.join(args.input))
     dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
     network = LegoClassifierRunner(dataSet=dataSet)
     # network.prepare_model(Inception)
-    network.prepare_model(InceptionClear)
-    network.train(EPOCHS)
+    if args.model == "Inception":
+        network.prepare_model(Inception)
+    elif args.model == "Xception":
+        network.prepare_model(xception)
+    elif args.model == "VGG16":
+        network.prepare_model(VGG)
+    else:
+        network.prepare_model(InceptionClear)
+    network.model.summary()
+    network.train(args.epochs)
     network.eval()
     # im = Image.open(R"C:\LEGO_repo\LegoSorterServer\images\storage\stored\3003\ccRZ_3003_1608582857061.jpg")
     # print(network.predict_from_pil([im]))
@@ -125,4 +147,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    args = parse_args()
+    main(args)
