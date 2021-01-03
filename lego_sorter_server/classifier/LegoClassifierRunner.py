@@ -13,7 +13,6 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 #from models.models import *
 #from lego_sorter_server.classifier.models.inceptionClear import InceptionClear
-from lego_sorter_server.classifier.models.models import *
 from lego_sorter_server.classifier.toolkit.transformations.simple import Simple
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -128,14 +127,8 @@ def main(args):
     dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
     network = LegoClassifierRunner(dataSet=dataSet)
     # network.prepare_model(Inception)
-    if args.model == "Inception":
-        network.prepare_model(Inception)
-    elif args.model == "Xception":
-        network.prepare_model(xception)
-    elif args.model == "VGG16":
-        network.prepare_model(VGG)
-    else:
-        network.prepare_model(InceptionClear)
+    modelCls = locate(F"lego_sorter_server.classifier.models.models.{args.model}")
+    network.prepare_model(modelCls)
     network.model.summary()
     date = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
     network.train(args.epochs, os.path.join("boards", F"{args.model}_{args.epochs}_{date}"))
