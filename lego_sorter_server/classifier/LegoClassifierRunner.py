@@ -1,5 +1,6 @@
 import os
 import argparse
+from datetime import datetime
 from pydoc import locate
 
 import numpy as np
@@ -51,7 +52,7 @@ class LegoClassifierRunner:
     def load_trained_model(self, model_path=DEFAULT_MODEL_PATH):
         self.model = tf.keras.models.load_model(model_path)
 
-    def train(self, epochs):
+    def train(self, epochs, tb_name):
         train_generator = self.dataSet.get_data_generator("train")
         validation_generator = self.dataSet.get_data_generator("val")
 
@@ -60,13 +61,14 @@ class LegoClassifierRunner:
         reduce_lr_callback = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=2, verbose=1)
         checkpoint_callback = ModelCheckpoint(filepath, monitor='val_loss', verbose=1, save_best_only=True,
                                               mode='min')
+        tb_callback = tf.keras.callbacks.TensorBoard(tb_name, update_freq=1)
         return self.model.fit(
             train_generator,
             steps_per_epoch=len(train_generator),
             epochs=epochs,
             validation_data=validation_generator,
             validation_steps=len(validation_generator),
-            callbacks=[checkpoint_callback, reduce_lr_callback]
+            callbacks=[checkpoint_callback, reduce_lr_callback, tb_callback]
         )
 
     def eval(self, input="test"):
@@ -135,7 +137,8 @@ def main(args):
     else:
         network.prepare_model(InceptionClear)
     network.model.summary()
-    network.train(args.epochs)
+    date = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+    network.train(args.epochs, os.path.join("boards", F"{args.model}_{args.epochs}_{date}"))
     network.eval()
     network.eval("test_renders")
     # im = Image.open(R"C:\LEGO_repo\LegoSorterServer\images\storage\stored\3003\ccRZ_3003_1608582857061.jpg")
