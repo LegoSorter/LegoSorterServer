@@ -13,7 +13,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 #from models.models import *
 #from lego_sorter_server.classifier.models.inceptionClear import InceptionClear
-from lego_sorter_server.classifier.toolkit.transformations.simple import Simple
+from lego_sorter_server.classifier.toolkit.transformations.detect_algorithm import DetectAlgorithm
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
@@ -82,7 +82,7 @@ class LegoClassifierRunner:
         images_arr = []
 
         for im in images:
-            transformed = Simple.transform(im)
+            transformed = DetectAlgorithm.transform(im)
             img_arr = tf.keras.preprocessing.image.img_to_array(transformed)
 
             images_arr.append(img_arr)

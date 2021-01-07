@@ -2,7 +2,7 @@
   "DESTINATION": "C:\\LEGO_repo\\dataset\\detected",
   "SOURCE_PATH": "C:\\LEGO_repo\\dataset\\renders",
   "PROCESSOR": "Renders",
-  "TRANSFORMATIONS": ["Detect"],
+  "TRANSFORMATIONS": ["Detect", "DetectAlgorithm"],
   "TYPES": {
     "detected": {
       "DIV_VALUE": 1
