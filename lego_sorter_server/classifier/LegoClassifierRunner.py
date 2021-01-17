@@ -10,10 +10,12 @@ from PIL import Image
 # callback imports
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from pathlib import Path
 
 #from models.models import *
 #from lego_sorter_server.classifier.models.inceptionClear import InceptionClear
 from lego_sorter_server.classifier.toolkit.transformations.simple import Simple
+from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
@@ -49,6 +51,9 @@ class LegoClassifierRunner:
         self.model = model_cls.prepare_model(len(self.classes), weights)
 
     def load_trained_model(self, model_path=DEFAULT_MODEL_PATH):
+        if not Path(model_path).exists():
+            KaskServerConnector().download_models()
+
         self.model = tf.keras.models.load_model(model_path)
 
     def train(self, epochs, tb_name):
