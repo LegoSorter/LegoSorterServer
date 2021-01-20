@@ -33,6 +33,7 @@ for gpu in gpus:
 BATCH_SIZE = 32
 IMG_SIZE = (299, 299)
 DEFAULT_MODEL_PATH = os.path.abspath(os.path.join("lego_sorter_server", "classifier", "models", "saved"))
+DATASET_PATH = os.path.abspath(os.path.join("images/dataset"))
 
 CLASSES = [
     "3001",
@@ -57,7 +58,7 @@ def model(dataSet):
     # let's add a fully-connected layer
     x = Dense({{choice([128, 256, 512, 1024, 2048])}}, activation='relu')(x)
 
-    predictions = Dense(len(CLASSES), activation='softmax')(x)
+    predictions = Dense(10, activation='softmax')(x)
 
     # this is the model we will train
     model = Model(inputs=base_model.input, outputs=predictions)
@@ -81,29 +82,34 @@ def model(dataSet):
     acc = model.evaluate(test_generator, steps=20)
     return {'loss': -acc, 'status': STATUS_OK, 'model': model}
 
-class DataSet:
-    def __init__(self, path, batch_size, img_size):
-        self.path = path
-        self.batch_size = batch_size
-        self.img_size = img_size
 
-    def get_data_generator(self, type, batch_size=None):
-        if not batch_size:
-            batch_size = self.batch_size
-        return ImageDataGenerator(rescale=1. / 255, rotation_range=15, horizontal_flip=True,
-                                  vertical_flip=True).flow_from_directory(
-            os.path.join(self.path, type),
-            target_size=self.img_size,
-            shuffle=True,
-            batch_size=batch_size,
-            class_mode='categorical')
 
+#d
+
+def DataSet_func():
+    BATCH_SIZE = 32
+    IMG_SIZE = (299, 299)
+    DATASET_PATH = os.path.abspath(os.path.join("images/dataset"))
+    class DataSet:
+        def __init__(self, path, batch_size, img_size):
+            self.path = path
+            self.batch_size = batch_size
+            self.img_size = img_size
+
+        def get_data_generator(self, type, batch_size=None):
+            if not batch_size:
+                batch_size = self.batch_size
+            generator =  ImageDataGenerator(rescale=1. / 255, rotation_range=15, horizontal_flip=True,vertical_flip=True).flow_from_directory(os.path.join(self.path, type), target_size=self.img_size, shuffle=True, batch_size=batch_size, class_mode='categorical')
+            return generator
+
+    dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
+    return dataSet
 
 def main():
-    DATASET_PATH = os.path.abspath(os.path.join("images/dataset"))
-    dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
+
+    #dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
     best_run, best_model = optim.minimize(model=model,
-                                      data=dataSet,
+                                      data=DataSet_func,
                                       algo=tpe.suggest,
                                       max_evals=30,
                                       trials=Trials())
