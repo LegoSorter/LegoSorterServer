@@ -73,7 +73,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         detections = self.detector.detect_lego(np.array(image_resized))
 
         bbs_with_blobs = []
-        for i in range(100):
+        for i in range(len(detections['detection_classes'])):
             if detections['detection_scores'][i] < 0.5:
                 # continue # IF NOT SORTED
                 break  # IF SORTED

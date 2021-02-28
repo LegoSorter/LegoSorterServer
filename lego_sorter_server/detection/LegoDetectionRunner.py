@@ -54,7 +54,7 @@ class LegoDetectionRunner:
 
             detected_counter = 0
             bbs = []
-            for i in range(100):
+            for i in range(len(detections['detection_classes'])):
                 if detections['detection_scores'][i] < 0.5:
                     break  # IF SORTED
 
