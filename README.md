@@ -5,7 +5,7 @@ Lego Sorter Server provides methods for detecting and classifying Lego bricks.
 ## How to run
 1. Download the repository
 ```commandline
-git clone git@github.com:LegoSorter/LegoSorterServer.git
+git clone https://github.com/LegoSorter/LegoSorterServer.git
 ```
 2. Download network models for detecting lego bricks
 ```commandline
