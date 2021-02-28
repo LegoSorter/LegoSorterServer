@@ -5,6 +5,11 @@ import zipfile
 from jumpssh import SSHSession
 from pathlib import Path
 
+DETECTION_MODELS_PATH = './lego_sorter_server/detection/models'
+DETECTION_MODELS_REMOTE_PATH = '/backup/LEGO2/SERVER/MODELS/DETECTION/models.zip'
+CLASSIFICATION_MODEL_PATH = './lego_sorter_server/classifier/models/saved'
+CLASSIFICATION_MODEL_REMOTE_PATH = '/backup/LEGO2/SERVER/MODELS/CLASSIFICATION/saved.zip'
+
 
 class KaskServerConnector:
 
@@ -35,23 +40,19 @@ class KaskServerConnector:
 
             extract_detection = False
             extract_classification = False
-            if Path('./lego_sorter_server/detection/models/lego_detection_model').exists():
-                logging.info("Detection model exists, skipping...")
+            if Path(DETECTION_MODELS_PATH).exists() and any(Path(DETECTION_MODELS_PATH).iterdir()):
+                logging.info("Detection models exist, skipping...")
             else:
-                logging.info("Downloading detection model")
-                session.get(
-                    '/backup/LEGO2/SERVER/MODELS/DETECTION/lego_detection_model.zip',
-                    './lego_sorter_server/detection/models/lego_detection_model.zip')
+                logging.info("Downloading detection models")
+                session.get(DETECTION_MODELS_REMOTE_PATH, DETECTION_MODELS_PATH + ".zip")
                 extract_detection = True
-                logging.info("lego_detection_model downloaded...")
+                logging.info("detection models downloaded...")
 
-            if Path('./lego_sorter_server/classifier/models/saved').exists():
+            if Path(CLASSIFICATION_MODEL_PATH).exists():
                 logging.info("Classification model exists, skipping...")
             else:
                 logging.info("Downloading classification model")
-                session.get(
-                    '/backup/LEGO2/SERVER/MODELS/CLASSIFICATION/saved.zip',
-                    './lego_sorter_server/classifier/models/saved.zip')
+                session.get(CLASSIFICATION_MODEL_REMOTE_PATH, CLASSIFICATION_MODEL_PATH + ".zip")
                 logging.info("classification model downloaded...")
                 extract_classification = True
                 session.close()
@@ -59,11 +60,11 @@ class KaskServerConnector:
             logging.info("All models downloaded! Unzipping")
 
             if extract_detection:
-                with zipfile.ZipFile('./lego_sorter_server/detection/models/lego_detection_model.zip', 'r') as zip_ref:
-                    zip_ref.extractall('./lego_sorter_server/detection/models/')
+                with zipfile.ZipFile(DETECTION_MODELS_PATH + ".zip", 'r') as zip_ref:
+                    zip_ref.extractall('./lego_sorter_server/detection/')
 
             if extract_classification:
-                with zipfile.ZipFile('./lego_sorter_server/classifier/models/saved.zip', 'r') as zip_ref:
+                with zipfile.ZipFile(CLASSIFICATION_MODEL_PATH + ".zip", 'r') as zip_ref:
                     zip_ref.extractall('./lego_sorter_server/classifier/models/')
         else:
             raise Exception("Couldn't connect to the server")
