@@ -14,11 +14,6 @@ class LegoBrickStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.RecognizeLegoBrickInImage = channel.unary_unary(
-                '/remote.LegoBrick/RecognizeLegoBrickInImage',
-                request_serializer=LegoBrick__pb2.Image.SerializeToString,
-                response_deserializer=LegoBrick__pb2.Empty.FromString,
-                )
         self.CollectImages = channel.unary_unary(
                 '/remote.LegoBrick/CollectImages',
                 request_serializer=LegoBrick__pb2.ImageStore.SerializeToString,
@@ -34,16 +29,15 @@ class LegoBrickStub(object):
                 request_serializer=LegoBrick__pb2.Image.SerializeToString,
                 response_deserializer=LegoBrick__pb2.ListOfBoundingBoxes.FromString,
                 )
+        self.DetectAndClassifyBricks = channel.unary_unary(
+                '/remote.LegoBrick/DetectAndClassifyBricks',
+                request_serializer=LegoBrick__pb2.Image.SerializeToString,
+                response_deserializer=LegoBrick__pb2.ListOfBoundingBoxes.FromString,
+                )
 
 
 class LegoBrickServicer(object):
     """Missing associated documentation comment in .proto file."""
-
-    def RecognizeLegoBrickInImage(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
 
     def CollectImages(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -63,14 +57,15 @@ class LegoBrickServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def DetectAndClassifyBricks(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_LegoBrickServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'RecognizeLegoBrickInImage': grpc.unary_unary_rpc_method_handler(
-                    servicer.RecognizeLegoBrickInImage,
-                    request_deserializer=LegoBrick__pb2.Image.FromString,
-                    response_serializer=LegoBrick__pb2.Empty.SerializeToString,
-            ),
             'CollectImages': grpc.unary_unary_rpc_method_handler(
                     servicer.CollectImages,
                     request_deserializer=LegoBrick__pb2.ImageStore.FromString,
@@ -86,6 +81,11 @@ def add_LegoBrickServicer_to_server(servicer, server):
                     request_deserializer=LegoBrick__pb2.Image.FromString,
                     response_serializer=LegoBrick__pb2.ListOfBoundingBoxes.SerializeToString,
             ),
+            'DetectAndClassifyBricks': grpc.unary_unary_rpc_method_handler(
+                    servicer.DetectAndClassifyBricks,
+                    request_deserializer=LegoBrick__pb2.Image.FromString,
+                    response_serializer=LegoBrick__pb2.ListOfBoundingBoxes.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'remote.LegoBrick', rpc_method_handlers)
@@ -95,23 +95,6 @@ def add_LegoBrickServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class LegoBrick(object):
     """Missing associated documentation comment in .proto file."""
-
-    @staticmethod
-    def RecognizeLegoBrickInImage(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/RecognizeLegoBrickInImage',
-            LegoBrick__pb2.Image.SerializeToString,
-            LegoBrick__pb2.Empty.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def CollectImages(request,
@@ -159,6 +142,23 @@ class LegoBrick(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/DetectBricks',
+            LegoBrick__pb2.Image.SerializeToString,
+            LegoBrick__pb2.ListOfBoundingBoxes.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DetectAndClassifyBricks(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/DetectAndClassifyBricks',
             LegoBrick__pb2.Image.SerializeToString,
             LegoBrick__pb2.ListOfBoundingBoxes.FromString,
             options, channel_credentials,
