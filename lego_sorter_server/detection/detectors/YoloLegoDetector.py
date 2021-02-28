@@ -61,5 +61,10 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             logging.info("YoloLegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
+        logging.info("[YoloLegoDetector][detect_lego] Detecting bricks...")
+        start_time = time.time()
         results = self.model([image], size=image.shape[0])
+        elapsed_time = 1000 * (time.time() - start_time)
+        logging.info(f"[YoloLegoDetector][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
+
         return self.convert_results_to_common_format(results)
