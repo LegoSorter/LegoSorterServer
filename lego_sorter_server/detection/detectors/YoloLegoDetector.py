@@ -7,6 +7,7 @@ import numpy
 from pathlib import Path
 
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
+from lego_sorter_server.detection.detectors.LegoDetector import LegoDetector
 
 
 class ThreadSafeSingleton(type):
@@ -21,7 +22,7 @@ class ThreadSafeSingleton(type):
         return cls._instances[cls]
 
 
-class YoloLegoDetector(metaclass=ThreadSafeSingleton):
+class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
     def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "yolo_model", "yolov5_small.pt")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()

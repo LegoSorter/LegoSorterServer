@@ -2,6 +2,7 @@ from concurrent import futures
 
 from lego_sorter_server.classifier.LegoClassifierRunner import LegoClassifierRunner
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
+from lego_sorter_server.detection.detectors import LegoDetectorProvider
 from lego_sorter_server.generated import LegoBrick_pb2_grpc
 from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, \
     BoundingBox, \
@@ -9,7 +10,6 @@ from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty
 
 from PIL import Image
 from io import BytesIO
-from lego_sorter_server.detection.detectors.TFLegoDetector import TFLegoDetector
 import numpy as np
 
 from lego_sorter_server.detection import DetectionUtils
@@ -20,7 +20,7 @@ from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
 class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
-        self.detector = TFLegoDetector()
+        self.detector = LegoDetectorProvider.get_default_detector()
         self.storage = LegoImageStorage()
         self.classifier = LegoClassifierRunner()
         self.classifier.load_trained_model()

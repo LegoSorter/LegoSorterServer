@@ -8,14 +8,14 @@ import numpy as np
 
 from lego_sorter_server.detection import DetectionUtils
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
-from lego_sorter_server.detection.detectors.TFLegoDetector import TFLegoDetector
+from lego_sorter_server.detection.detectors.LegoDetector import LegoDetector
 from lego_sorter_server.detection.LegoLabeler import LegoLabeler
 from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
 
 class LegoDetectionRunner:
-    def __init__(self, queue: ImageProcessingQueue, detector: TFLegoDetector, store: LegoImageStorage):
+    def __init__(self, queue: ImageProcessingQueue, detector: LegoDetector, store: LegoImageStorage):
         self.queue = queue
         self.detector = detector
         self.storage = store
