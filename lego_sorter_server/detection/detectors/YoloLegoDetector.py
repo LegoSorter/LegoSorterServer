@@ -42,15 +42,15 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         self.__initialized = True
 
     @staticmethod
-    def xyxy2yxyx_scaled(xyxy, size):
-        return numpy.array([numpy.array([coord[1], coord[0], coord[3], coord[2]]) / size for coord in xyxy])
+    def xyxy2yxyx_scaled(xyxy):
+        return numpy.array([[coord[1], coord[0], coord[3], coord[2]] for coord in xyxy])
 
     @staticmethod
-    def convert_results_to_common_format(results, size):
-        image_predictions = results.xyxy[0].numpy()
+    def convert_results_to_common_format(results):
+        image_predictions = results.xyxyn[0].numpy()
         detection_scores = image_predictions[:, 4]
         detection_classes = image_predictions[:, 5].astype(numpy.int64) + 1
-        detection_boxes = YoloLegoDetector.xyxy2yxyx_scaled(image_predictions[:, :4], size)
+        detection_boxes = YoloLegoDetector.xyxy2yxyx_scaled(image_predictions[:, :4])
 
         return {'detection_scores': detection_scores,
                 'detection_classes': detection_classes,
@@ -62,4 +62,4 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             self.__initialize__()
 
         results = self.model([image], size=image.shape[0])
-        return self.convert_results_to_common_format(results, image.shape[0])
+        return self.convert_results_to_common_format(results)
