@@ -8,9 +8,8 @@ from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty
     ListOfBoundingBoxes
 
 from PIL import Image
-import tensorflow as tf
 from io import BytesIO
-from lego_sorter_server.detection.LegoDetector import LegoDetector
+from lego_sorter_server.detection.detectors.TFLegoDetector import TFLegoDetector
 import numpy as np
 
 from lego_sorter_server.detection import DetectionUtils
@@ -21,7 +20,7 @@ from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
 class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
-        self.detector = LegoDetector()
+        self.detector = TFLegoDetector()
         self.storage = LegoImageStorage()
         self.classifier = LegoClassifierRunner()
         self.classifier.load_trained_model()
