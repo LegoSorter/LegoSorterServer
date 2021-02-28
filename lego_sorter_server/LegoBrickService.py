@@ -2,15 +2,14 @@ from concurrent import futures
 
 from lego_sorter_server.classifier.LegoClassifierRunner import LegoClassifierRunner
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
+from lego_sorter_server.detection.detectors import LegoDetectorProvider
 from lego_sorter_server.generated import LegoBrick_pb2_grpc
 from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, \
     BoundingBox, \
     ListOfBoundingBoxes
 
 from PIL import Image
-import tensorflow as tf
 from io import BytesIO
-from lego_sorter_server.detection.LegoDetector import LegoDetector
 import numpy as np
 
 from lego_sorter_server.detection import DetectionUtils
@@ -21,7 +20,7 @@ from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
 class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
-        self.detector = LegoDetector()
+        self.detector = LegoDetectorProvider.get_default_detector()
         self.storage = LegoImageStorage()
         self.classifier = LegoClassifierRunner()
         self.classifier.load_trained_model()
@@ -74,7 +73,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         detections = self.detector.detect_lego(np.array(image_resized))
 
         bbs_with_blobs = []
-        for i in range(100):
+        for i in range(len(detections['detection_classes'])):
             if detections['detection_scores'][i] < 0.5:
                 # continue # IF NOT SORTED
                 break  # IF SORTED

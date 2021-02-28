@@ -10,6 +10,7 @@ from lego_sorter_server.detection import DetectionUtils
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
+from lego_sorter_server.detection.detectors.LegoDetector import LegoDetector
 
 
 class ThreadSafeSingleton(type):
@@ -24,9 +25,9 @@ class ThreadSafeSingleton(type):
         return cls._instances[cls]
 
 
-class LegoDetector(metaclass=ThreadSafeSingleton):
+class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
-    def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "lego_detection_model", "saved_model")):
+    def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "tf_model", "saved_model")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
@@ -38,7 +39,7 @@ class LegoDetector(metaclass=ThreadSafeSingleton):
 
     def __initialize__(self):
         if self.__initialized:
-            raise Exception("LegoDetector already initialized")
+            raise Exception("TFLegoDetector already initialized")
 
         if not self.model_path.exists():
             KaskServerConnector().download_models()
@@ -52,7 +53,7 @@ class LegoDetector(metaclass=ThreadSafeSingleton):
 
     def detect_lego(self, image):
         if not self.__initialized:
-            logging.info("LegoDetector is not initialized, this process can take a few seconds for the first time.")
+            logging.info("TFLegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
         input_tensor = self.prepare_input_tensor(image)

@@ -1,10 +1,16 @@
-from lego_sorter_server.detection.LegoDetector import LegoDetector
+from lego_sorter_server.detection.detectors.TFLegoDetector import TFLegoDetector
 from PIL import Image
 from object_detection.utils import visualization_utils as viz_utils
 from pathlib import Path
 import numpy as np
+import tensorflow as tf
 
-lego_detector = LegoDetector()
+from lego_sorter_server.detection.detectors.YoloLegoDetector import YoloLegoDetector
+
+# physical_devices = tf.config.list_physical_devices('GPU')
+# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+# lego_detector = TFLegoDetector(model_path='./models/tf_model/saved_model')
+lego_detector = YoloLegoDetector(model_path='models/yolo_model/yolov5_small.pt')
 
 
 def draw_bounding_boxes_on_image(image_path):
@@ -34,4 +40,4 @@ if __name__ == '__main__':
     for img_path in Path(".").glob("*.jpg"):
         img = draw_bounding_boxes_on_image(str(img_path.absolute()))
         img = Image.fromarray(img)
-        img.save("./" + img_path.name.split(".")[0] + ".jpg")
+        img.save("./" + img_path.name.split(".")[0] + "_result.jpg")
