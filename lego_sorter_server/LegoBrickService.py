@@ -12,6 +12,8 @@ from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty
 from PIL import Image
 from io import BytesIO
 import numpy as np
+import logging
+import time
 
 from lego_sorter_server.detection import DetectionUtils
 from lego_sorter_server.detection.LegoDetectionRunner import LegoDetectionRunner
@@ -85,13 +87,24 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         return bbs
 
     def DetectBricks(self, request: LegoImage, context):
+        logging.info("[DetectBricks] Request received, processing...")
+
+        start_time = time.time()
         bbs = self._detect_bricks(request)
+        elapsed_millis = (time.time() - start_time) * 1000
+        logging.info(f"[DetectBricks] Detecting took {elapsed_millis} milliseconds.")
         bb_list = ListOfBoundingBoxes()
         bb_list.packet.extend(bbs)
+
+        logging.info(f"[DetectBricks] {len(bbs)} bricks detected. Returning response.")
         return bb_list
 
     def DetectAndClassifyBricks(self, request, context):
+        logging.info("[DetectAndClassifyBricks] Request received, processing...")
+        start_time_detect = time.time()
         bbs = self._detect_bricks(request)
+        elapsed_millis_detect = time.time() - start_time_detect
+        logging.info(f"[DetectAndClassifyBricks] Detecting took {elapsed_millis_detect} milliseconds.")
         image = self._prepare_image(request)
 
         bbs_with_blobs = []
@@ -100,10 +113,17 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
             cropped_brick = crop_with_margin(image, bb.ymin, bb.xmin, bb.ymax, bb.xmax)
             bbs_with_blobs.append((bb, cropped_brick))
 
+        logging.info(f"[DetectAndClassifyBricks] {len(bbs)} bricks detected, classifying...")
+
+        start_time_classify = time.time()
         bbs_labels = self.classifier.predict_from_pil([img for _, img in bbs_with_blobs])
+        elapsed_millis_classify = 1000 * (time.time() - start_time_classify)
+        logging.info(f"[DetectAndClassifyBricks] Classifying took {elapsed_millis_classify} milliseconds.")
         bbs = [bb for bb, _ in bbs_with_blobs]
         for i in range(0, len(bbs)):
             bbs[i].label = bbs_labels[i]
         bb_list = ListOfBoundingBoxes()
         bb_list.packet.extend(bbs)
+
+        logging.info("[DetectAndClassifyBricks] Returning response")
         return bb_list
