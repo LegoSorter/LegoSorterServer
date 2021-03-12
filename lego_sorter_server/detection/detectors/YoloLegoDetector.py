@@ -47,7 +47,7 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
     @staticmethod
     def convert_results_to_common_format(results):
-        image_predictions = results.xyxyn[0].numpy()
+        image_predictions = results.xyxyn[0].cpu().numpy()
         detection_scores = image_predictions[:, 4]
         detection_classes = image_predictions[:, 5].astype(numpy.int64) + 1
         detection_boxes = YoloLegoDetector.xyxy2yxyx_scaled(image_predictions[:, :4])
