@@ -10,7 +10,7 @@ from lego_sorter_server.detection import DetectionUtils
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 from lego_sorter_server.detection.detectors.LegoDetector import LegoDetector
 from lego_sorter_server.detection.LegoLabeler import LegoLabeler
-from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue
+from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue, CAPTURE_TAG
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 
 
@@ -36,7 +36,7 @@ class LegoDetectionRunner:
         logging_rate = 5  # in seconds
         logging_counter = 0
         while True:
-            if self.queue.len() == 0:
+            if self.queue.len(CAPTURE_TAG) == 0:
                 if polling_rate * logging_counter >= logging_rate:
                     logging.info("Queue is empty. Waiting... ")
                     logging_counter = 0
@@ -45,7 +45,7 @@ class LegoDetectionRunner:
                 time.sleep(polling_rate)
                 continue
             logging.info("Queue not empty - processing data")
-            image, lego_class = self.queue.next()
+            image, lego_class = self.queue.next(CAPTURE_TAG)
             prefix = self._get_random_hash() + "_"
 
             width, height = image.size

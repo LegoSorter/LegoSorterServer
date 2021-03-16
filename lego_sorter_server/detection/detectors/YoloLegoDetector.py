@@ -23,7 +23,7 @@ class ThreadSafeSingleton(type):
 
 
 class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
-    def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "yolo_model", "yolov5_small.pt")):
+    def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "yolo_model", "yolov5_medium.pt")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
@@ -43,6 +43,9 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
     @staticmethod
     def xyxy2yxyx_scaled(xyxy):
+        """
+        returns (ymin, xmin, ymax, xmax)
+        """
         return numpy.array([[coord[1], coord[0], coord[3], coord[2]] for coord in xyxy])
 
     @staticmethod
@@ -56,7 +59,7 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
                 'detection_classes': detection_classes,
                 'detection_boxes': detection_boxes}
 
-    def detect_lego(self, image):
+    def detect_lego(self, image: numpy.ndarray):
         if not self.__initialized:
             logging.info("YoloLegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
