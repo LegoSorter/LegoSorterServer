@@ -1,8 +1,10 @@
 from concurrent import futures
 from typing import List
 
+from lego_sorter_server.classifier import LegoClassifierProvider
 from lego_sorter_server.classifier.LegoClassifierRunner import LegoClassifierRunner
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
+from lego_sorter_server.detection.LegoDetectionRunner import LegoDetectionRunner
 from lego_sorter_server.detection.detectors import LegoDetectorProvider
 from lego_sorter_server.generated import LegoBrick_pb2_grpc
 from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, \
@@ -16,22 +18,24 @@ import logging
 import time
 
 from lego_sorter_server.detection import DetectionUtils
-from lego_sorter_server.detection.LegoDetectionRunner import LegoDetectionRunner
-from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue
+from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue, SORTER_TAG, CAPTURE_TAG
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
+from lego_sorter_server.sorter.LegoSorterController import LegoSorterController
+from lego_sorter_server.sorter.SortingProcessor import SortingProcessor
 
 
 class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
     def __init__(self):
         self.detector = LegoDetectorProvider.get_default_detector()
+        self.classifier = LegoClassifierProvider.get_default_classifier()
         self.storage = LegoImageStorage()
-        self.classifier = LegoClassifierRunner()
-        # self.classifier.load_trained_model()
         self.processing_queue = ImageProcessingQueue()
-        self.detection_runner = LegoDetectionRunner(self.processing_queue, self.detector, self.storage)
-        self.executor = futures.ThreadPoolExecutor(max_workers=4)
+        self.executor = futures.ThreadPoolExecutor(max_workers=16)
 
-        self.detector.__initialize__()
+        self.sorter = SortingProcessor(self.processing_queue, LegoSorterController())
+        self.sorter.start_processing()
+
+        self.detection_runner = LegoDetectionRunner(self.processing_queue, self.detector, self.storage)
         self.detection_runner.start_detecting()
 
     @staticmethod
@@ -55,11 +59,11 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
 
     def _handle_collect_cropped_images(self, request: LegoImageStore):
         image = self._prepare_image(request)
-        self.processing_queue.add(image, request.label)
+        self.processing_queue.add(CAPTURE_TAG, image, request.label)
 
     def CollectImages(self, request: LegoImageStore, context):
         image = self._prepare_image(request)
-        self.storage.save_image(image, "unprocessed_" + request.label)
+        self.storage.save_image(CAPTURE_TAG, image, "unprocessed_" + request.label)
 
         return Empty()
 
