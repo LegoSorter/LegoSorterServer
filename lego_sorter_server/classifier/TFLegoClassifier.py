@@ -17,7 +17,10 @@ from pathlib import Path
 from lego_sorter_server.classifier.toolkit.transformations.simple import Simple
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
+# physical_devices = tf.config.list_physical_devices('GPU')
+# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
+gpus = tf.config.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
@@ -39,7 +42,7 @@ CLASSES = [
 ]
 
 
-class LegoClassifierRunner:
+class TFLegoClassifier:
     def __init__(self, classes=None, dataSet=None):
         if not classes:
             classes = CLASSES
@@ -81,7 +84,10 @@ class LegoClassifierRunner:
     def save_model(self, path):
         self.model.save(path)
 
-    def predict_from_pil(self, images):
+    def classify(self, image: Image.Image):
+        return self.predict_from_pil([image])[0]
+
+    def predict_from_pil(self, images: [Image.Image]):
         if not images:
             return []
         images_arr = []
@@ -130,7 +136,7 @@ def parse_args():
 def main(args):
     DATASET_PATH = os.path.abspath(os.path.join(args.input))
     dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
-    network = LegoClassifierRunner(dataSet=dataSet)
+    network = TFLegoClassifier(dataSet=dataSet)
     # network.prepare_model(Inception)
     modelCls = locate(F"lego_sorter_server.classifier.models.models.{args.model}")
     network.prepare_model(modelCls)

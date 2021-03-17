@@ -1,18 +1,13 @@
 import time
-from concurrent import futures
-
-from PIL import Image
-from object_detection.utils import visualization_utils as viz_utils
-
 import numpy
+import logging
 
-from lego_sorter_server.classifier import LegoClassifierProvider
+from concurrent import futures
+from lego_sorter_server.classifier.LegoClassifierProvider import LegoClassifierProvider
 from lego_sorter_server.detection import DetectionUtils
-from lego_sorter_server.detection.detectors import LegoDetectorProvider
+from lego_sorter_server.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
 from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue, SORTER_TAG
 from lego_sorter_server.sorter.LegoSorterController import LegoSorterController
-
-import logging
 
 POLLING_RATE = 0.1  # seconds
 

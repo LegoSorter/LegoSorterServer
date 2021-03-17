@@ -1,7 +1,10 @@
-class Fake:
-    def classify(self, anything):
-        pass
+from lego_sorter_server.classifier.TFLegoClassifier import TFLegoClassifier
 
 
-def get_default_classifier():
-    return Fake()
+class LegoClassifierProvider:
+    classifier = TFLegoClassifier()
+    classifier.load_trained_model()
+
+    @staticmethod
+    def get_default_classifier():
+        return LegoClassifierProvider.classifier

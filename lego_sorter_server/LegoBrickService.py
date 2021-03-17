@@ -1,11 +1,10 @@
 from concurrent import futures
 from typing import List
 
-from lego_sorter_server.classifier import LegoClassifierProvider
-from lego_sorter_server.classifier.LegoClassifierRunner import LegoClassifierRunner
+from lego_sorter_server.classifier.LegoClassifierProvider import LegoClassifierProvider
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 from lego_sorter_server.detection.LegoDetectionRunner import LegoDetectionRunner
-from lego_sorter_server.detection.detectors import LegoDetectorProvider
+from lego_sorter_server.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
 from lego_sorter_server.generated import LegoBrick_pb2_grpc
 from lego_sorter_server.generated.LegoBrick_pb2 import Image as LegoImage, Empty, ImageStore as LegoImageStore, \
     BoundingBox, \
@@ -39,7 +38,7 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         self.detection_runner.start_detecting()
 
     @staticmethod
-    def _prepare_image(request: LegoImage):
+    def _prepare_image(request: LegoImage) -> Image.Image:
         image = Image.open(BytesIO(request.image))
         image = image.convert('RGB')
 
@@ -103,11 +102,11 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         logging.info(f"[DetectBricks] {len(bbs)} bricks detected. Returning response.")
         return bb_list
 
-    def DetectAndClassifyBricks(self, request, context):
+    def DetectAndClassifyBricks(self, request: LegoImage, context):
         logging.info("[DetectAndClassifyBricks] Request received, processing...")
         start_time_detect = time.time()
         bbs = self._detect_bricks(request)
-        elapsed_millis_detect = time.time() - start_time_detect
+        elapsed_millis_detect = (time.time() - start_time_detect) * 1000
         logging.info(f"[DetectAndClassifyBricks] Detecting took {elapsed_millis_detect} milliseconds.")
         image = self._prepare_image(request)
 
