@@ -1,24 +1,23 @@
-import time
 import numpy
 import logging
 
 from concurrent import futures
+
+from PIL.Image import Image
+
 from lego_sorter_server.classifier.LegoClassifierProvider import LegoClassifierProvider
 from lego_sorter_server.detection import DetectionUtils
 from lego_sorter_server.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
-from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue, SORTER_TAG
 from lego_sorter_server.sorter.LegoSorterController import LegoSorterController
-
-POLLING_RATE = 0.1  # seconds
 
 
 class SortingProcessor:
-    def __init__(self, queue: ImageProcessingQueue, sorter_controller: LegoSorterController):
-        self.queue = queue
+    def __init__(self, sorter_controller: LegoSorterController):
         self.sorter_controller = sorter_controller
         self.detector = LegoDetectorProvider.get_default_detector()
         self.classifier = LegoClassifierProvider.get_default_classifier()
         self.executor = futures.ThreadPoolExecutor(max_workers=1)
+        self.last_results = []
 
     @staticmethod
     def find_closest_brick(detections):
@@ -36,60 +35,39 @@ class SortingProcessor:
     def is_following_position(previous_position_ymin, current_position_ymin):
         return previous_position_ymin > current_position_ymin
 
-    def start_processing(self):
-        logging.info(f"[SortingProcessor] Started processing the queue")
-        logging.info(f"[SortingProcessor] Cleaning the queue...")
+    def process_next_image(self, image: Image):
+        current_result = self._process(image)
 
-        self.queue.clear(SORTER_TAG)
-        self.executor.submit(self.__run)
+        if len(current_result) == 0 and len(self.last_results) == 0:
+            logging.info(f"[SortingProcessor] Got an empty image.")
+            return current_result
 
-    def stop_processing(self):
-        logging.info(f"[SortingProcessor] Stopping processing the queue...")
-        self.executor.shutdown()
+        if len(current_result) == 0:
+            # Nothing more to check, we can return results to machine
+            logging.info(f"[SortingProcessor] The brick surpassed the camera line, sending results.")
+            self._send_result_and_clear_history()
+            return current_result
 
-    def __run(self):
-        results_for_last_brick = []
-        while True:
-            if self.queue.len(SORTER_TAG) == 0:
-                time.sleep(POLLING_RATE)
-                continue
+        if len(self.last_results) > 0:
+            # We are probably processing still the same brick, checking
+            previous_position, _ = self.last_results[-1]
+            current_position, _ = current_result
 
-            current = self._process_next_image()
+            if not self.is_following_position(previous_position[0], current_position[0]):
+                self._send_result_and_clear_history()
 
-            if len(current) == 0 and len(results_for_last_brick) == 0:
-                logging.info(f"[SortingProcessor] Got an empty image.")
-                continue
+        logging.info(f"[SortingProcessor] Saving results for further analysis...")
+        self.last_results.append(current_result)
 
-            if len(current) == 0:
-                # Nothing more to check, we can return results to machine
-                logging.info(f"[SortingProcessor] The brick surpassed the camera line, sending results.")
-                self._send_result_and_clear_history(results_for_last_brick)
-                continue
-
-            if len(results_for_last_brick) > 0:
-                # We are probably processing still the same brick, checking
-                previous_position, _ = results_for_last_brick[-1]
-                current_position, _ = current
-
-                if not self.is_following_position(previous_position[0], current_position[0]):
-                    self._send_result_and_clear_history(results_for_last_brick)
-
-            logging.info(f"[SortingProcessor] Saving results for further analysis...")
-            results_for_last_brick.append(current)
-
-        logging.info(f"[SortingProcessor] Processing stopped.")
-
-    def _send_result_and_clear_history(self, results_for_last_brick):
-        best_result = self.get_best_result(results_for_last_brick)
+    def _send_result_and_clear_history(self):
+        best_result = self.get_best_result(self.last_results)
         logging.info(f"[SortingProcessor] Got the best result {best_result}. Returning the results...")
         self.sorter_controller.on_brick_recognized(best_result)
-        results_for_last_brick.clear()
+        self.last_results.clear()
 
-    def _process_next_image(self):
-        captured_image, _ = self.queue.next(SORTER_TAG)
-
+    def _process(self, image: Image):
         # TODO - resize image!
-        image_resized, scale = DetectionUtils.resize(captured_image, 640)
+        image_resized, scale = DetectionUtils.resize(image, 640)
         detections = self.detector.detect_lego(numpy.array(image_resized))
         # for i in range(len(detections["detection_classes"])):
         #     ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]

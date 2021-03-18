@@ -28,12 +28,9 @@ class LegoBrickService(LegoBrick_pb2_grpc.LegoBrickServicer):
         self.detector = LegoDetectorProvider.get_default_detector()
         self.classifier = LegoClassifierProvider.get_default_classifier()
         self.storage = LegoImageStorage()
-        self.processing_queue = ImageProcessingQueue()
         self.executor = futures.ThreadPoolExecutor(max_workers=16)
-
-        self.sorter = SortingProcessor(self.processing_queue, LegoSorterController())
-        self.sorter.start_processing()
-
+        self.sorter = SortingProcessor(LegoSorterController())
+        self.processing_queue = ImageProcessingQueue()
         self.detection_runner = LegoDetectionRunner(self.processing_queue, self.detector, self.storage)
         self.detection_runner.start_detecting()
 
