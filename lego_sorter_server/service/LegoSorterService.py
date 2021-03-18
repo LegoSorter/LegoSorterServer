@@ -16,7 +16,6 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
         results = self.sortingProcessor.process_next_image(image)
 
 
-
     def getConfiguration(self, request, context) -> SorterConfiguration:
         return super().getConfiguration(request, context)
 

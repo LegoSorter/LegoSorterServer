@@ -5,7 +5,7 @@ from PIL import Image
 from numpy.random import choice
 from shutil import copyfile
 
-from lego_sorter_server.classifier.toolkit.processors.processor import Processor
+from lego_sorter_server.analysis.classifier.toolkit.processors.processor import Processor
 
 
 class Captured(Processor):

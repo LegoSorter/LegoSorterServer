@@ -1,11 +1,9 @@
-from lego_sorter_server.detection.detectors.TFLegoDetector import TFLegoDetector
 from PIL import Image
 from object_detection.utils import visualization_utils as viz_utils
 from pathlib import Path
 import numpy as np
-import tensorflow as tf
 
-from lego_sorter_server.detection.detectors.YoloLegoDetector import YoloLegoDetector
+from lego_sorter_server.analysis.detection.detectors.YoloLegoDetector import YoloLegoDetector
 
 # physical_devices = tf.config.list_physical_devices('GPU')
 # tf.config.experimental.set_memory_growth(physical_devices[0], True)

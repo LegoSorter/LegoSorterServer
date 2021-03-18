@@ -1,4 +1,4 @@
-from lego_sorter_server.classifier.TFLegoClassifier import TFLegoClassifier
+from lego_sorter_server.analysis.classifier.TFLegoClassifier import TFLegoClassifier
 
 
 class LegoClassifierProvider:

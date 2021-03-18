@@ -1,5 +1,5 @@
-from lego_sorter_server.classifier.toolkit.transformations.transformation import Transformation, TransformationException
-from lego_sorter_server.detection.detectors.TFLegoDetector import TFLegoDetector
+from lego_sorter_server.analysis.classifier.toolkit.transformations.transformation import Transformation, TransformationException
+from lego_sorter_server.analysis.detection.detectors.TFLegoDetector import TFLegoDetector
 
 
 class Detect(Transformation):

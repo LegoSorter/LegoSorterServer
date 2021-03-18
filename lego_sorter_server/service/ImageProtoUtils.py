@@ -3,8 +3,8 @@ from typing import List
 
 from PIL import Image
 
-from lego_sorter_server.detection import DetectionUtils
-from lego_sorter_server.detection.DetectionResults import DetectionResults
+from lego_sorter_server.analysis.detection import DetectionUtils
+from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
 from lego_sorter_server.generated.LegoBrick_pb2 import BoundingBox, ListOfBoundingBoxes
 from lego_sorter_server.generated.LegoSorter_pb2 import ImageRequest
 
@@ -36,7 +36,7 @@ class ImageProtoUtils:
         return bbs_with_blobs
 
     @staticmethod
-    def prepare_response_from_bbs_and_labels(bbs: [BoundingBox], labels: [str]) -> List[BoundingBox]:
+    def prepare_response_from_bbs_and_labels(bbs: [BoundingBox], labels: [str]) -> ListOfBoundingBoxes:
         for bb, label in zip(bbs, labels):
             bb.label = label
 
@@ -49,7 +49,7 @@ class ImageProtoUtils:
     def prepare_bbs_response_from_detection_results(detection_results: DetectionResults,
                                                     scale: float,
                                                     target_image_size: (int, int),  # (width, height)
-                                                    detection_image_size: int = 640):
+                                                    detection_image_size: int = 640) -> List[BoundingBox]:
         bbs = []
         for i in range(len(detection_results.detection_classes)):
             if detection_results.detection_scores[i] < 0.5:

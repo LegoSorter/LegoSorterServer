@@ -6,10 +6,10 @@ from concurrent import futures
 
 import numpy as np
 
-from lego_sorter_server.detection import DetectionUtils
-from lego_sorter_server.detection.DetectionUtils import crop_with_margin
-from lego_sorter_server.detection.detectors.LegoDetector import LegoDetector
-from lego_sorter_server.detection.LegoLabeler import LegoLabeler
+from lego_sorter_server.analysis.detection import DetectionUtils
+from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
+from lego_sorter_server.analysis.detection.detectors.LegoDetector import LegoDetector
+from lego_sorter_server.analysis.detection.LegoLabeler import LegoLabeler
 from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue, CAPTURE_TAG
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 

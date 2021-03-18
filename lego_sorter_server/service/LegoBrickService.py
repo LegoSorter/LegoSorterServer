@@ -1,9 +1,9 @@
 from concurrent import futures
 from typing import List
 
-from lego_sorter_server.classifier.LegoClassifierProvider import LegoClassifierProvider
-from lego_sorter_server.detection.LegoDetectionRunner import LegoDetectionRunner
-from lego_sorter_server.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
+from lego_sorter_server.analysis.classifier.LegoClassifierProvider import LegoClassifierProvider
+from lego_sorter_server.analysis.detection.LegoDetectionRunner import LegoDetectionRunner
+from lego_sorter_server.analysis.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
 from lego_sorter_server.generated import LegoBrick_pb2_grpc
 from lego_sorter_server.generated.LegoBrick_pb2 import ImageRequest, Empty, ImageStore as LegoImageStore, \
     BoundingBox, \
@@ -13,7 +13,7 @@ import numpy as np
 import logging
 import time
 
-from lego_sorter_server.detection import DetectionUtils
+from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.images.queue.ImageProcessingQueue import ImageProcessingQueue, CAPTURE_TAG
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils

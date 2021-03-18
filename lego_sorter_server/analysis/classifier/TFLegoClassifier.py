@@ -12,9 +12,9 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from pathlib import Path
 
-#from models.models import *
-#from lego_sorter_server.classifier.models.inceptionClear import InceptionClear
-from lego_sorter_server.classifier.toolkit.transformations.simple import Simple
+# from models.models import *
+# from lego_sorter_server.analysis.classifier.models.inceptionClear import InceptionClear
+from lego_sorter_server.analysis.classifier.toolkit.transformations.simple import Simple
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 
 # physical_devices = tf.config.list_physical_devices('GPU')
@@ -26,7 +26,7 @@ for gpu in gpus:
 
 BATCH_SIZE = 32
 IMG_SIZE = (299, 299)
-DEFAULT_MODEL_PATH = os.path.abspath(os.path.join("lego_sorter_server", "classifier", "models", "saved"))
+DEFAULT_MODEL_PATH = os.path.abspath(os.path.join("lego_sorter_server", "analysis", "classifier", "models", "saved"))
 
 CLASSES = [
     "3001",
@@ -130,15 +130,15 @@ def parse_args():
     ap.add_argument("--model", "-m", default="InceptionClear",
                     choices={"Inception", "InceptionClear", "VGG16", "Xception"})
 
-
     return ap.parse_args()
+
 
 def main(args):
     DATASET_PATH = os.path.abspath(os.path.join(args.input))
     dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
     network = TFLegoClassifier(dataSet=dataSet)
     # network.prepare_model(Inception)
-    modelCls = locate(F"lego_sorter_server.classifier.models.models.{args.model}")
+    modelCls = locate(F"lego_sorter_server.analysis.classifier.models.models.{args.model}")
     network.prepare_model(modelCls)
     network.model.summary()
     date = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")

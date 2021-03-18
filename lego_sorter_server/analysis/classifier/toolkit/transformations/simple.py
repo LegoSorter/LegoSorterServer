@@ -1,6 +1,6 @@
 from PIL import Image
 
-from lego_sorter_server.classifier.toolkit.transformations.transformation import Transformation
+from lego_sorter_server.analysis.classifier.toolkit.transformations.transformation import Transformation
 
 
 class Simple(Transformation):

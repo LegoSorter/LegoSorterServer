@@ -6,12 +6,12 @@ import tensorflow as tf
 import logging
 from pathlib import Path
 
-from lego_sorter_server.detection import DetectionUtils
-from lego_sorter_server.detection.DetectionResults import DetectionResults
-from lego_sorter_server.detection.DetectionUtils import crop_with_margin
+from lego_sorter_server.analysis.detection import DetectionUtils
+from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
+from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
 
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
-from lego_sorter_server.detection.detectors.LegoDetector import LegoDetector
+from lego_sorter_server.analysis.detection.detectors.LegoDetector import LegoDetector
 
 
 class ThreadSafeSingleton(type):
@@ -28,7 +28,8 @@ class ThreadSafeSingleton(type):
 
 class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
-    def __init__(self, model_path=os.path.join("lego_sorter_server", "detection", "models", "tf_model", "saved_model")):
+    def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "detection", "models", "tf_model",
+                                               "saved_model")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
