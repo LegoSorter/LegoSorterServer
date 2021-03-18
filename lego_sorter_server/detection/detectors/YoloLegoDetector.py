@@ -7,6 +7,7 @@ import numpy
 from pathlib import Path
 
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
+from lego_sorter_server.detection.DetectionResults import DetectionResults
 from lego_sorter_server.detection.detectors.LegoDetector import LegoDetector
 
 
@@ -49,17 +50,15 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         return numpy.array([[coord[1], coord[0], coord[3], coord[2]] for coord in xyxy])
 
     @staticmethod
-    def convert_results_to_common_format(results):
+    def convert_results_to_common_format(results) -> DetectionResults:
         image_predictions = results.xyxyn[0].cpu().numpy()
-        detection_scores = image_predictions[:, 4]
-        detection_classes = image_predictions[:, 5].astype(numpy.int64) + 1
-        detection_boxes = YoloLegoDetector.xyxy2yxyx_scaled(image_predictions[:, :4])
+        scores = image_predictions[:, 4]
+        classes = image_predictions[:, 5].astype(numpy.int64) + 1
+        boxes = YoloLegoDetector.xyxy2yxyx_scaled(image_predictions[:, :4])
 
-        return {'detection_scores': detection_scores,
-                'detection_classes': detection_classes,
-                'detection_boxes': detection_boxes}
+        return DetectionResults(detection_scores=scores, detection_classes=classes, detection_boxes=boxes)
 
-    def detect_lego(self, image: numpy.ndarray):
+    def detect_lego(self, image: numpy.ndarray) -> DetectionResults:
         if not self.__initialized:
             logging.info("YoloLegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()

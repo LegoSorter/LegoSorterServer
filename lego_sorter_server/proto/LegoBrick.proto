@@ -5,7 +5,7 @@ package remote;
 option java_package = "com.lsorter.detection.detectors";
 option java_outer_classname = "LegoBrickProto";
 
-message Image {
+message ImageRequest {
   bytes image = 1;
   int32 rotation = 2;
 }
@@ -17,18 +17,17 @@ message ImageStore {
 }
 
 message ListOfBoundingBoxes {
-    repeated BoundingBox packet = 1;
+  repeated BoundingBox packet = 1;
 }
 
 message BoundingBox {
-    int32 ymin = 1;
-    int32 xmin = 2;
-    int32 ymax = 3;
-    int32 xmax = 4;
-    string label = 5;
-    float score = 6;
+  int32 ymin = 1;
+  int32 xmin = 2;
+  int32 ymax = 3;
+  int32 xmax = 4;
+  string label = 5;
+  float score = 6;
 }
-
 
 message Empty {
 
@@ -37,6 +36,6 @@ message Empty {
 service LegoBrick {
   rpc CollectImages (ImageStore) returns (Empty);
   rpc CollectCroppedImages (ImageStore) returns (Empty);
-  rpc DetectBricks (Image) returns (ListOfBoundingBoxes);
-  rpc DetectAndClassifyBricks (Image) returns (ListOfBoundingBoxes);
+  rpc DetectBricks (ImageRequest) returns (ListOfBoundingBoxes);
+  rpc DetectAndClassifyBricks (ImageRequest) returns (ListOfBoundingBoxes);
 }

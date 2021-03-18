@@ -7,21 +7,22 @@ from PIL.Image import Image
 
 from lego_sorter_server.classifier.LegoClassifierProvider import LegoClassifierProvider
 from lego_sorter_server.detection import DetectionUtils
+from lego_sorter_server.detection.DetectionResults import DetectionResults
 from lego_sorter_server.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
 from lego_sorter_server.sorter.LegoSorterController import LegoSorterController
 
 
 class SortingProcessor:
-    def __init__(self, sorter_controller: LegoSorterController):
-        self.sorter_controller = sorter_controller
+    def __init__(self):
+        self.sorter_controller = LegoSorterController()
         self.detector = LegoDetectorProvider.get_default_detector()
         self.classifier = LegoClassifierProvider.get_default_classifier()
         self.executor = futures.ThreadPoolExecutor(max_workers=1)
         self.last_results = []
 
     @staticmethod
-    def find_closest_brick(detections):
-        bbs = detections["detection_boxes"]
+    def find_closest_brick(detections: DetectionResults):
+        bbs = detections.detection_boxes
         # The closest brick is a brick with the smallest ymin value
         closest = min(bbs, key=lambda bb: bb[0])
         return closest
@@ -73,7 +74,7 @@ class SortingProcessor:
         #     ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
         #     detections['detection_boxes'][i] = [ymin, xmin, ymax, xmax]
 
-        detected_count = len(detections["detection_classes"])
+        detected_count = len(detections.detection_classes)
         if detected_count == 0:
             return ()
 

@@ -26,12 +26,12 @@ class LegoBrickStub(object):
                 )
         self.DetectBricks = channel.unary_unary(
                 '/remote.LegoBrick/DetectBricks',
-                request_serializer=LegoBrick__pb2.Image.SerializeToString,
+                request_serializer=LegoBrick__pb2.ImageRequest.SerializeToString,
                 response_deserializer=LegoBrick__pb2.ListOfBoundingBoxes.FromString,
                 )
         self.DetectAndClassifyBricks = channel.unary_unary(
                 '/remote.LegoBrick/DetectAndClassifyBricks',
-                request_serializer=LegoBrick__pb2.Image.SerializeToString,
+                request_serializer=LegoBrick__pb2.ImageRequest.SerializeToString,
                 response_deserializer=LegoBrick__pb2.ListOfBoundingBoxes.FromString,
                 )
 
@@ -78,12 +78,12 @@ def add_LegoBrickServicer_to_server(servicer, server):
             ),
             'DetectBricks': grpc.unary_unary_rpc_method_handler(
                     servicer.DetectBricks,
-                    request_deserializer=LegoBrick__pb2.Image.FromString,
+                    request_deserializer=LegoBrick__pb2.ImageRequest.FromString,
                     response_serializer=LegoBrick__pb2.ListOfBoundingBoxes.SerializeToString,
             ),
             'DetectAndClassifyBricks': grpc.unary_unary_rpc_method_handler(
                     servicer.DetectAndClassifyBricks,
-                    request_deserializer=LegoBrick__pb2.Image.FromString,
+                    request_deserializer=LegoBrick__pb2.ImageRequest.FromString,
                     response_serializer=LegoBrick__pb2.ListOfBoundingBoxes.SerializeToString,
             ),
     }
@@ -142,7 +142,7 @@ class LegoBrick(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/DetectBricks',
-            LegoBrick__pb2.Image.SerializeToString,
+            LegoBrick__pb2.ImageRequest.SerializeToString,
             LegoBrick__pb2.ListOfBoundingBoxes.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -159,7 +159,7 @@ class LegoBrick(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/remote.LegoBrick/DetectAndClassifyBricks',
-            LegoBrick__pb2.Image.SerializeToString,
+            LegoBrick__pb2.ImageRequest.SerializeToString,
             LegoBrick__pb2.ListOfBoundingBoxes.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

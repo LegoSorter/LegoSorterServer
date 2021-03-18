@@ -7,6 +7,7 @@ import logging
 from pathlib import Path
 
 from lego_sorter_server.detection import DetectionUtils
+from lego_sorter_server.detection.DetectionResults import DetectionResults
 from lego_sorter_server.detection.DetectionUtils import crop_with_margin
 
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
@@ -51,7 +52,7 @@ class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         logging.info("Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
 
-    def detect_lego(self, image):
+    def detect_lego(self, image: np.array) -> DetectionResults:
         if not self.__initialized:
             logging.info("TFLegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
@@ -64,7 +65,7 @@ class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         # detection_classes should be ints.
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
-        return detections
+        return DetectionResults.from_dict(detections)
 
     def detect_and_crop(self, image):
         width, height = image.size
@@ -73,11 +74,11 @@ class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         detected_counter = 0
         new_images = []
         for i in range(100):
-            if detections['detection_scores'][i] < 0.5:
+            if detections.detection_scores[i] < 0.5:
                 break  # IF SORTED
 
             detected_counter += 1
-            ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
+            ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections.detection_boxes[i]]
 
             # if bb is out of bounds
             if ymax >= height or xmax >= width:

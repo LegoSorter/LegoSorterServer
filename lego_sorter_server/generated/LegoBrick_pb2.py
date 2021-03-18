@@ -19,29 +19,29 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\037com.lsorter.detection.detectorsB\016LegoBrickProto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"(\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t\":\n\x13ListOfBoundingBoxes\x12#\n\x06packet\x18\x01 \x03(\x0b\x32\x13.remote.BoundingBox\"c\n\x0b\x42oundingBox\x12\x0c\n\x04ymin\x18\x01 \x01(\x05\x12\x0c\n\x04xmin\x18\x02 \x01(\x05\x12\x0c\n\x04ymax\x18\x03 \x01(\x05\x12\x0c\n\x04xmax\x18\x04 \x01(\x05\x12\r\n\x05label\x18\x05 \x01(\t\x12\r\n\x05score\x18\x06 \x01(\x02\"\x07\n\x05\x45mpty2\xfd\x01\n\tLegoBrick\x12\x32\n\rCollectImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12\x39\n\x14\x43ollectCroppedImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12:\n\x0c\x44\x65tectBricks\x12\r.remote.Image\x1a\x1b.remote.ListOfBoundingBoxes\x12\x45\n\x17\x44\x65tectAndClassifyBricks\x12\r.remote.Image\x1a\x1b.remote.ListOfBoundingBoxesB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
+  serialized_pb=b'\n\x0fLegoBrick.proto\x12\x06remote\"/\n\x0cImageRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t\":\n\x13ListOfBoundingBoxes\x12#\n\x06packet\x18\x01 \x03(\x0b\x32\x13.remote.BoundingBox\"c\n\x0b\x42oundingBox\x12\x0c\n\x04ymin\x18\x01 \x01(\x05\x12\x0c\n\x04xmin\x18\x02 \x01(\x05\x12\x0c\n\x04ymax\x18\x03 \x01(\x05\x12\x0c\n\x04xmax\x18\x04 \x01(\x05\x12\r\n\x05label\x18\x05 \x01(\t\x12\r\n\x05score\x18\x06 \x01(\x02\"\x07\n\x05\x45mpty2\x8b\x02\n\tLegoBrick\x12\x32\n\rCollectImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12\x39\n\x14\x43ollectCroppedImages\x12\x12.remote.ImageStore\x1a\r.remote.Empty\x12\x41\n\x0c\x44\x65tectBricks\x12\x14.remote.ImageRequest\x1a\x1b.remote.ListOfBoundingBoxes\x12L\n\x17\x44\x65tectAndClassifyBricks\x12\x14.remote.ImageRequest\x1a\x1b.remote.ListOfBoundingBoxesB1\n\x1f\x63om.lsorter.detection.detectorsB\x0eLegoBrickProtob\x06proto3'
 )
 
 
 
 
-_IMAGE = _descriptor.Descriptor(
-  name='Image',
-  full_name='remote.Image',
+_IMAGEREQUEST = _descriptor.Descriptor(
+  name='ImageRequest',
+  full_name='remote.ImageRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   create_key=_descriptor._internal_create_key,
   fields=[
     _descriptor.FieldDescriptor(
-      name='image', full_name='remote.Image.image', index=0,
+      name='image', full_name='remote.ImageRequest.image', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='rotation', full_name='remote.Image.rotation', index=1,
+      name='rotation', full_name='remote.ImageRequest.rotation', index=1,
       number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -60,7 +60,7 @@ _IMAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=27,
-  serialized_end=67,
+  serialized_end=74,
 )
 
 
@@ -105,8 +105,8 @@ _IMAGESTORE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=69,
-  serialized_end=129,
+  serialized_start=76,
+  serialized_end=136,
 )
 
 
@@ -137,8 +137,8 @@ _LISTOFBOUNDINGBOXES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=131,
-  serialized_end=189,
+  serialized_start=138,
+  serialized_end=196,
 )
 
 
@@ -204,8 +204,8 @@ _BOUNDINGBOX = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=191,
-  serialized_end=290,
+  serialized_start=198,
+  serialized_end=297,
 )
 
 
@@ -229,24 +229,24 @@ _EMPTY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=292,
-  serialized_end=299,
+  serialized_start=299,
+  serialized_end=306,
 )
 
 _LISTOFBOUNDINGBOXES.fields_by_name['packet'].message_type = _BOUNDINGBOX
-DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
+DESCRIPTOR.message_types_by_name['ImageRequest'] = _IMAGEREQUEST
 DESCRIPTOR.message_types_by_name['ImageStore'] = _IMAGESTORE
 DESCRIPTOR.message_types_by_name['ListOfBoundingBoxes'] = _LISTOFBOUNDINGBOXES
 DESCRIPTOR.message_types_by_name['BoundingBox'] = _BOUNDINGBOX
 DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-Image = _reflection.GeneratedProtocolMessageType('Image', (_message.Message,), {
-  'DESCRIPTOR' : _IMAGE,
+ImageRequest = _reflection.GeneratedProtocolMessageType('ImageRequest', (_message.Message,), {
+  'DESCRIPTOR' : _IMAGEREQUEST,
   '__module__' : 'LegoBrick_pb2'
-  # @@protoc_insertion_point(class_scope:remote.Image)
+  # @@protoc_insertion_point(class_scope:remote.ImageRequest)
   })
-_sym_db.RegisterMessage(Image)
+_sym_db.RegisterMessage(ImageRequest)
 
 ImageStore = _reflection.GeneratedProtocolMessageType('ImageStore', (_message.Message,), {
   'DESCRIPTOR' : _IMAGESTORE,
@@ -286,8 +286,8 @@ _LEGOBRICK = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=302,
-  serialized_end=555,
+  serialized_start=309,
+  serialized_end=576,
   methods=[
   _descriptor.MethodDescriptor(
     name='CollectImages',
@@ -314,7 +314,7 @@ _LEGOBRICK = _descriptor.ServiceDescriptor(
     full_name='remote.LegoBrick.DetectBricks',
     index=2,
     containing_service=None,
-    input_type=_IMAGE,
+    input_type=_IMAGEREQUEST,
     output_type=_LISTOFBOUNDINGBOXES,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
@@ -324,7 +324,7 @@ _LEGOBRICK = _descriptor.ServiceDescriptor(
     full_name='remote.LegoBrick.DetectAndClassifyBricks',
     index=3,
     containing_service=None,
-    input_type=_IMAGE,
+    input_type=_IMAGEREQUEST,
     output_type=_LISTOFBOUNDINGBOXES,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,

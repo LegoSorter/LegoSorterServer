@@ -54,12 +54,12 @@ class LegoDetectionRunner:
 
             detected_counter = 0
             bbs = []
-            for i in range(len(detections['detection_classes'])):
-                if detections['detection_scores'][i] < 0.5:
+            for i in range(len(detections.detection_classes)):
+                if detections.detection_scores[i] < 0.5:
                     break  # IF SORTED
 
                 detected_counter += 1
-                ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
+                ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections.detection_boxes[i]]
 
                 # # if bb is out of bounds
                 # if ymax >= height or xmax >= width:

@@ -24,9 +24,9 @@ def draw_bounding_boxes_on_image(image_path):
 
     viz_utils.visualize_boxes_and_labels_on_image_array(
         image,
-        detections['detection_boxes'],
-        detections['detection_classes'],
-        detections['detection_scores'],
+        detections.detection_boxes,
+        detections.detection_classes,
+        detections.detection_scores,
         category_index,
         use_normalized_coordinates=True,
         max_boxes_to_draw=200,
