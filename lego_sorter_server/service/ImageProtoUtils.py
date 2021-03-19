@@ -6,8 +6,7 @@ from PIL import Image
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
-from lego_sorter_server.generated.LegoBrick_pb2 import BoundingBox, ListOfBoundingBoxes
-from lego_sorter_server.generated.LegoSorter_pb2 import ImageRequest
+from lego_sorter_server.generated.Messages_pb2 import ImageRequest, BoundingBox, ListOfBoundingBoxes
 
 
 class ImageProtoUtils:

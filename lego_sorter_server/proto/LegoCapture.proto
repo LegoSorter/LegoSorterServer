@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package capture;
+
+option java_package = "com.lsorter.capture";
+option java_outer_classname = "LegoCaptureProto";
+
+message ImageStore {
+  bytes image = 1;
+  int32 rotation = 2;
+  string label = 3;
+}
+
+message Empty {
+
+}
+
+service LegoCapture {
+  rpc CollectImages (ImageStore) returns (Empty);
+  rpc CollectCroppedImages (ImageStore) returns (Empty);
+}

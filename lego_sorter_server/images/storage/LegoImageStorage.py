@@ -29,7 +29,7 @@ class LegoImageStorage:
     def extract_lego_class_from_file_name(filename):
         return filename.split('_')[-2]
 
-    def find_image_path(self, filename):
+    def find_image_path(self, filename: str):
         lego_class = self.extract_lego_class_from_file_name(filename)
         image_path = self.images_base_path / lego_class / filename
 
@@ -38,12 +38,12 @@ class LegoImageStorage:
 
         return image_path
 
-    def get_target_directory_for_lego_class(self, label):
+    def get_target_directory_for_lego_class(self, label: str) -> Path:
         target_directory = self.images_base_path / label
 
         return self.create_directory(target_directory, parents=False)
 
-    def save_image(self, image: Image.Image, lego_class, prefix=''):
+    def save_image(self, image: Image.Image, lego_class: str, prefix: str = '') -> str:
         """Save the image as representation of specified lego_class. Returns a name of the saved image"""
         target_directory = self.get_target_directory_for_lego_class(lego_class)
         filename = self.generate_file_name(lego_class, prefix=prefix)
@@ -54,7 +54,7 @@ class LegoImageStorage:
 
         return filename
 
-    def get_images(self, lego_class, limit=10):
+    def get_images(self, lego_class: str, limit: int = 10) -> [Image.Image]:
         """Returns a list of images for specified lego_class"""
 
         lego_class_directory = self.images_base_path / lego_class
@@ -66,15 +66,15 @@ class LegoImageStorage:
 
         return [Image.open(str(image_path)) for image_path in paths_iterator]
 
-    def get_image(self, filename):
+    def get_image(self, filename: str) -> Image.Image:
         image_path = self.find_image_path(filename)
 
         return Image.open(str(image_path))
 
-    def remove_image(self, filename):
+    def remove_image(self, filename: str):
         image_path = self.find_image_path(filename)
         image_path.unlink()
 
-    def remove_lego_class(self, lego_class):
+    def remove_lego_class(self, lego_class: str):
         lego_class_directory = self.images_base_path / lego_class
         lego_class_directory.rmdir()

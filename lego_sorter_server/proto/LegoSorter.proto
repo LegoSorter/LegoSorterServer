@@ -1,39 +1,17 @@
 syntax = "proto3";
+import "Messages.proto";
 
-package remote.sorter;
+package sorter;
 
-option java_package = "com.lsorter.sort.service";
+option java_package = "com.lsorter.sorter";
 option java_outer_classname = "LegoSorterProto";
-
-message ImageRequest {
-  bytes image = 1;
-  int32 rotation = 2;
-}
-
-message ListOfBoundingBoxes {
-  repeated BoundingBox packet = 1;
-}
-
-message BoundingBox {
-  int32 ymin = 1;
-  int32 xmin = 2;
-  int32 ymax = 3;
-  int32 xmax = 4;
-  string label = 5;
-  float score = 6;
-  int32 order = 7;
-}
-
-message Empty {
-
-}
 
 message SorterConfiguration {
 
 }
 
 service LegoSorter {
-  rpc processNextImage(ImageRequest) returns (ListOfBoundingBoxes);
-  rpc getConfiguration(Empty) returns (SorterConfiguration);
+  rpc processNextImage(common.ImageRequest) returns (common.ListOfBoundingBoxes);
+  rpc getConfiguration(common.Empty) returns (SorterConfiguration);
   rpc updateConfiguration(SorterConfiguration) returns (SorterConfiguration);
 }
