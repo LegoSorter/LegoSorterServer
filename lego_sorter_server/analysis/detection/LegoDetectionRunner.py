@@ -20,14 +20,14 @@ class LegoDetectionRunner:
         self.storage = store
         # queue, detector and storage are not thread safe, so it limits the number of workers to one
         self.executor = futures.ThreadPoolExecutor(max_workers=1)
-        logging.info("[LegoDetectionRunner] Initialized\n")
+        logging.info("[LegoDetectionRunner] Ready for processing the queue.")
 
     def start_detecting(self):
-        logging.info("[LegoDetectionRunner] Started processing the queue\n")
+        logging.info("[LegoDetectionRunner] Started processing the queue.")
         self.executor.submit(self._process_queue)
 
     def stop_detecting(self):
-        logging.info("[LegoDetectionRunner] Processing is being terminated\n")
+        logging.info("[LegoDetectionRunner] Processing is being terminated.")
         self.executor.shutdown()
 
     def _process_queue(self, save_cropped_image=True, save_label_file=False):
@@ -38,15 +38,14 @@ class LegoDetectionRunner:
         while True:
             if self.queue.len(CAPTURE_TAG) == 0:
                 if polling_rate * logging_counter >= logging_rate:
-                    logging.info("Queue is empty. Waiting... ")
+                    logging.info("[LegoDetectionRunner] Queue is empty. Waiting... ")
                     logging_counter = 0
                 else:
                     logging_counter += 1
                 time.sleep(polling_rate)
                 continue
 
-            logging.info("Queue not empty - processing data")
-
+            logging.info("[LegoDetectionRunner] Queue not empty - processing data")
             self.__process_next_image(save_cropped_image, save_label_file)
 
     def __process_next_image(self, save_cropped_image, save_label_file):
@@ -60,12 +59,10 @@ class LegoDetectionRunner:
                 continue
 
             detected_counter += 1
-            ymin, xmin, ymax, xmax = [int(coord) for coord in detection_results.detection_boxes[i]]
-
-            bbs.append((xmin, ymin, xmax, ymax))
+            bbs.append(detection_results.detection_boxes[i])
 
             if save_cropped_image is True:
-                image_new = crop_with_margin(image, ymin, xmin, ymax, xmax)
+                image_new = crop_with_margin(image, *detection_results.detection_boxes[i])
                 self.storage.save_image(image_new, lego_class, prefix)
 
         prefix = f'{detected_counter}_{prefix}'

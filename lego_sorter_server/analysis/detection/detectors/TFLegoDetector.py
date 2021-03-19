@@ -66,6 +66,8 @@ class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         # detection_classes should be ints.
         detections['detection_classes'] = detections['detection_classes'].astype(np.int64)
 
+        detections = self.discard_results_under_threshold(detections)
+
         return DetectionResults.from_dict(detections)
 
     def detect_and_crop(self, image):
@@ -88,3 +90,18 @@ class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             new_images += [crop_with_margin(image, ymin, xmin, ymax, xmax)]
 
         return new_images
+
+    @staticmethod
+    def discard_results_under_threshold(detections, threshold=0.1):
+        limit = 1
+
+        for index, score in enumerate(detections['detection_scores']):
+            if score < threshold:
+                limit = index
+                break
+
+        return {
+            "detection_scores": detections["detection_scores"][:limit],
+            "detection_classes": detections["detection_classes"][:limit],
+            "detection_boxes": detections["detection_boxes"][:limit]
+        }

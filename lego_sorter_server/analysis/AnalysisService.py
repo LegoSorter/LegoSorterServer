@@ -1,4 +1,5 @@
 import logging
+import numpy
 
 from PIL.Image import Image
 
@@ -24,19 +25,18 @@ class AnalysisService:
                             f"but 'resize' parameter is {resize}.")
 
         scale = 1
-
+        original_size = image.size
         if image.size is not AnalysisService.DEFAULT_IMAGE_DETECTION_SIZE and resize is True:
             logging.info(f"[AnalysisService] Resizing an image from "
                          f"{image.size} to {AnalysisService.DEFAULT_IMAGE_DETECTION_SIZE}")
-            image, scale = DetectionUtils.resize(image, AnalysisService.DEFAULT_IMAGE_DETECTION_SIZE)
+            image, scale = DetectionUtils.resize(image, AnalysisService.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
-        detection_results = self.detector.detect_lego(image)
+        detection_results = self.detector.detect_lego(numpy.array(image))
 
-        return detection_results if scale == 1 else \
-            self.translate_bounding_boxes_to_original_size(detection_results,
-                                                           scale,
-                                                           image.size,
-                                                           self.DEFAULT_IMAGE_DETECTION_SIZE[0])
+        return self.translate_bounding_boxes_to_original_size(detection_results,
+                                                              scale,
+                                                              original_size,
+                                                              self.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
     def classify(self, images: [Image]) -> ClassificationResults:
         return self.classifier.predict_from_pil(images)
