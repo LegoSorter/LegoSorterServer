@@ -16,7 +16,7 @@ wget https://github.com/LegoSorter/LegoSorterServer/releases/download/1.0.0-alph
 3. Extract models
 ```commandline
 unzip detection_models.zip -d ./LegoSorterServer/lego_sorter_server/analysis/detection/models
-unzip classification_models.zip -d ./LegoSorterServer/lego_sorter_server/analysis/classifier/models
+unzip classification_models.zip -d ./LegoSorterServer/lego_sorter_server/analysis/classification/models
 ```
 
 4. Go to the root directory
