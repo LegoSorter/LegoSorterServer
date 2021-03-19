@@ -2,7 +2,7 @@ class DetectionResults:
     def __init__(self, detection_scores, detection_classes, detection_boxes):
         self.detection_scores = detection_scores
         self.detection_classes = detection_classes
-        self.detection_boxes = detection_boxes
+        self.detection_boxes = detection_boxes  # (ymin, xmin, ymax, xmax)
 
     @classmethod
     def from_dict(cls, results_dict):

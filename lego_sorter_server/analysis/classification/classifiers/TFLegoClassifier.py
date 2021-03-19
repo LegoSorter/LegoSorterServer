@@ -13,8 +13,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from pathlib import Path
 
 # from models.models import *
-# from lego_sorter_server.analysis.classifier.models.inceptionClear import InceptionClear
-from lego_sorter_server.analysis.classifier.toolkit.transformations.simple import Simple
+# from lego_sorter_server.analysis.classification.models.inceptionClear import InceptionClear
+from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
+from lego_sorter_server.analysis.classification.toolkit.transformations.simple import Simple
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 
 # physical_devices = tf.config.list_physical_devices('GPU')
@@ -26,7 +27,8 @@ for gpu in gpus:
 
 BATCH_SIZE = 32
 IMG_SIZE = (299, 299)
-DEFAULT_MODEL_PATH = os.path.abspath(os.path.join("lego_sorter_server", "analysis", "classifier", "models", "saved"))
+DEFAULT_MODEL_PATH = os.path.abspath(
+    os.path.join("lego_sorter_server", "analysis", "classification", "models", "saved"))
 
 CLASSES = [
     "3001",
@@ -84,12 +86,12 @@ class TFLegoClassifier:
     def save_model(self, path):
         self.model.save(path)
 
-    def classify(self, image: Image.Image):
-        return self.predict_from_pil([image])[0]
+    def classify(self, image: Image.Image) -> ClassificationResults:
+        return self.predict_from_pil([image])
 
-    def predict_from_pil(self, images: [Image.Image]):
+    def predict_from_pil(self, images: [Image.Image]) -> ClassificationResults:
         if not images:
-            return []
+            return ClassificationResults.empty()
         images_arr = []
 
         for im in images:
@@ -100,7 +102,11 @@ class TFLegoClassifier:
         gen = ImageDataGenerator(rescale=1. / 255).flow(np.array(images_arr), batch_size=1)
 
         predictions = self.model.predict(gen)
-        return [CLASSES[np.argmax(values)] for values in predictions]
+        indices = [int(np.argmax(values)) for values in predictions]
+        classes = [CLASSES[index] for index in indices]
+        scores = [prediction[index] for index, prediction in zip(indices, predictions)]
+
+        return ClassificationResults(classes, scores)
 
 
 class DataSet:
@@ -123,7 +129,7 @@ class DataSet:
 
 def parse_args():
     # Parse command line arguments
-    ap = argparse.ArgumentParser(description="Train classifier")
+    ap = argparse.ArgumentParser(description="Train classification")
     ap.add_argument("--input", "-i", default="images/dataset",
                     help="path to a tsv file or folder with tsv files")
     ap.add_argument("--epochs", "-e", default=10)
@@ -138,7 +144,7 @@ def main(args):
     dataSet = DataSet(DATASET_PATH, BATCH_SIZE, IMG_SIZE)
     network = TFLegoClassifier(dataSet=dataSet)
     # network.prepare_model(Inception)
-    modelCls = locate(F"lego_sorter_server.analysis.classifier.models.models.{args.model}")
+    modelCls = locate(F"lego_sorter_server.analysis.classification.models.models.{args.model}")
     network.prepare_model(modelCls)
     network.model.summary()
     date = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")

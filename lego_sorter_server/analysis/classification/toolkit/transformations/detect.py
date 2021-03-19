@@ -1,4 +1,4 @@
-from lego_sorter_server.analysis.classifier.toolkit.transformations.transformation import Transformation, TransformationException
+from lego_sorter_server.analysis.classification.toolkit.transformations.transformation import Transformation, TransformationException
 from lego_sorter_server.analysis.detection.detectors.TFLegoDetector import TFLegoDetector
 
 

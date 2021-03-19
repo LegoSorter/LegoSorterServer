@@ -7,7 +7,7 @@ from pathlib import Path
 
 DETECTION_MODELS_PATH = './lego_sorter_server/detection/models'
 DETECTION_MODELS_REMOTE_PATH = '/backup/LEGO2/SERVER/MODELS/DETECTION/models.zip'
-CLASSIFICATION_MODEL_PATH = './lego_sorter_server/classifier/models/saved'
+CLASSIFICATION_MODEL_PATH = './lego_sorter_server/classification/models/saved'
 CLASSIFICATION_MODEL_REMOTE_PATH = '/backup/LEGO2/SERVER/MODELS/CLASSIFICATION/saved.zip'
 
 
@@ -65,6 +65,6 @@ class KaskServerConnector:
 
             if extract_classification:
                 with zipfile.ZipFile(CLASSIFICATION_MODEL_PATH + ".zip", 'r') as zip_ref:
-                    zip_ref.extractall('./lego_sorter_server/classifier/models/')
+                    zip_ref.extractall('./lego_sorter_server/classification/models/')
         else:
             raise Exception("Couldn't connect to the server")

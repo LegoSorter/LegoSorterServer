@@ -1,16 +1,14 @@
 import os
 import random
-import shutil
 
 from PIL import Image
 from numpy.random import choice
 from shutil import copyfile
 
-from lego_sorter_server.analysis.classifier.toolkit.processors.processor import Processor
-from lego_sorter_server.analysis.classifier.toolkit.transformations.transformation import TransformationException
+from lego_sorter_server.analysis.classification.toolkit.processors.processor import Processor
 
 
-class Renders(Processor):
+class Captured(Processor):
     @staticmethod
     def get_series_id(name):
         return name.rsplit('_', 2)[0]
@@ -55,7 +53,6 @@ class Renders(Processor):
 
     @staticmethod
     def run(src, dst, cls, types, transformations):
-        print(F"class: {src}")
         for type in types:
             dst_dir = os.path.join(dst, type, cls)
             if not os.path.isdir(dst_dir):
@@ -68,12 +65,8 @@ class Renders(Processor):
             tp: {"curr": 0, "max": content["_val"]} for tp, content in types.items()
         }
         for file in files:
-            series_id = Renders.get_series_id(file)
-            if series_id in series_target:
-                curr_candidates = {series_target[series_id]: candidates[series_target[series_id]]}
-            else:
-                curr_candidates = candidates
-            status, probs = Renders.calc_probs(curr_candidates)
+            curr_candidates = candidates
+            status, probs = Captured.calc_probs(curr_candidates)
             if status == False:
                 continue
             cand_names = [name for name in curr_candidates]
@@ -88,16 +81,7 @@ class Renders(Processor):
                 for transformation in transformations:
                     im = transformation.transform(im)
                 im.save(dst_file)
-                series_target[series_id] = target
                 candidates[target]["curr"] += 1
-            except TransformationException as ex:
-                print(F"TransformationException: {file}. Skipping")
-                print(ex)
-                src_file = os.path.join(src, file)
-                wrong_dir = os.path.join(dst, "wrong")
-                if not os.path.isdir(wrong_dir):
-                    os.makedirs(wrong_dir)
-                shutil.copyfile(src_file, os.path.join(wrong_dir, ex.prefix+"_"+file))
             except Exception as ex:
                 print(F"Unable to transform file: {file}. Skipping")
                 print(ex)

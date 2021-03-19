@@ -4,5 +4,5 @@ from lego_sorter_server.analysis.detection.DetectionResults import DetectionResu
 
 
 class LegoDetector:
-    def detect_lego(self, image: numpy.array) -> DetectionResults:
+    def detect_lego(self, image: numpy.ndarray) -> DetectionResults:
         pass

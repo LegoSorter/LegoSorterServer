@@ -10,6 +10,7 @@ from lego_sorter_server.generated.LegoSorter_pb2 import ImageRequest
 
 
 class ImageProtoUtils:
+    DEFAULT_LABEL = "Lego"
 
     @staticmethod
     def prepare_image(request: ImageRequest) -> Image.Image:
@@ -46,10 +47,7 @@ class ImageProtoUtils:
         return bb_list
 
     @staticmethod
-    def prepare_bbs_response_from_detection_results(detection_results: DetectionResults,
-                                                    scale: float,
-                                                    target_image_size: (int, int),  # (width, height)
-                                                    detection_image_size: int = 640) -> List[BoundingBox]:
+    def prepare_bbs_response_from_detection_results(detection_results: DetectionResults) -> List[BoundingBox]:
         bbs = []
         for i in range(len(detection_results.detection_classes)):
             if detection_results.detection_scores[i] < 0.5:
@@ -57,13 +55,9 @@ class ImageProtoUtils:
 
             bb = BoundingBox()
 
-            bb.ymin, bb.xmin, bb.ymax, bb.xmax = [int(i * detection_image_size * 1 / scale) for i in
-                                                  detection_results.detection_boxes[i]]
-            if bb.ymax >= target_image_size[1] or bb.xmax >= target_image_size[0]:
-                continue
-
+            bb.ymin, bb.xmin, bb.ymax, bb.xmax = [int(coord) for coord in detection_results.detection_boxes[i]]
             bb.score = detection_results.detection_scores[i]
-            bb.label = 'lego'
+            bb.label = ImageProtoUtils.DEFAULT_LABEL
             bbs.append(bb)
 
         return bbs

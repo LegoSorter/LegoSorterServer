@@ -5,7 +5,7 @@ from concurrent import futures
 
 from PIL.Image import Image
 
-from lego_sorter_server.analysis.classifier.LegoClassifierProvider import LegoClassifierProvider
+from lego_sorter_server.analysis.classification.LegoClassifierProvider import LegoClassifierProvider
 from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
 from lego_sorter_server.analysis.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
