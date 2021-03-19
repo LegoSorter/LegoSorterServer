@@ -30,7 +30,7 @@ class SortingProcessor:
     @staticmethod
     def get_best_result(results):
         # TODO - max score, average score, max count?
-        pass
+        return results[0]
 
     @staticmethod
     def is_following_position(previous_position_ymin, current_position_ymin):

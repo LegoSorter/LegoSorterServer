@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "Messages.proto";
+
+package analysis;
+
+option java_package = "com.lsorter.analysis";
+option java_outer_classname = "LegoAnalysisProto";
+
+service LegoAnalysis {
+  rpc DetectBricks (common.ImageRequest) returns (common.ListOfBoundingBoxes);
+  rpc DetectAndClassifyBricks (common.ImageRequest) returns (common.ListOfBoundingBoxes);
+}
