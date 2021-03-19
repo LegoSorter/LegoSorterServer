@@ -1,7 +1,8 @@
 import logging
-import numpy
 
 from PIL.Image import Image
+
+from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.classification.LegoClassifierProvider import LegoClassifierProvider
 from lego_sorter_server.analysis.classification.classifiers.TFLegoClassifier import TFLegoClassifier
 from lego_sorter_server.analysis.detection import DetectionUtils
@@ -37,11 +38,20 @@ class AnalysisService:
                                                            image.size,
                                                            self.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
-    def classify(self, images: [Image]):
-        pass
+    def classify(self, images: [Image]) -> ClassificationResults:
+        return self.classifier.predict_from_pil(images)
 
-    def detect_and_classify(self):
-        pass
+    def detect_and_classify(self, image: Image) -> (DetectionResults, ClassificationResults):
+        detection_results = self.detect(image)
+
+        cropped_images = []
+        for bounding_box in detection_results.detection_boxes:
+            cropped_image = DetectionUtils.crop_with_margin_from_bb(image, bounding_box)
+            cropped_images.append(cropped_image)
+
+        classification_results = self.classify(cropped_images)
+
+        return detection_results, classification_results
 
     @staticmethod
     def translate_bounding_boxes_to_original_size(detection_results: DetectionResults,
@@ -50,7 +60,7 @@ class AnalysisService:
                                                   detection_image_size: int = 640) -> DetectionResults:
         bbs = []
         for i in range(len(detection_results.detection_classes)):
-            y_min, x_min, y_max, x_max = [int(i * detection_image_size * 1 / scale) for i in
+            y_min, x_min, y_max, x_max = [int(coord * detection_image_size * 1 / scale) for coord in
                                           detection_results.detection_boxes[i]]
 
             if y_max >= target_image_size[1] or x_max >= target_image_size[0]:

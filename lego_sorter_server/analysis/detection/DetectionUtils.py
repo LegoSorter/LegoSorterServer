@@ -10,6 +10,11 @@ def resize(img, target):
     return new_im, scaling_factor
 
 
+def crop_with_margin_from_bb(image, bounding_box, abs_margin=0, rel_margin=0.10):
+    return crop_with_margin(image, bounding_box[0], bounding_box[1], bounding_box[2], bounding_box[3], abs_margin,
+                            rel_margin)
+
+
 def crop_with_margin(image, ymin, xmin, ymax, xmax, abs_margin=0, rel_margin=0.10):
     width, height = image.size
 
