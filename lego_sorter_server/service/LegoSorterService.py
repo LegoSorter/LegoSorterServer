@@ -14,6 +14,9 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
         image = ImageProtoUtils.prepare_image(request)
         results = self.sortingProcessor.process_next_image(image)
 
+        return ListOfBoundingBoxes()
+        # What to do?
+
     def getConfiguration(self, request, context) -> SorterConfiguration:
         return super().getConfiguration(request, context)
 
