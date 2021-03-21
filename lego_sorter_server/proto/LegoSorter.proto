@@ -6,12 +6,21 @@ package sorter;
 option java_package = "com.lsorter.sorter";
 option java_outer_classname = "LegoSorterProto";
 
+message BoundingBoxWithIndex {
+  int32 index = 1;
+  common.BoundingBox bb = 2;
+}
+
+message ListOfBoundingBoxesWithIndexes {
+  repeated BoundingBoxWithIndex packet = 1;
+}
+
 message SorterConfiguration {
 
 }
 
 service LegoSorter {
-  rpc processNextImage(common.ImageRequest) returns (common.ListOfBoundingBoxes);
+  rpc processNextImage(common.ImageRequest) returns (ListOfBoundingBoxesWithIndexes);
   rpc getConfiguration(common.Empty) returns (SorterConfiguration);
   rpc updateConfiguration(SorterConfiguration) returns (SorterConfiguration);
 }
