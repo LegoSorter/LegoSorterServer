@@ -1,6 +1,7 @@
 from lego_sorter_server.generated import LegoSorter_pb2_grpc
-from lego_sorter_server.generated.LegoSorter_pb2 import SorterConfiguration
-from lego_sorter_server.generated.Messages_pb2 import ListOfBoundingBoxes, ImageRequest
+from lego_sorter_server.generated.LegoSorter_pb2 import SorterConfiguration, ListOfBoundingBoxesWithIndexes, \
+    BoundingBoxWithIndex
+from lego_sorter_server.generated.Messages_pb2 import ImageRequest, BoundingBox
 from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
 from lego_sorter_server.sorter.SortingProcessor import SortingProcessor
 
@@ -10,15 +11,34 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
     def __init__(self):
         self.sortingProcessor = SortingProcessor()
 
-    def processNextImage(self, request: ImageRequest, context) -> ListOfBoundingBoxes:
+    def processNextImage(self, request: ImageRequest, context) -> ListOfBoundingBoxesWithIndexes:
         image = ImageProtoUtils.prepare_image(request)
-        results = self.sortingProcessor.process_next_image(image)
+        current_state = self.sortingProcessor.process_next_image(image)
 
-        return ListOfBoundingBoxes()
-        # What to do?
+        return self._prepare_response_from_sorter_state(current_state=current_state)
 
     def getConfiguration(self, request, context) -> SorterConfiguration:
         return super().getConfiguration(request, context)
 
     def updateConfiguration(self, request: SorterConfiguration, context) -> SorterConfiguration:
         return super().updateConfiguration(request, context)
+
+    @staticmethod
+    def _prepare_response_from_sorter_state(current_state: dict):
+        bbs_with_indexes = []
+        for key, value in current_state.items():
+            bb = BoundingBox()
+            bb.ymin, bb.xmin, bb.ymax, bb.xmax = value[0]
+            bb.label = value[1]
+            bb.score = value[2]
+
+            bb_index = BoundingBoxWithIndex()
+            bb_index.bb = bb
+            bb_index.index = key
+
+            bbs_with_indexes.append(bb_index)
+
+        response = ListOfBoundingBoxesWithIndexes()
+        response.packet.extend(bbs_with_indexes)
+
+        return response

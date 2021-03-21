@@ -27,7 +27,6 @@ class SortingProcessor:
         while self.ordering.get_count_of_results_to_send() > 0:
             # Clear out the queue of processed bricks
             self._send_results_to_controller()
-            pass
 
         return self.ordering.get_current_state()
 

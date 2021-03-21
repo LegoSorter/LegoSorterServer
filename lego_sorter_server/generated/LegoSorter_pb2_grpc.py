@@ -18,7 +18,7 @@ class LegoSorterStub(object):
         self.processNextImage = channel.unary_unary(
                 '/sorter.LegoSorter/processNextImage',
                 request_serializer=Messages__pb2.ImageRequest.SerializeToString,
-                response_deserializer=Messages__pb2.ListOfBoundingBoxes.FromString,
+                response_deserializer=LegoSorter__pb2.ListOfBoundingBoxesWithIndexes.FromString,
                 )
         self.getConfiguration = channel.unary_unary(
                 '/sorter.LegoSorter/getConfiguration',
@@ -59,7 +59,7 @@ def add_LegoSorterServicer_to_server(servicer, server):
             'processNextImage': grpc.unary_unary_rpc_method_handler(
                     servicer.processNextImage,
                     request_deserializer=Messages__pb2.ImageRequest.FromString,
-                    response_serializer=Messages__pb2.ListOfBoundingBoxes.SerializeToString,
+                    response_serializer=LegoSorter__pb2.ListOfBoundingBoxesWithIndexes.SerializeToString,
             ),
             'getConfiguration': grpc.unary_unary_rpc_method_handler(
                     servicer.getConfiguration,
@@ -94,7 +94,7 @@ class LegoSorter(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/sorter.LegoSorter/processNextImage',
             Messages__pb2.ImageRequest.SerializeToString,
-            Messages__pb2.ListOfBoundingBoxes.FromString,
+            LegoSorter__pb2.ListOfBoundingBoxesWithIndexes.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

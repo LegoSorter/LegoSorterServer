@@ -58,7 +58,15 @@ class SimpleOrdering:
                      f"\n {list(self.memorized_state.items())}")
 
     def get_current_state(self):
-        return list(self.memorized_state.items())
+        """
+        Returns the memorized state of the belt in the following form:
+            { index_of_the_brick: ((bounding_box), label, score), ... }
+        """
+        current_state = dict()
+        for key, value in self.memorized_state.items():
+            current_state[key] = value[-1]  # assign the most recent value
+
+        return current_state
 
     def _get_first_brick(self):
         return self.memorized_state.get(self.head_index, [()])[-1]
