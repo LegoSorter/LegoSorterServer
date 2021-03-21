@@ -12,19 +12,19 @@ class LegoAnalysisService(LegoAnalysis_pb2_grpc.LegoAnalysisServicer):
         self.analysis_service = AnalysisService()
 
     def DetectBricks(self, request: ImageRequest, context):
-        logging.info("[DetectBricks] Request received, processing...")
+        logging.info("[LegoAnalysisService] Request received, processing...")
         start_time = time.time()
 
         detection_results = self._detect_bricks(request)
         bbs_list = ImageProtoUtils.prepare_bbs_response_from_detection_results(detection_results)
 
         elapsed_millis = (time.time() - start_time) * 1000
-        logging.info(f"[DetectBricks] Detecting and preparing response took {elapsed_millis} milliseconds.")
+        logging.info(f"[LegoAnalysisService] Detecting and preparing response took {elapsed_millis} milliseconds.")
 
         return bbs_list
 
     def DetectAndClassifyBricks(self, request: ImageRequest, context):
-        logging.info("[DetectAndClassifyBricks] Request received, processing...")
+        logging.info("[LegoAnalysisService] Request received, processing...")
         start_time = time.time()
 
         image = ImageProtoUtils.prepare_image(request)
@@ -32,7 +32,7 @@ class LegoAnalysisService(LegoAnalysis_pb2_grpc.LegoAnalysisServicer):
         bb_list = ImageProtoUtils.prepare_response_from_analysis_results(detection_results, classification_results)
 
         elapsed_millis = (time.time() - start_time) * 1000
-        logging.info(f"[DetectAndClassifyBricks] Detecting, classifying and preparing response took "
+        logging.info(f"[LegoAnalysisService] Detecting, classifying and preparing response took "
                      f"{elapsed_millis} milliseconds.")
 
         return bb_list

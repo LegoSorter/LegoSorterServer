@@ -1,6 +1,7 @@
 import logging
-from typing import List, Tuple
+import time
 
+from typing import List, Tuple
 from PIL.Image import Image
 
 from lego_sorter_server.analysis.AnalysisService import AnalysisService
@@ -20,7 +21,11 @@ class SortingProcessor:
         return results[0]
 
     def process_next_image(self, image: Image):
+        start_time = time.time()
         current_results = self._process(image)
+        elapsed_ms = 1000 * (time.time() - start_time)
+
+        logging.info(f"[SortingProcessor] Processing an image took {elapsed_ms} ms.")
 
         self.ordering.process_current_results(current_results)
 

@@ -82,9 +82,10 @@ class SimpleOrdering:
 
     def _extract_processed_bricks(self, count):
         for i in range(count):
-            first = self.memorized_state.pop(self.head_index + i)
-            self.processed_bricks.append(first)
-            logging.info(f"[SimpleOrdering] A brick moved to the processed queue:\n {first}")
+            current_first = self.memorized_state.pop(self.head_index + i)
+            self.processed_bricks.append(current_first)
+            logging.info(f"[SimpleOrdering] A brick with id {self.head_index + i} was moved to the processed queue:"
+                         f"\n {current_first}")
 
         self.head_index = self.head_index + count
 
