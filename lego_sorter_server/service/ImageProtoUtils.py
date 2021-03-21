@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import List
+from typing import List, Tuple
 
 from PIL import Image
 
@@ -27,7 +27,7 @@ class ImageProtoUtils:
         return image
 
     @staticmethod
-    def crop_bounding_boxes(image: Image.Image, bbs: List[BoundingBox]) -> [(BoundingBox, Image.Image)]:
+    def crop_bounding_boxes(image: Image.Image, bbs: List[BoundingBox]) -> List[Tuple[BoundingBox, Image.Image]]:
         bbs_with_blobs = []
 
         for bb in bbs:

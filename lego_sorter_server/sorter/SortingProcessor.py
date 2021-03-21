@@ -1,4 +1,5 @@
 import logging
+from typing import List, Tuple
 
 from PIL.Image import Image
 
@@ -9,26 +10,23 @@ from lego_sorter_server.sorter.ordering.SimpleOrdering import SimpleOrdering
 
 class SortingProcessor:
     def __init__(self):
-        self.analysis_service = AnalysisService()
-        self.sorter_controller = LegoSorterController()
-        self.ordering = SimpleOrdering()
+        self.analysis_service: AnalysisService = AnalysisService()
+        self.sorter_controller: LegoSorterController = LegoSorterController()
+        self.ordering: SimpleOrdering = SimpleOrdering()
 
     @staticmethod
     def get_best_result(results):
         # TODO - max score, average score, max count?
         return results[0]
 
-    @staticmethod
-    def is_following_position(previous_position_ymin, current_position_ymin):
-        return previous_position_ymin > current_position_ymin
-
     def process_next_image(self, image: Image):
         current_results = self._process(image)
 
         self.ordering.process_current_results(current_results)
 
-        while self._send_results_to_controller() is True:
+        while self.ordering.get_count_of_results_to_send() > 0:
             # Clear out the queue of processed bricks
+            self._send_results_to_controller()
             pass
 
         return self.ordering.get_current_state()
@@ -43,17 +41,15 @@ class SortingProcessor:
         logging.info(f"[SortingProcessor] Got the best result {best_result}. Returning the results...")
         self.sorter_controller.on_brick_recognized(best_result)
 
-        return True
-
-    def _process(self, image: Image) -> [([], int, float)]:
+    def _process(self, image: Image) -> List[Tuple]:
         """
-        Returns a list of recognized bricks ordered by the position on the belt.
+        Returns a list of recognized bricks ordered by the position on the belt - ymin desc
         """
         results = self.analysis_service.detect_and_classify(image)
 
         detected_count = len(results[0].detection_classes)
         if detected_count == 0:
-            return ()
+            return [()]
 
         logging.info(f"[SortingProcessor] Detected a lego brick, processing...")
 
@@ -65,9 +61,9 @@ class SortingProcessor:
                                   results[1].classification_classes,
                                   results[1].classification_scores))
 
-        return self.order_by_bounding_box_position(zipped_results, asc=True)
+        return self.order_by_bounding_box_position(zipped_results)
 
     @staticmethod
-    def order_by_bounding_box_position(zipped_results: [([], int, float)], asc=True) -> [([], int, float)]:
+    def order_by_bounding_box_position(zipped_results: List[Tuple[Tuple, str, float]]) -> List[Tuple]:
         # sort by ymin
-        return sorted(zipped_results, key=lambda res: res[0][0], reverse=not asc)
+        return sorted(zipped_results, key=lambda res: res[0][0], reverse=True)

@@ -1,6 +1,8 @@
 import itertools
 from pathlib import Path
 from time import time
+from typing import List
+
 from PIL import Image
 import logging
 
@@ -54,7 +56,7 @@ class LegoImageStorage:
 
         return filename
 
-    def get_images(self, lego_class: str, limit: int = 10) -> [Image.Image]:
+    def get_images(self, lego_class: str, limit: int = 10) -> List[Image.Image]:
         """Returns a list of images for specified lego_class"""
 
         lego_class_directory = self.images_base_path / lego_class
