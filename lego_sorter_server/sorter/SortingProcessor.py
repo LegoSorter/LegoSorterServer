@@ -27,7 +27,7 @@ class SortingProcessor:
 
         logging.info(f"[SortingProcessor] Processing an image took {elapsed_ms} ms.")
 
-        self.ordering.process_current_results(current_results)
+        self.ordering.process_current_results(current_results, image_height = image.height)
 
         while self.ordering.get_count_of_results_to_send() > 0:
             # Clear out the queue of processed bricks

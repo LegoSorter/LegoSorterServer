@@ -5,14 +5,23 @@ from typing import List
 
 
 class SimpleOrdering:
+    BORDER_MARGIN = 5
+
     def __init__(self):
         self.memorized_state: OrderedDict = OrderedDict()
         self.processed_bricks = []
         self.head_index = -1  # this indicates the index of the first brick on the tape
 
-    def process_current_results(self, results):
+    def process_current_results(self, results, image_height: int):
         if len(results) == 0:
             logging.info("[SimpleOrdering] No bricks detected. It means that all bricks have surpassed the camera line")
+            self._extract_processed_bricks(len(self.memorized_state))
+            return
+
+        results = self.discard_border_results(results, image_height)
+
+        if len(results) == 0:
+            logging.info("[SimpleOrdering] There is no bricks to process after skipping border results.")
             self._extract_processed_bricks(len(self.memorized_state))
             return
 
@@ -78,7 +87,8 @@ class SimpleOrdering:
 
     def _is_the_same_brick(self, older_view, current_view):
         # Check if the position of the bounding box moved along the tape direction
-        return older_view[0][0] <= current_view[0][0]
+        # Compare both ymin and ymax
+        return older_view[0][0] <= current_view[0][0] or older_view[0][2] <= current_view[0][2]
 
     def _extract_processed_bricks(self, count):
         for i in range(count):
@@ -111,3 +121,19 @@ class SimpleOrdering:
                 break
 
         return passed_count
+
+    def discard_border_results(self, results, image_height):
+        first_brick = results[0]
+        last_brick = results[-1]
+
+        if first_brick[0][2] + self.BORDER_MARGIN >= image_height:
+            logging.info(f"[SimpleOrdering] One result has been discarded as it exceeds the bottom camera line:"
+                         f"\n{first_brick}")
+            results = results[1:]
+
+        if last_brick[0][0] - self.BORDER_MARGIN <= 0:
+            logging.info(f"[SimpleOrdering] One result has been discarded as it exceeds the top camera line:"
+                         f"\n{last_brick}")
+            results = results[:-1]
+
+        return results
