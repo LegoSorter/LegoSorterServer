@@ -7,4 +7,4 @@ class LegoDetectorProvider:
 
     @staticmethod
     def get_default_detector() -> LegoDetector:
-        return TFLegoDetector()
+        return YoloLegoDetector()

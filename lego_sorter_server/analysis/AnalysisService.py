@@ -1,4 +1,6 @@
 import logging
+from typing import Tuple, List
+
 import numpy
 
 from PIL.Image import Image
@@ -38,10 +40,10 @@ class AnalysisService:
                                                               original_size,
                                                               self.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
-    def classify(self, images: [Image]) -> ClassificationResults:
+    def classify(self, images: List[Image]) -> ClassificationResults:
         return self.classifier.predict_from_pil(images)
 
-    def detect_and_classify(self, image: Image) -> (DetectionResults, ClassificationResults):
+    def detect_and_classify(self, image: Image) -> Tuple[DetectionResults, ClassificationResults]:
         detection_results = self.detect(image)
 
         cropped_images = []
@@ -56,7 +58,7 @@ class AnalysisService:
     @staticmethod
     def translate_bounding_boxes_to_original_size(detection_results: DetectionResults,
                                                   scale: float,
-                                                  target_image_size: (int, int),  # (width, height)
+                                                  target_image_size: Tuple[int, int],  # (width, height)
                                                   detection_image_size: int = 640) -> DetectionResults:
         bbs = []
         for i in range(len(detection_results.detection_classes)):

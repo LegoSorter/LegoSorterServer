@@ -1,82 +1,55 @@
-import numpy
 import logging
-
-from concurrent import futures
+from typing import List, Tuple
 
 from PIL.Image import Image
 
-from lego_sorter_server.analysis.classification.LegoClassifierProvider import LegoClassifierProvider
-from lego_sorter_server.analysis.detection import DetectionUtils
-from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
-from lego_sorter_server.analysis.detection.detectors.LegoDetectorProvider import LegoDetectorProvider
+from lego_sorter_server.analysis.AnalysisService import AnalysisService
 from lego_sorter_server.sorter.LegoSorterController import LegoSorterController
+from lego_sorter_server.sorter.ordering.SimpleOrdering import SimpleOrdering
 
 
 class SortingProcessor:
     def __init__(self):
-        self.sorter_controller = LegoSorterController()
-        self.detector = LegoDetectorProvider.get_default_detector()
-        self.classifier = LegoClassifierProvider.get_default_classifier()
-        self.executor = futures.ThreadPoolExecutor(max_workers=1)
-        self.last_results = []
-
-    @staticmethod
-    def find_closest_brick(detections: DetectionResults):
-        bbs = detections.detection_boxes
-        # The closest brick is a brick with the smallest ymin value
-        closest = min(bbs, key=lambda bb: bb[0])
-        return closest
+        self.analysis_service: AnalysisService = AnalysisService()
+        self.sorter_controller: LegoSorterController = LegoSorterController()
+        self.ordering: SimpleOrdering = SimpleOrdering()
 
     @staticmethod
     def get_best_result(results):
         # TODO - max score, average score, max count?
         return results[0]
 
-    @staticmethod
-    def is_following_position(previous_position_ymin, current_position_ymin):
-        return previous_position_ymin > current_position_ymin
-
     def process_next_image(self, image: Image):
-        current_result = self._process(image)
+        current_results = self._process(image)
 
-        if len(current_result) == 0 and len(self.last_results) == 0:
-            logging.info(f"[SortingProcessor] Got an empty image.")
-            return current_result
+        self.ordering.process_current_results(current_results)
 
-        if len(current_result) == 0:
-            # Nothing more to check, we can return results to machine
-            logging.info(f"[SortingProcessor] The brick surpassed the camera line, sending results.")
-            self._send_result_and_clear_history()
-            return current_result
+        while self.ordering.get_count_of_results_to_send() > 0:
+            # Clear out the queue of processed bricks
+            self._send_results_to_controller()
+            pass
 
-        if len(self.last_results) > 0:
-            # We are probably processing still the same brick, checking
-            previous_position, _ = self.last_results[-1]
-            current_position, _ = current_result
+        return self.ordering.get_current_state()
 
-            if not self.is_following_position(previous_position[0], current_position[0]):
-                self._send_result_and_clear_history()
+    def _send_results_to_controller(self):
+        processed_brick = self.ordering.pop_first_processed_brick()
 
-        logging.info(f"[SortingProcessor] Saving results for further analysis...")
-        self.last_results.append(current_result)
+        if len(processed_brick) == 0:
+            return False
 
-    def _send_result_and_clear_history(self):
-        best_result = self.get_best_result(self.last_results)
+        best_result = self.get_best_result(processed_brick)
         logging.info(f"[SortingProcessor] Got the best result {best_result}. Returning the results...")
         self.sorter_controller.on_brick_recognized(best_result)
-        self.last_results.clear()
 
-    def _process(self, image: Image):
-        # TODO - resize image!
-        image_resized, scale = DetectionUtils.resize(image, 640)
-        detections = self.detector.detect_lego(numpy.array(image_resized))
-        # for i in range(len(detections["detection_classes"])):
-        #     ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections['detection_boxes'][i]]
-        #     detections['detection_boxes'][i] = [ymin, xmin, ymax, xmax]
+    def _process(self, image: Image) -> List[Tuple]:
+        """
+        Returns a list of recognized bricks ordered by the position on the belt - ymin desc
+        """
+        results = self.analysis_service.detect_and_classify(image)
 
-        detected_count = len(detections.detection_classes)
+        detected_count = len(results[0].detection_classes)
         if detected_count == 0:
-            return ()
+            return [()]
 
         logging.info(f"[SortingProcessor] Detected a lego brick, processing...")
 
@@ -84,9 +57,13 @@ class SortingProcessor:
             logging.warning(f"[SortingProcessor] More than one brick detected '(detected_count = {detected_count}), "
                             f"there should be only one brick on the tape at the same time.")
 
-        # TODO - we can just run inference for all detected bricks rather than only the closest one and then store the
-        #  results for future use.
-        target_brick = self.find_closest_brick(detections)
-        results = self.classifier.classify(target_brick)
+        zipped_results = list(zip(results[0].detection_boxes,
+                                  results[1].classification_classes,
+                                  results[1].classification_scores))
 
-        return target_brick, results
+        return self.order_by_bounding_box_position(zipped_results)
+
+    @staticmethod
+    def order_by_bounding_box_position(zipped_results: List[Tuple[Tuple, str, float]]) -> List[Tuple]:
+        # sort by ymin
+        return sorted(zipped_results, key=lambda res: res[0][0], reverse=True)

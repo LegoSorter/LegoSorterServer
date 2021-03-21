@@ -1,5 +1,8 @@
+from typing import List
+
+
 class ClassificationResults:
-    def __init__(self, classification_classes, classification_scores):
+    def __init__(self, classification_classes: List[str], classification_scores: List[float]):
         self.classification_classes = classification_classes
         self.classification_scores = classification_scores
 
