@@ -48,7 +48,7 @@ class SortingProcessor:
 
         detected_count = len(results[0].detection_classes)
         if detected_count == 0:
-            return [()]
+            return []
 
         logging.info(f"[SortingProcessor] Detected a lego brick, processing...")
 

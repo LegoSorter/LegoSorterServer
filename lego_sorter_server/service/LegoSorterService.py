@@ -24,7 +24,7 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
         return super().updateConfiguration(request, context)
 
     @staticmethod
-    def _prepare_response_from_sorter_state(current_state: dict):
+    def _prepare_response_from_sorter_state(current_state: dict) -> ListOfBoundingBoxesWithIndexes:
         bbs_with_indexes = []
         for key, value in current_state.items():
             bb = BoundingBox()
@@ -33,7 +33,7 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
             bb.score = value[2]
 
             bb_index = BoundingBoxWithIndex()
-            bb_index.bb = bb
+            bb_index.bb.CopyFrom(bb)
             bb_index.index = key
 
             bbs_with_indexes.append(bb_index)
