@@ -23,4 +23,5 @@ service LegoSorter {
   rpc processNextImage(common.ImageRequest) returns (ListOfBoundingBoxesWithIndexes);
   rpc getConfiguration(common.Empty) returns (SorterConfiguration);
   rpc updateConfiguration(SorterConfiguration) returns (SorterConfiguration);
+  rpc startMachine(common.Empty) returns (common.Empty);
 }

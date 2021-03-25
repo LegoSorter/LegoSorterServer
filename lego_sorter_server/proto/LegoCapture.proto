@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "Messages.proto";
+
 package capture;
 
 option java_package = "com.lsorter.capture";
@@ -11,11 +13,7 @@ message ImageStore {
   string label = 3;
 }
 
-message Empty {
-
-}
-
 service LegoCapture {
-  rpc CollectImages (ImageStore) returns (Empty);
-  rpc CollectCroppedImages (ImageStore) returns (Empty);
+  rpc CollectImages (ImageStore) returns (common.Empty);
+  rpc CollectCroppedImages (ImageStore) returns (common.Empty);
 }

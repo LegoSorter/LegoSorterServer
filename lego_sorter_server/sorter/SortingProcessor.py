@@ -15,11 +15,6 @@ class SortingProcessor:
         self.sorter_controller: LegoSorterController = LegoSorterController()
         self.ordering: SimpleOrdering = SimpleOrdering()
 
-    @staticmethod
-    def get_best_result(results):
-        # TODO - max score, average score, max count?
-        return results[0]
-
     def process_next_image(self, image: Image):
         start_time = time.time()
         current_results = self._process(image)
@@ -67,7 +62,15 @@ class SortingProcessor:
 
         return self.order_by_bounding_box_position(zipped_results)
 
+    def start_machine(self):
+        self.sorter_controller.run_conveyor()
+
     @staticmethod
     def order_by_bounding_box_position(zipped_results: List[Tuple[Tuple, str, float]]) -> List[Tuple]:
         # sort by ymin
         return sorted(zipped_results, key=lambda res: res[0][0], reverse=True)
+
+    @staticmethod
+    def get_best_result(results):
+        # TODO - max score, average score, max count?
+        return results[0]

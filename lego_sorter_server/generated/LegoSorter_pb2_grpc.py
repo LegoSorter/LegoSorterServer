@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import lego_sorter_server.generated.LegoSorter_pb2 as LegoSorter__pb2
-import lego_sorter_server.generated.Messages_pb2 as Messages__pb2
+import LegoSorter_pb2 as LegoSorter__pb2
+import Messages_pb2 as Messages__pb2
 
 
 class LegoSorterStub(object):
@@ -30,6 +30,11 @@ class LegoSorterStub(object):
                 request_serializer=LegoSorter__pb2.SorterConfiguration.SerializeToString,
                 response_deserializer=LegoSorter__pb2.SorterConfiguration.FromString,
                 )
+        self.startMachine = channel.unary_unary(
+                '/sorter.LegoSorter/startMachine',
+                request_serializer=Messages__pb2.Empty.SerializeToString,
+                response_deserializer=Messages__pb2.Empty.FromString,
+                )
 
 
 class LegoSorterServicer(object):
@@ -53,6 +58,12 @@ class LegoSorterServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def startMachine(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_LegoSorterServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -70,6 +81,11 @@ def add_LegoSorterServicer_to_server(servicer, server):
                     servicer.updateConfiguration,
                     request_deserializer=LegoSorter__pb2.SorterConfiguration.FromString,
                     response_serializer=LegoSorter__pb2.SorterConfiguration.SerializeToString,
+            ),
+            'startMachine': grpc.unary_unary_rpc_method_handler(
+                    servicer.startMachine,
+                    request_deserializer=Messages__pb2.Empty.FromString,
+                    response_serializer=Messages__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -129,5 +145,22 @@ class LegoSorter(object):
         return grpc.experimental.unary_unary(request, target, '/sorter.LegoSorter/updateConfiguration',
             LegoSorter__pb2.SorterConfiguration.SerializeToString,
             LegoSorter__pb2.SorterConfiguration.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def startMachine(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/sorter.LegoSorter/startMachine',
+            Messages__pb2.Empty.SerializeToString,
+            Messages__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

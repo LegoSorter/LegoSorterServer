@@ -1,7 +1,7 @@
 from lego_sorter_server.generated import LegoSorter_pb2_grpc
 from lego_sorter_server.generated.LegoSorter_pb2 import SorterConfiguration, ListOfBoundingBoxesWithIndexes, \
     BoundingBoxWithIndex
-from lego_sorter_server.generated.Messages_pb2 import ImageRequest, BoundingBox
+from lego_sorter_server.generated.Messages_pb2 import ImageRequest, BoundingBox, Empty
 from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
 from lego_sorter_server.sorter.SortingProcessor import SortingProcessor
 
@@ -16,6 +16,9 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
         current_state = self.sortingProcessor.process_next_image(image)
 
         return self._prepare_response_from_sorter_state(current_state=current_state)
+
+    def startMachine(self, request: Empty, context):
+        self.sortingProcessor.start_machine()
 
     def getConfiguration(self, request, context) -> SorterConfiguration:
         return super().getConfiguration(request, context)
