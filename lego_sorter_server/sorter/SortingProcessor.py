@@ -65,6 +65,9 @@ class SortingProcessor:
     def start_machine(self):
         self.sorter_controller.run_conveyor()
 
+    def stop_machine(self):
+        self.sorter_controller.stop_conveyor()
+
     @staticmethod
     def order_by_bounding_box_position(zipped_results: List[Tuple[Tuple, str, float]]) -> List[Tuple]:
         # sort by ymin

@@ -3,6 +3,7 @@
 import grpc
 
 import lego_sorter_server.generated.LegoCapture_pb2 as LegoCapture__pb2
+import lego_sorter_server.generated.Messages_pb2 as Messages__pb2
 
 
 class LegoCaptureStub(object):
@@ -17,12 +18,12 @@ class LegoCaptureStub(object):
         self.CollectImages = channel.unary_unary(
                 '/capture.LegoCapture/CollectImages',
                 request_serializer=LegoCapture__pb2.ImageStore.SerializeToString,
-                response_deserializer=LegoCapture__pb2.Empty.FromString,
+                response_deserializer=Messages__pb2.Empty.FromString,
                 )
         self.CollectCroppedImages = channel.unary_unary(
                 '/capture.LegoCapture/CollectCroppedImages',
                 request_serializer=LegoCapture__pb2.ImageStore.SerializeToString,
-                response_deserializer=LegoCapture__pb2.Empty.FromString,
+                response_deserializer=Messages__pb2.Empty.FromString,
                 )
 
 
@@ -47,12 +48,12 @@ def add_LegoCaptureServicer_to_server(servicer, server):
             'CollectImages': grpc.unary_unary_rpc_method_handler(
                     servicer.CollectImages,
                     request_deserializer=LegoCapture__pb2.ImageStore.FromString,
-                    response_serializer=LegoCapture__pb2.Empty.SerializeToString,
+                    response_serializer=Messages__pb2.Empty.SerializeToString,
             ),
             'CollectCroppedImages': grpc.unary_unary_rpc_method_handler(
                     servicer.CollectCroppedImages,
                     request_deserializer=LegoCapture__pb2.ImageStore.FromString,
-                    response_serializer=LegoCapture__pb2.Empty.SerializeToString,
+                    response_serializer=Messages__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -77,7 +78,7 @@ class LegoCapture(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/capture.LegoCapture/CollectImages',
             LegoCapture__pb2.ImageStore.SerializeToString,
-            LegoCapture__pb2.Empty.FromString,
+            Messages__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -94,6 +95,6 @@ class LegoCapture(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/capture.LegoCapture/CollectCroppedImages',
             LegoCapture__pb2.ImageStore.SerializeToString,
-            LegoCapture__pb2.Empty.FromString,
+            Messages__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

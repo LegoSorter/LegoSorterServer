@@ -24,4 +24,5 @@ service LegoSorter {
   rpc getConfiguration(common.Empty) returns (SorterConfiguration);
   rpc updateConfiguration(SorterConfiguration) returns (SorterConfiguration);
   rpc startMachine(common.Empty) returns (common.Empty);
+  rpc stopMachine(common.Empty) returns (common.Empty);
 }

@@ -11,7 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import Messages_pb2 as Messages__pb2
+import lego_sorter_server.generated.Messages_pb2 as Messages__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\022com.lsorter.sorterB\017LegoSorterProto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x10LegoSorter.proto\x12\x06sorter\x1a\x0eMessages.proto\"F\n\x14\x42oundingBoxWithIndex\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x1f\n\x02\x62\x62\x18\x02 \x01(\x0b\x32\x13.common.BoundingBox\"N\n\x1eListOfBoundingBoxesWithIndexes\x12,\n\x06packet\x18\x01 \x03(\x0b\x32\x1c.sorter.BoundingBoxWithIndex\"\x15\n\x13SorterConfiguration2\x9d\x02\n\nLegoSorter\x12P\n\x10processNextImage\x12\x14.common.ImageRequest\x1a&.sorter.ListOfBoundingBoxesWithIndexes\x12>\n\x10getConfiguration\x12\r.common.Empty\x1a\x1b.sorter.SorterConfiguration\x12O\n\x13updateConfiguration\x12\x1b.sorter.SorterConfiguration\x1a\x1b.sorter.SorterConfiguration\x12,\n\x0cstartMachine\x12\r.common.Empty\x1a\r.common.EmptyB%\n\x12\x63om.lsorter.sorterB\x0fLegoSorterProtob\x06proto3'
+  serialized_pb=b'\n\x10LegoSorter.proto\x12\x06sorter\x1a\x0eMessages.proto\"F\n\x14\x42oundingBoxWithIndex\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x1f\n\x02\x62\x62\x18\x02 \x01(\x0b\x32\x13.common.BoundingBox\"N\n\x1eListOfBoundingBoxesWithIndexes\x12,\n\x06packet\x18\x01 \x03(\x0b\x32\x1c.sorter.BoundingBoxWithIndex\"\x15\n\x13SorterConfiguration2\xca\x02\n\nLegoSorter\x12P\n\x10processNextImage\x12\x14.common.ImageRequest\x1a&.sorter.ListOfBoundingBoxesWithIndexes\x12>\n\x10getConfiguration\x12\r.common.Empty\x1a\x1b.sorter.SorterConfiguration\x12O\n\x13updateConfiguration\x12\x1b.sorter.SorterConfiguration\x1a\x1b.sorter.SorterConfiguration\x12,\n\x0cstartMachine\x12\r.common.Empty\x1a\r.common.Empty\x12+\n\x0bstopMachine\x12\r.common.Empty\x1a\r.common.EmptyB%\n\x12\x63om.lsorter.sorterB\x0fLegoSorterProtob\x06proto3'
   ,
   dependencies=[Messages__pb2.DESCRIPTOR,])
 
@@ -161,7 +161,7 @@ _LEGOSORTER = _descriptor.ServiceDescriptor(
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
   serialized_start=220,
-  serialized_end=505,
+  serialized_end=550,
   methods=[
   _descriptor.MethodDescriptor(
     name='processNextImage',
@@ -197,6 +197,16 @@ _LEGOSORTER = _descriptor.ServiceDescriptor(
     name='startMachine',
     full_name='sorter.LegoSorter.startMachine',
     index=3,
+    containing_service=None,
+    input_type=Messages__pb2._EMPTY,
+    output_type=Messages__pb2._EMPTY,
+    serialized_options=None,
+    create_key=_descriptor._internal_create_key,
+  ),
+  _descriptor.MethodDescriptor(
+    name='stopMachine',
+    full_name='sorter.LegoSorter.stopMachine',
+    index=4,
     containing_service=None,
     input_type=Messages__pb2._EMPTY,
     output_type=Messages__pb2._EMPTY,

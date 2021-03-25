@@ -11,6 +11,7 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+import lego_sorter_server.generated.Messages_pb2 as Messages__pb2
 
 
 DESCRIPTOR = _descriptor.FileDescriptor(
@@ -19,8 +20,9 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=b'\n\023com.lsorter.captureB\020LegoCaptureProto',
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x11LegoCapture.proto\x12\x07\x63\x61pture\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t\"\x07\n\x05\x45mpty2\x80\x01\n\x0bLegoCapture\x12\x34\n\rCollectImages\x12\x13.capture.ImageStore\x1a\x0e.capture.Empty\x12;\n\x14\x43ollectCroppedImages\x12\x13.capture.ImageStore\x1a\x0e.capture.EmptyB\'\n\x13\x63om.lsorter.captureB\x10LegoCaptureProtob\x06proto3'
-)
+  serialized_pb=b'\n\x11LegoCapture.proto\x12\x07\x63\x61pture\x1a\x0eMessages.proto\"<\n\nImageStore\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\r\n\x05label\x18\x03 \x01(\t2~\n\x0bLegoCapture\x12\x33\n\rCollectImages\x12\x13.capture.ImageStore\x1a\r.common.Empty\x12:\n\x14\x43ollectCroppedImages\x12\x13.capture.ImageStore\x1a\r.common.EmptyB\'\n\x13\x63om.lsorter.captureB\x10LegoCaptureProtob\x06proto3'
+  ,
+  dependencies=[Messages__pb2.DESCRIPTOR,])
 
 
 
@@ -66,37 +68,11 @@ _IMAGESTORE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=30,
-  serialized_end=90,
-)
-
-
-_EMPTY = _descriptor.Descriptor(
-  name='Empty',
-  full_name='capture.Empty',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  create_key=_descriptor._internal_create_key,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=92,
-  serialized_end=99,
+  serialized_start=46,
+  serialized_end=106,
 )
 
 DESCRIPTOR.message_types_by_name['ImageStore'] = _IMAGESTORE
-DESCRIPTOR.message_types_by_name['Empty'] = _EMPTY
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 ImageStore = _reflection.GeneratedProtocolMessageType('ImageStore', (_message.Message,), {
@@ -105,13 +81,6 @@ ImageStore = _reflection.GeneratedProtocolMessageType('ImageStore', (_message.Me
   # @@protoc_insertion_point(class_scope:capture.ImageStore)
   })
 _sym_db.RegisterMessage(ImageStore)
-
-Empty = _reflection.GeneratedProtocolMessageType('Empty', (_message.Message,), {
-  'DESCRIPTOR' : _EMPTY,
-  '__module__' : 'LegoCapture_pb2'
-  # @@protoc_insertion_point(class_scope:capture.Empty)
-  })
-_sym_db.RegisterMessage(Empty)
 
 
 DESCRIPTOR._options = None
@@ -123,8 +92,8 @@ _LEGOCAPTURE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=102,
-  serialized_end=230,
+  serialized_start=108,
+  serialized_end=234,
   methods=[
   _descriptor.MethodDescriptor(
     name='CollectImages',
@@ -132,7 +101,7 @@ _LEGOCAPTURE = _descriptor.ServiceDescriptor(
     index=0,
     containing_service=None,
     input_type=_IMAGESTORE,
-    output_type=_EMPTY,
+    output_type=Messages__pb2._EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),
@@ -142,7 +111,7 @@ _LEGOCAPTURE = _descriptor.ServiceDescriptor(
     index=1,
     containing_service=None,
     input_type=_IMAGESTORE,
-    output_type=_EMPTY,
+    output_type=Messages__pb2._EMPTY,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
   ),

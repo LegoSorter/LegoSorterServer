@@ -20,6 +20,9 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
     def startMachine(self, request: Empty, context):
         self.sortingProcessor.start_machine()
 
+    def stopMachine(self, request: Empty, context):
+        self.sortingProcessor.stop_machine()
+
     def getConfiguration(self, request, context) -> SorterConfiguration:
         return super().getConfiguration(request, context)
 
