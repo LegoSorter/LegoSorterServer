@@ -5,6 +5,8 @@ from typing import List, Tuple
 from PIL.Image import Image
 
 from lego_sorter_server.analysis.AnalysisService import AnalysisService
+from lego_sorter_server.analysis.detection import DetectionUtils
+from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 from lego_sorter_server.sorter.LegoSorterController import LegoSorterController
 from lego_sorter_server.sorter.ordering.SimpleOrdering import SimpleOrdering
 
@@ -14,15 +16,24 @@ class SortingProcessor:
         self.analysis_service: AnalysisService = AnalysisService()
         self.sorter_controller: LegoSorterController = LegoSorterController()
         self.ordering: SimpleOrdering = SimpleOrdering()
+        self.storage: LegoImageStorage = LegoImageStorage()
 
-    def process_next_image(self, image: Image):
+    def process_next_image(self, image: Image, save_image: bool = True):
         start_time = time.time()
         current_results = self._process(image)
         elapsed_ms = 1000 * (time.time() - start_time)
 
         logging.info(f"[SortingProcessor] Processing an image took {elapsed_ms} ms.")
 
-        self.ordering.process_current_results(current_results, image_height = image.height)
+        self.ordering.process_current_results(current_results, image_height=image.height)
+
+        if save_image is True and len(current_results) > 0:
+            time_prefix = f"{int(time.time() * 10000) % 10000}"  # 10 seconds
+            for key, value in self.ordering.get_current_state().items():
+                bounding_box = value[0]
+                cropped_image = DetectionUtils.crop_with_margin(image, *bounding_box)
+                self.storage.save_image(cropped_image, str(key), time_prefix)
+            self.storage.save_image(image, "original_sorter", time_prefix)
 
         while self.ordering.get_count_of_results_to_send() > 0:
             # Clear out the queue of processed bricks
@@ -44,7 +55,7 @@ class SortingProcessor:
         """
         Returns a list of recognized bricks ordered by the position on the belt - ymin desc
         """
-        results = self.analysis_service.detect_and_classify(image)
+        results = self.analysis_service.detect_and_classify(image, detection_threshold=0.8)
 
         detected_count = len(results[0].detection_classes)
         if detected_count == 0:

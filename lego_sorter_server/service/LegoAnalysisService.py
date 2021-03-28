@@ -18,7 +18,7 @@ class LegoAnalysisService(LegoAnalysis_pb2_grpc.LegoAnalysisServicer):
         detection_results = self._detect_bricks(request)
         bbs_list = ImageProtoUtils.prepare_bbs_response_from_detection_results(detection_results)
 
-        elapsed_millis = (time.time() - start_time) * 1000
+        elapsed_millis = int((time.time() - start_time) * 1000)
         logging.info(f"[LegoAnalysisService] Detecting and preparing response took {elapsed_millis} milliseconds.")
 
         return bbs_list

@@ -21,7 +21,7 @@ class AnalysisService:
         self.detector: LegoDetector = LegoDetectorProvider.get_default_detector()
         self.classifier: TFLegoClassifier = LegoClassifierProvider.get_default_classifier()
 
-    def detect(self, image: Image, resize: bool = True) -> DetectionResults:
+    def detect(self, image: Image, resize: bool = True, threshold=0.5) -> DetectionResults:
         if image.size is not AnalysisService.DEFAULT_IMAGE_DETECTION_SIZE and resize is False:
             logging.warning(f"[AnalysisService] Requested detection on an image with a non-standard size {image.size} "
                             f"but 'resize' parameter is {resize}.")
@@ -34,6 +34,7 @@ class AnalysisService:
             image, scale = DetectionUtils.resize(image, AnalysisService.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
         detection_results = self.detector.detect_lego(numpy.array(image))
+        detection_results = self.filter_detection_results(detection_results, threshold)
 
         return self.translate_bounding_boxes_to_original_size(detection_results,
                                                               scale,
@@ -43,8 +44,10 @@ class AnalysisService:
     def classify(self, images: List[Image]) -> ClassificationResults:
         return self.classifier.predict_from_pil(images)
 
-    def detect_and_classify(self, image: Image) -> Tuple[DetectionResults, ClassificationResults]:
-        detection_results = self.detect(image)
+    def detect_and_classify(self, image: Image, detection_threshold: float = 0.5) -> Tuple[
+        DetectionResults, ClassificationResults]:
+
+        detection_results = self.detect(image, threshold=detection_threshold)
 
         cropped_images = []
         for bounding_box in detection_results.detection_boxes:
@@ -74,3 +77,14 @@ class AnalysisService:
                                                         detection_results.detection_classes,
                                                         bbs)
         return detection_results_translated
+
+    @staticmethod
+    def filter_detection_results(detection_results, threshold):
+        limit = len(detection_results.detection_scores)
+        for index, score in enumerate(detection_results.detection_scores):
+            if score < threshold:
+                limit = index
+                break
+        return DetectionResults(detection_results.detection_scores[:limit],
+                                detection_results.detection_classes[:limit],
+                                detection_results.detection_boxes[:limit])
