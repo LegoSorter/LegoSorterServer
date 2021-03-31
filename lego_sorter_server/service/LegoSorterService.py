@@ -39,8 +39,10 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
     def getConfiguration(self, request, context) -> SorterConfiguration:
         return super().getConfiguration(request, context)
 
-    def updateConfiguration(self, request: SorterConfiguration, context) -> SorterConfiguration:
-        return super().updateConfiguration(request, context)
+    def updateConfiguration(self, request: SorterConfiguration, context):
+        self.sortingProcessor.set_machine_speed(request.speed)
+
+        return Empty()
 
     @staticmethod
     def _prepare_response_from_sorter_state(current_state: dict) -> ListOfBoundingBoxesWithIndexes:

@@ -28,7 +28,7 @@ class LegoSorterStub(object):
         self.updateConfiguration = channel.unary_unary(
                 '/sorter.LegoSorter/updateConfiguration',
                 request_serializer=LegoSorter__pb2.SorterConfiguration.SerializeToString,
-                response_deserializer=LegoSorter__pb2.SorterConfiguration.FromString,
+                response_deserializer=Messages__pb2.Empty.FromString,
                 )
         self.startMachine = channel.unary_unary(
                 '/sorter.LegoSorter/startMachine',
@@ -91,7 +91,7 @@ def add_LegoSorterServicer_to_server(servicer, server):
             'updateConfiguration': grpc.unary_unary_rpc_method_handler(
                     servicer.updateConfiguration,
                     request_deserializer=LegoSorter__pb2.SorterConfiguration.FromString,
-                    response_serializer=LegoSorter__pb2.SorterConfiguration.SerializeToString,
+                    response_serializer=Messages__pb2.Empty.SerializeToString,
             ),
             'startMachine': grpc.unary_unary_rpc_method_handler(
                     servicer.startMachine,
@@ -160,7 +160,7 @@ class LegoSorter(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/sorter.LegoSorter/updateConfiguration',
             LegoSorter__pb2.SorterConfiguration.SerializeToString,
-            LegoSorter__pb2.SorterConfiguration.FromString,
+            Messages__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
