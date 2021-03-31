@@ -28,12 +28,14 @@ class SortingProcessor:
         self.ordering.process_current_results(current_results, image_height=image.height)
 
         if save_image is True and len(current_results) > 0:
-            time_prefix = f"{int(time.time() * 10000) % 10000}"  # 10 seconds
+            start_time_saving = time.time()
+            time_prefix = f"{int(start_time_saving * 10000) % 10000}"  # 10 seconds
             for key, value in self.ordering.get_current_state().items():
                 bounding_box = value[0]
                 cropped_image = DetectionUtils.crop_with_margin(image, *bounding_box)
                 self.storage.save_image(cropped_image, str(key), time_prefix)
             self.storage.save_image(image, "original_sorter", time_prefix)
+            logging.info(f"[SortingProcessor] Saving images took {1000 * (time.time() - start_time_saving)} ms.")
 
         while self.ordering.get_count_of_results_to_send() > 0:
             # Clear out the queue of processed bricks
