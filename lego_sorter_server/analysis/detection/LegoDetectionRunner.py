@@ -24,15 +24,23 @@ class LegoDetectionRunner:
 
     def start_detecting(self):
         logging.info("[LegoDetectionRunner] Started processing the queue.")
-        self.executor.submit(self._process_queue)
+        return self.executor.submit(self._exception_handler, self._process_queue)
 
     def stop_detecting(self):
         logging.info("[LegoDetectionRunner] Processing is being terminated.")
         self.executor.shutdown()
 
+    @staticmethod
+    def _exception_handler(method, args=[]):
+        try:
+            method(*args)
+        except Exception as exc:
+            logging.exception(f"[LegoDetectionRunner] Got an exception:\n {str(exc)}")
+            raise exc
+
     def _process_queue(self, save_cropped_image=True, save_label_file=False):
         polling_rate = 0.2  # in seconds
-        logging_rate = 5  # in seconds
+        logging_rate = 30  # in seconds
         logging_counter = 0
 
         while True:

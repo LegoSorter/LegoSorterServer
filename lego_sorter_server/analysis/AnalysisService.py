@@ -68,8 +68,10 @@ class AnalysisService:
             y_min, x_min, y_max, x_max = [int(coord * detection_image_size * 1 / scale) for coord in
                                           detection_results.detection_boxes[i]]
 
-            if y_max >= target_image_size[1] or x_max >= target_image_size[0]:
-                continue
+            # if y_max >= target_image_size[1] or x_max >= target_image_size[0]:
+            #     continue
+            y_max = min(y_max, target_image_size[1])
+            x_max = min(x_max, target_image_size[0])
 
             bbs.append((y_min, x_min, y_max, x_max))
 
