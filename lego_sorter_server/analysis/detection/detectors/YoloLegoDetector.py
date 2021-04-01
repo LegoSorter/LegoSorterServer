@@ -34,7 +34,8 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             raise Exception("YoloLegoDetector already initialized")
 
         if not self.model_path.exists():
-            KaskServerConnector().download_models()
+            logging.error(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
+            raise RuntimeError(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
 
         start_time = time.time()
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path_or_model=str(self.model_path))

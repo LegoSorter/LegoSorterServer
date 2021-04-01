@@ -1,3 +1,4 @@
+import logging
 import os
 import argparse
 from datetime import datetime
@@ -57,7 +58,8 @@ class TFLegoClassifier:
 
     def load_trained_model(self, model_path=DEFAULT_MODEL_PATH):
         if not Path(model_path).exists():
-            KaskServerConnector().download_models()
+            logging.error(f"[TFLegoClassifier] No model found in {str(model_path)}")
+            raise RuntimeError(f"[TFLegoClassifier] No model found in {str(model_path)}")
 
         self.model = tf.keras.models.load_model(model_path)
 

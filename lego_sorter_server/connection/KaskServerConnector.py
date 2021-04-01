@@ -2,15 +2,17 @@ import getpass
 import logging
 import zipfile
 
+from deprecated import deprecated
 from jumpssh import SSHSession
 from pathlib import Path
 
-DETECTION_MODELS_PATH = './lego_sorter_server/detection/models'
+DETECTION_MODELS_PATH = './lego_sorter_server/analysis/detection/models'
 DETECTION_MODELS_REMOTE_PATH = '/backup/LEGO2/SERVER/MODELS/DETECTION/models.zip'
-CLASSIFICATION_MODEL_PATH = './lego_sorter_server/classification/models/saved'
+CLASSIFICATION_MODEL_PATH = './lego_sorter_server/analysis/classification/models/saved'
 CLASSIFICATION_MODEL_REMOTE_PATH = '/backup/LEGO2/SERVER/MODELS/CLASSIFICATION/saved.zip'
 
 
+@deprecated
 class KaskServerConnector:
 
     def __init__(self):

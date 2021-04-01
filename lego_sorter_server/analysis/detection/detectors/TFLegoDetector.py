@@ -44,7 +44,8 @@ class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             raise Exception("TFLegoDetector already initialized")
 
         if not self.model_path.exists():
-            KaskServerConnector().download_models()
+            logging.error(f"[TFLegoDetector] No model found in {str(self.model_path)}")
+            raise RuntimeError(f"[TFLegoDetector] No model found in {str(self.model_path)}")
 
         start_time = time.time()
         self.model = tf.saved_model.load(str(self.model_path))
