@@ -10,7 +10,6 @@ from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
 from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
 
-from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 from lego_sorter_server.analysis.detection.detectors.LegoDetector import LegoDetector
 
 
