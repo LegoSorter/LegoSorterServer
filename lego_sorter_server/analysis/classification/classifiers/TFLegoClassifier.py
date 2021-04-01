@@ -64,6 +64,8 @@ class TFLegoClassifier:
         self.model = tf.keras.models.load_model(model_path)
 
     def train(self, epochs, tb_name):
+        if self.model is None:
+            self.load_trained_model()
         train_generator = self.dataSet.get_data_generator("train")
         validation_generator = self.dataSet.get_data_generator("val")
 
@@ -83,6 +85,8 @@ class TFLegoClassifier:
         )
 
     def eval(self, input="test"):
+        if self.model is None:
+            self.load_trained_model()
         self.model.evaluate(self.dataSet.get_data_generator(input, 1), steps=20)
 
     def save_model(self, path):
@@ -102,6 +106,9 @@ class TFLegoClassifier:
 
             images_arr.append(img_arr)
         gen = ImageDataGenerator(rescale=1. / 255).flow(np.array(images_arr), batch_size=1)
+
+        if self.model is None:
+            self.load_trained_model()
 
         predictions = self.model.predict(gen)
         indices = [int(np.argmax(values)) for values in predictions]
