@@ -58,7 +58,7 @@ class LegoDetectionRunner:
 
     def __process_next_image(self, save_cropped_image, save_label_file):
         image, lego_class = self.queue.next(CAPTURE_TAG)
-        prefix = self._get_random_hash() + "_"
+        prefix = f"{lego_class}_{self._get_random_hash()}_"
         detection_results = self.analysis_service.detect(image)
         detected_counter = 0
         bbs = []
