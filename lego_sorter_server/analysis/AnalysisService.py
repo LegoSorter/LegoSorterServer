@@ -20,7 +20,7 @@ class AnalysisService:
 
     def __init__(self):
         self.detector: LegoDetector = LegoDetectorProvider.get_default_detector()
-        self.classifier: TFLegoClassifier = LegoClassifierProvider.get_default_classifier()
+        self.classifier = LegoClassifierProvider.get_default_classifier()
 
     def detect(self, image: Image, resize: bool = True, threshold=0.5,
                discard_border_results: bool = True) -> DetectionResults:
@@ -49,7 +49,7 @@ class AnalysisService:
                                                               self.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
     def classify(self, images: List[Image]) -> ClassificationResults:
-        return self.classifier.predict_from_pil(images)
+        return self.classifier.predict(images)
 
     def detect_and_classify(self, image: Image, detection_threshold: float = 0.5, discard_border_results: bool = True) \
             -> Tuple[DetectionResults, ClassificationResults]:

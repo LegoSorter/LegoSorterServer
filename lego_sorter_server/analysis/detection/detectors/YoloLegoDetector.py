@@ -38,6 +38,8 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
         start_time = time.time()
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path_or_model=str(self.model_path))
+        if torch.cuda.is_available():
+            self.model.cuda()
         elapsed_time = time.time() - start_time
 
         logging.info("Loading model took {} seconds".format(elapsed_time))

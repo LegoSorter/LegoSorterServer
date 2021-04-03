@@ -1,6 +1,7 @@
 import logging
 import os
 import argparse
+import time
 from datetime import datetime
 from pydoc import locate
 
@@ -92,25 +93,34 @@ class TFLegoClassifier:
     def save_model(self, path):
         self.model.save(path)
 
-    def classify(self, image: Image.Image) -> ClassificationResults:
-        return self.predict_from_pil([image])
+    def predict_single(self, image: Image.Image) -> ClassificationResults:
+        return self.predict([image])
 
-    def predict_from_pil(self, images: [Image.Image]) -> ClassificationResults:
+    def predict(self, images: [Image.Image]) -> ClassificationResults:
         if not images:
             return ClassificationResults.empty()
         images_arr = []
 
+        start_time = time.time()
         for im in images:
             transformed = Simple.transform(im)
             img_arr = tf.keras.preprocessing.image.img_to_array(transformed)
 
             images_arr.append(img_arr)
-        gen = ImageDataGenerator(rescale=1. / 255).flow(np.array(images_arr), batch_size=1)
+        gen = ImageDataGenerator(rescale=1. / 255).flow(np.array(images_arr), batch_size=16)
+
+        processing_elapsed_time_ms = 1000 * (time.time() - start_time)
 
         if self.model is None:
             self.load_trained_model()
 
         predictions = self.model.predict(gen)
+
+        predicting_elapsed_time_ms = 1000 * (time.time() - start_time) - processing_elapsed_time_ms
+
+        logging.info(f"[TFLegoClassifier] Preparing images took {processing_elapsed_time_ms} ms, "
+                     f"when predicting took {predicting_elapsed_time_ms} ms.")
+
         indices = [int(np.argmax(values)) for values in predictions]
         classes = [CLASSES[index] for index in indices]
         scores = [prediction[index] for index, prediction in zip(indices, predictions)]
