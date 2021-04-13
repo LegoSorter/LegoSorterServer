@@ -64,6 +64,10 @@ class LegoDetectionRunner:
         bbs = []
         for i in range(len(detection_results.detection_classes)):
             if detection_results.detection_scores[i] < LegoDetectionRunner.DETECTION_SCORE_THRESHOLD:
+                logging.info(
+                    f"[LegoDetectionRunner] One result discarded for {lego_class} as it is under the threshold:\n"
+                    f"Score = {detection_results.detection_scores[i]}, "
+                    f"BoundingBox = {detection_results.detection_boxes[i]}")
                 continue
 
             detected_counter += 1
@@ -74,7 +78,7 @@ class LegoDetectionRunner:
                 self.storage.save_image(image_new, lego_class, prefix)
 
         prefix = f'{detected_counter}_{prefix}'
-        filename = self.storage.save_image(image, f'original_{lego_class}', prefix)
+        filename = self.storage.save_image(image, f'original-{lego_class}', prefix)
 
         if save_label_file is True:
             path = self.storage.find_image_path(filename)

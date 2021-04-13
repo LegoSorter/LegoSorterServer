@@ -16,7 +16,7 @@ from lego_sorter_server.analysis.detection.detectors.LegoDetectorProvider import
 
 class AnalysisService:
     DEFAULT_IMAGE_DETECTION_SIZE = (640, 640)
-    BORDER_MARGIN_RELATIVE = 0.002
+    BORDER_MARGIN_RELATIVE = 0.001
 
     def __init__(self):
         self.detector: LegoDetector = LegoDetectorProvider.get_default_detector()
