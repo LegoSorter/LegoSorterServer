@@ -35,6 +35,9 @@ class ImageProcessingQueue(metaclass=Singleton):
     def clear(self, tag: str) -> None:
         self.in_memory_stores.get(tag).clear()
 
+    def is_full(self, tag: str):
+        return len(self.in_memory_stores.get(tag)) >= self.limit
+
     def _check_limit(self, tag: str) -> None:
-        if len(self.in_memory_stores.get(tag)) >= self.limit:
+        if len(self.in_memory_stores.get(tag)) > self.limit:
             raise Exception("Queue out of bound!")

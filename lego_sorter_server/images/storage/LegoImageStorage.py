@@ -50,6 +50,7 @@ class LegoImageStorage:
         target_directory = self.get_target_directory_for_lego_class(lego_class)
         filename = self.generate_file_name(lego_class, prefix=prefix)
 
+        image = image.convert("RGB")
         image.save(str(target_directory / filename))
 
         logging.info(f"Saved the image {filename} of {lego_class} class\n")
