@@ -1,5 +1,6 @@
 import argparse
 import time
+import logging
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
@@ -26,7 +27,7 @@ def process_images_in_path(input_path: Path, output_path: Path, analysis_service
             dest_path_img = output_path / file.name
             dest_path_xml = output_path / xml_name
             image = Image.open(file)
-            detection_results = analysis_service.detect(image, threshold=0.1, discard_border_results=False)
+            detection_results = analysis_service.detect(image, threshold=0.8, discard_border_results=False)
             width, height = image.size
             label_file = labeler.to_label_file(file.name, dest_path_xml, width, height, detection_results.detection_boxes)
             with open(dest_path_xml, "w") as label_xml:
@@ -75,6 +76,7 @@ if __name__ == "__main__":
                         help='Whether to skip copying images from the input directory to the output directory.')
     args = parser.parse_args()
 
+    logging.getLogger().disabled = True
     analysis_service = AnalysisService()
 
     if args.recursive:
