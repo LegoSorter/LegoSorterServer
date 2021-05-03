@@ -7,11 +7,11 @@ import numpy as np
 
 from typing import List
 
-from keras_preprocessing.image import ImageDataGenerator
 from tensorflow import keras
 from PIL.Image import Image
 
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
+from lego_sorter_server.analysis.classification.classifiers.LegoClassifier import LegoClassifier
 from lego_sorter_server.analysis.classification.toolkit.transformations.simple import Simple
 
 gpus = tf.config.list_physical_devices('GPU')
@@ -116,7 +116,7 @@ class_names = ['11212',
                '99206']
 
 
-class KerasClassifier:
+class KerasClassifier(LegoClassifier):
     def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "classification", "models",
                                                "keras_model", "residual_small.h5")):
         self.model_path = model_path

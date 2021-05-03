@@ -17,6 +17,7 @@ from pathlib import Path
 # from models.models import *
 # from lego_sorter_server.analysis.classification.models.inceptionClear import InceptionClear
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
+from lego_sorter_server.analysis.classification.classifiers.LegoClassifier import LegoClassifier
 from lego_sorter_server.analysis.classification.toolkit.transformations.simple import Simple
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 
@@ -46,7 +47,7 @@ CLASSES = [
 ]
 
 
-class TFLegoClassifier:
+class TFLegoClassifier(LegoClassifier):
     def __init__(self, classes=None, dataSet=None):
         if not classes:
             classes = CLASSES
