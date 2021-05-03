@@ -19,6 +19,7 @@ from wandb.keras import WandbCallback
 # from models.models import *
 # from lego_sorter_server.analysis.classification.models.inceptionClear import InceptionClear
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
+from lego_sorter_server.analysis.classification.classifiers.LegoClassifier import LegoClassifier
 from lego_sorter_server.analysis.classification.toolkit.transformations.simple import Simple
 from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 
@@ -61,7 +62,7 @@ class EvaluateAfterEpoch(Callback):
         self.classifier.eval("test_real_bsledz", prefix="hist_", log=True, epoch=epoch, split=0.75)
 
 
-class TFLegoClassifier:
+class TFLegoClassifier(LegoClassifier):
     def __init__(self, classes=None, dataSet=None):
         if not classes:
             classes = CLASSES
