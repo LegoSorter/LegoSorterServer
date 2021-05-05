@@ -1,0 +1,17 @@
+{
+  "DESTINATION": "C:\\MAG_CLEAR\\renders\\39_classes_cropped",
+  "SOURCE_PATH": "C:\\MAG_CLEAR\\renders\\39_classes_detected\\detected",
+  "PROCESSOR": "Renders",
+  "TRANSFORMATIONS": ["Grayscale"],
+  "TYPES": {
+    "train_renders": {
+      "DIV_VALUE": 0.5
+    },
+    "test_renders": {
+      "DIV_VALUE": null
+    },
+    "val_renders": {
+      "DIV_VALUE": 0.5
+    }
+  }
+}

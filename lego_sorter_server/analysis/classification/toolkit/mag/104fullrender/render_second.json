@@ -1,0 +1,17 @@
+{
+  "DESTINATION": "C:\\MAG_CLEAR\\104_classes\\final",
+  "SOURCE_PATH": "C:\\MAG_CLEAR\\104_classes_detect\\detected",
+  "PROCESSOR": "Renders",
+  "TRANSFORMATIONS": ["Simple"],
+  "TYPES": {
+    "train": {
+      "DIV_VALUE": 0.90
+    },
+    "test_renders": {
+      "DIV_VALUE": null
+    },
+    "val": {
+      "DIV_VALUE": 0.1
+    }
+  }
+}

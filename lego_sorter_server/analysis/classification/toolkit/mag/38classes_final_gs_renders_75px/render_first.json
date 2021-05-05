@@ -1,0 +1,11 @@
+{
+  "DESTINATION": "C:\\MAG_CLEAR\\38classes_gs_renders_75px\\renders_full",
+  "SOURCE_PATH": "C:\\MAG_CLEAR\\84\\84_classes",
+  "PROCESSOR": "Renders",
+  "TRANSFORMATIONS": ["Detect"],
+  "TYPES": {
+    "detected": {
+      "DIV_VALUE": 1
+    }
+  }
+}

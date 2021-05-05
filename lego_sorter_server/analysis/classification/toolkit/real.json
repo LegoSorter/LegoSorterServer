@@ -4,7 +4,7 @@
   "TRANSFORMATIONS": ["Simple"],
   "TYPES": {
     "train": {
-      "DIV_VALUE": 0.6
+      "DIV_VALUE": 0.7
     },
     "test": {
       "DIV_VALUE": null

@@ -7,8 +7,8 @@ from lego_sorter_server.analysis.detection.detectors.YoloLegoDetector import Yol
 
 # physical_devices = tf.config.list_physical_devices('GPU')
 # tf.config.experimental.set_memory_growth(physical_devices[0], True)
-# lego_detector = TFLegoDetector(model_path='./models/tf_model/saved_model')
-lego_detector = YoloLegoDetector(model_path='./models/yolo_model/yolov5_small.pt')
+lego_detector = TFLegoDetector(model_path='./models/tf_model/saved_model')
+# lego_detector = YoloLegoDetector(model_path='./models/yolo_model/yolov5_small.pt')
 
 
 def draw_bounding_boxes_on_image(image_path):

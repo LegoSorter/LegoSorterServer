@@ -1,0 +1,17 @@
+{
+  "DESTINATION": "C:\\MAG_CLEAR\\38classes_gs_renders_75px\\renders",
+  "SOURCE_PATH": "C:\\MAG_CLEAR\\renders\\39_classes_detected\\detected",
+  "PROCESSOR": "Renders",
+  "TRANSFORMATIONS": ["Grayscale"],
+  "TYPES": {
+    "train": {
+      "DIV_VALUE": 0.7
+    },
+    "test_renders": {
+      "DIV_VALUE": null
+    },
+    "val": {
+      "DIV_VALUE": 0.3
+    }
+  }
+}

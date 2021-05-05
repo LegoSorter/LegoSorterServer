@@ -23,16 +23,16 @@ class DataAlchemist():
     def settings_from_config(self):
         random.seed(self.get_cfg("RANDOM_SEED") or datetime.now())
         self.source_path = self.get_cfg("SOURCE_PATH") or os.path.join("images", "storage", "stored")
-        self.classes = self.get_cfg("INCLUDED_CLASSESS") or os.listdir(self.source_path)
+        self.classes = self.get_cfg("INCLUDED_CLASSES") or os.listdir(self.source_path)
         if "original" in self.classes:
             self.classes.remove("original")
         if self.get_cfg("EXCLUDED_CLASSESS"):
-            for cls in self.get_cfg("EXCLUDED_CLASSESS"):
+            for cls in self.get_cfg("EXCLUDED_CLASSES"):
                 self.classes.remove(cls)
         self.classes = list(self.classes)
-        if self.get_cfg("RANDOM_CLASSESS_COUNT"):
+        if self.get_cfg("RANDOM_CLASSES_COUNT"):
             random.shuffle(self.classes)
-            self.classes = self.classes[:self.get_cfg("RANDOM_CLASSESS_COUNT")]
+            self.classes = self.classes[:self.get_cfg("RANDOM_CLASSES_COUNT")]
         transformations = self.get_cfg("TRANSFORMATIONS") or []
         self.transformations = [locate(f"transformations.{transformation.lower()}.{transformation}") for transformation in transformations]
         processor = self.get_cfg("PROCESSOR") or "Captured"
