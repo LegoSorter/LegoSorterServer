@@ -5,8 +5,11 @@ import logging
 import torch
 import numpy
 from pathlib import Path
+import numpy as np
 
+from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
+from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
 from lego_sorter_server.analysis.detection.detectors.LegoDetector import LegoDetector
 
 
@@ -37,6 +40,7 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             raise RuntimeError(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
 
         start_time = time.time()
+
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path_or_model=str(self.model_path))
         if torch.cuda.is_available():
             self.model.cuda()
@@ -73,3 +77,26 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         logging.info(f"[YoloLegoDetector][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
 
         return self.convert_results_to_common_format(results)
+
+    def detect_and_crop(self, image):
+        width, height = image.size
+        image_resized, scale = DetectionUtils.resize(image, 640)
+        detections = self.detect_lego(np.array(image_resized))
+        detected_counter = 0
+        new_images = []
+        for i in range(100):
+            if i >= len(detections.detection_scores):
+                break
+            if detections.detection_scores[i] < 0.5:
+                break  # IF SORTED
+
+            detected_counter += 1
+            ymin, xmin, ymax, xmax = [int(i * 640 * 1 / scale) for i in detections.detection_boxes[i]]
+
+            # if bb is out of bounds
+            if ymax >= height or xmax >= width:
+                continue
+
+            new_images += [crop_with_margin(image, ymin, xmin, ymax, xmax)]
+
+        return new_images

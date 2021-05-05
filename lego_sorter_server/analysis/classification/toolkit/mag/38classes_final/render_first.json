@@ -1,0 +1,11 @@
+{
+  "DESTINATION": "C:\\MAG_CLEAR\\renders\\39_classes_detected",
+  "SOURCE_PATH": "C:\\MAG_CLEAR\\renders\\39_classes",
+  "PROCESSOR": "Renders",
+  "TRANSFORMATIONS": ["Detect"],
+  "TYPES": {
+    "detected": {
+      "DIV_VALUE": 1
+    }
+  }
+}

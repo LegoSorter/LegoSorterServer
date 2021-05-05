@@ -2,167 +2,104 @@ import tensorflow as tf
 
 # create the base pre-trained model
 from tensorflow.keras import Model
-from tensorflow.keras.applications import InceptionV3, Xception
+from tensorflow.keras.applications import InceptionV3, Xception, EfficientNetB0
 from tensorflow.keras.applications import VGG16
 from tensorflow.keras.layers import GlobalAveragePooling2D, Dense
+from tensorflow.python.keras.applications.efficientnet import EfficientNetB3, EfficientNetB5
+from tensorflow.python.keras.applications.inception_resnet_v2 import InceptionResNetV2
+from tensorflow.python.keras.applications.resnet_v2 import ResNet50V2
 
 
-class Inception():
+class InceptionResNetV2model():
     @staticmethod
-    def prepare_model(cls_count, weights=None):
-        base_model = InceptionV3(weights=weights or 'imagenet', include_top=False)
-
-        # add a global spatial average pooling layer
+    def prepare_model(cls_count, img_size, weights=None, tf_layers=None, optimizer=None):
+        base_model = InceptionResNetV2(weights=weights or 'imagenet', include_top=False, pooling='max',
+                                       classes=cls_count,
+                                       input_shape=(img_size, img_size, 3))
+        if tf_layers:
+            for layer in base_model.layers[:-tf_layers]:
+                layer.trainable = False
         x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        # let's add a fully-connected layer
-        x = Dense(1024, activation='relu')(x)
 
         predictions = Dense(cls_count, activation='softmax')(x)
-
-        # this is the model we will train
         model = Model(inputs=base_model.input, outputs=predictions)
-
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        for layer in base_model.layers:
-            layer.trainable = False
-
-        model.compile(optimizer='adam',
+        model.compile(optimizer=optimizer,
                       loss='categorical_crossentropy',
                       metrics=[tf.keras.metrics.CategoricalAccuracy()])
         return model
 
 
-class InceptionClear():
+class InceptionV3model():
     @staticmethod
-    def prepare_model(cls_count, weights=None):
-        base_model = InceptionV3(weights=weights, include_top=False)
-
-        # add a global spatial average pooling layer
+    def prepare_model(cls_count, img_size, weights=None, tf_layers=None, optimizer=None):
+        base_model = InceptionV3(weights=weights or 'imagenet', include_top=False, pooling='max',
+                                 classes=cls_count,
+                                 input_shape=(img_size, img_size, 3))
+        if tf_layers:
+            for layer in base_model.layers[:-int(tf_layers)]:
+                layer.trainable = False
         x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        # let's add a fully-connected layer
-        # x = Dense(1024, activation='relu')(x)
 
         predictions = Dense(cls_count, activation='softmax')(x)
-
-        # this is the model we will train
         model = Model(inputs=base_model.input, outputs=predictions)
-
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        # for layer in base_model.layers:
-        #     layer.trainable = False
-
-        model.compile(optimizer='adam',
+        model.compile(optimizer=optimizer,
                       loss='categorical_crossentropy',
                       metrics=[tf.keras.metrics.CategoricalAccuracy()])
         return model
 
 
-class VGG():
+class ResNet50V2model():
     @staticmethod
-    def prepare_model(cls_count, weights=None):
-        base_model = VGG16(weights=weights or 'imagenet', include_top=False)
-
-        # add a global spatial average pooling layer
+    def prepare_model(cls_count, img_size, weights=None, tf_layers=None, optimizer=None):
+        base_model = ResNet50V2(weights=weights or 'imagenet', include_top=False, pooling='max',
+                                classes=cls_count,
+                                input_shape=(img_size, img_size, 3))
+        if tf_layers:
+            for layer in base_model.layers[:-int(tf_layers)]:
+                layer.trainable = False
         x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        # let's add a fully-connected layer
-        #x = Dense(1024, activation='relu')(x)
 
         predictions = Dense(cls_count, activation='softmax')(x)
-
-        # this is the model we will train
         model = Model(inputs=base_model.input, outputs=predictions)
-
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        for layer in base_model.layers[:-2]:
-            layer.trainable = False
-
-        model.compile(optimizer='adam',
+        model.compile(optimizer=optimizer,
                       loss='categorical_crossentropy',
                       metrics=[tf.keras.metrics.CategoricalAccuracy()])
         return model
 
 
-class xception():
+class EfficientNetB5model():
     @staticmethod
-    def prepare_model(cls_count, weights=None):
-        base_model = Xception(weights=weights or 'imagenet', include_top=False)
-
-        # add a global spatial average pooling layer
+    def prepare_model(cls_count, img_size, weights=None, tf_layers=None, optimizer=None):
+        base_model = EfficientNetB5(weights=weights or 'imagenet', include_top=False, pooling='max',
+                                    classes=cls_count,
+                                    input_shape=(img_size, img_size, 3))
+        if tf_layers:
+            for layer in base_model.layers[:-int(tf_layers)]:
+                layer.trainable = False
         x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        # let's add a fully-connected layer
-        #x = Dense(1024, activation='relu')(x)
 
         predictions = Dense(cls_count, activation='softmax')(x)
-
-        # this is the model we will train
         model = Model(inputs=base_model.input, outputs=predictions)
-
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        for layer in base_model.layers[:-2]:
-            layer.trainable = False
-
-        model.compile(optimizer='adam',
-                      loss='categorical_crossentropy',
-                      metrics=[tf.keras.metrics.CategoricalAccuracy()])
-        return model
-
-class VGGClear():
-    @staticmethod
-    def prepare_model(cls_count, weights=None):
-        base_model = VGG16(weights=weights or 'imagenet', include_top=False)
-
-        # add a global spatial average pooling layer
-        x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        # let's add a fully-connected layer
-        #x = Dense(1024, activation='relu')(x)
-
-        predictions = Dense(cls_count, activation='softmax')(x)
-
-        # this is the model we will train
-        model = Model(inputs=base_model.input, outputs=predictions)
-
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        # for layer in base_model.layers[:-2]:
-        #     layer.trainable = False
-
-        model.compile(optimizer='adam',
+        model.compile(optimizer=optimizer,
                       loss='categorical_crossentropy',
                       metrics=[tf.keras.metrics.CategoricalAccuracy()])
         return model
 
 
-class xceptionClear():
+class VGG16model():
     @staticmethod
-    def prepare_model(cls_count, weights=None):
-        base_model = Xception(weights=weights or 'imagenet', include_top=False)
-
-        # add a global spatial average pooling layer
+    def prepare_model(cls_count, img_size, weights=None, tf_layers=None, optimizer=None):
+        base_model = VGG16(weights=weights or 'imagenet', include_top=False, pooling='max',
+                           classes=cls_count,
+                           input_shape=(img_size, img_size, 3))
+        if tf_layers:
+            for layer in base_model.layers[:-int(tf_layers)]:
+                layer.trainable = False
         x = base_model.output
-        x = GlobalAveragePooling2D()(x)
-        # let's add a fully-connected layer
-        #x = Dense(1024, activation='relu')(x)
 
         predictions = Dense(cls_count, activation='softmax')(x)
-
-        # this is the model we will train
         model = Model(inputs=base_model.input, outputs=predictions)
-
-        # first: train only the top layers (which were randomly initialized)
-        # i.e. freeze all convolutional InceptionV3 layers
-        # for layer in base_model.layers[:-2]:
-        #     layer.trainable = False
-
-        model.compile(optimizer='adam',
+        model.compile(optimizer=optimizer,
                       loss='categorical_crossentropy',
                       metrics=[tf.keras.metrics.CategoricalAccuracy()])
         return model

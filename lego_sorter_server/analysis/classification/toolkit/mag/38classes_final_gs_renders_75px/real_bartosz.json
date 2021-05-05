@@ -1,0 +1,12 @@
+{
+  "DESTINATION": "C:\\MAG_CLEAR\\38classes_final_75px\\final",
+  "SOURCE_PATH": "C:\\MAG_CLEAR\\real_by_bartosz",
+  "TRANSFORMATIONS": [
+    "Grayscale"
+  ],
+  "TYPES": {
+    "test_real_bartosz": {
+      "DIV_VALUE": 1
+    }
+  }
+}

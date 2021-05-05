@@ -15,8 +15,9 @@ class Captured(Processor):
 
     @staticmethod
     def precalc_sizes(src, classes, types, div_unit):
-        min_size = min([len(os.listdir(os.path.join(src, cls))) for cls in classes])
-        print(F"minimal_size: {min_size}")
+        sizes = [(cls, len(os.listdir(os.path.join(src, cls)))) for cls in classes]
+        min_class, min_size = min(sizes, key=lambda x: x[1])
+        print(F"minimal_size: {min_size} ({min_class})")
         if div_unit == "%":
             for type, content in types.items():
                 if "DIV_VALUE" in content and content["DIV_VALUE"]:
