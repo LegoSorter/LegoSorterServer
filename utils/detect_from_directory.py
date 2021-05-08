@@ -72,9 +72,9 @@ def process_recursive(input_path: Path,
     futures = []
     for directory in dirs_to_process:
         sub_out_path = (output_path / directory.name)
-        futures += process_recursive(directory, sub_out_path, executor, analysis_service, skip_images, save_cropped, skip_xml, output_cropped)
+        futures += process_recursive(directory, sub_out_path, executor, analysis_service, skip_images, save_cropped, output_cropped, skip_xml)
 
-    futures.append(executor.submit(process_images_in_path, input_path, output_path, analysis_service, skip_images, save_cropped, skip_xml, output_cropped))
+    futures.append(executor.submit(process_images_in_path, input_path, output_path, analysis_service, skip_images, save_cropped, output_cropped, skip_xml))
     return futures
 
 
@@ -97,7 +97,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not args.output_cropped:
-        args.output_cropped = args.output
+        args.output_cropped = Path(args.output) / "cropped"
+        args.output_cropped.mkdir(exist_ok=True, parents=True)
 
     logging.getLogger().disabled = True
     analysis_service = AnalysisService()
