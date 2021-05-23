@@ -40,8 +40,8 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             raise RuntimeError(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
 
         start_time = time.time()
-
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path_or_model=str(self.model_path))
+
         if torch.cuda.is_available():
             self.model.cuda()
         elapsed_time = time.time() - start_time
