@@ -68,7 +68,6 @@ class SortingProcessor:
         if detected_count > 1:
             logging.warning(f"[SortingProcessor] More than one brick detected '(detected_count = {detected_count}), "
                             f"there should be only one brick on the tape at the same time.")
-
         zipped_results = list(zip(results[0].detection_boxes,
                                   results[1].classification_classes,
                                   results[1].classification_scores))

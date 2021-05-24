@@ -11,31 +11,27 @@ parameters:
   img_size:
     values:
     - 150
-    - 224
   aug:
     values:
-    - 0
     - 1
   epochs:
     values:
     - 15
   dataset:
     values:
+    - tested_dataset/14/final
+    - tested_dataset/28/final
+    - tested_dataset/42/final
+    - tested_dataset/56/final
+    - tested_dataset/70/final
+    - tested_dataset/84/final
     - tested_dataset/98_classes_renders_training/final
   tf_layers:
     values:
-    - 5
     - 50
-    - 100
-    - 300
   model:
     values:
-      - InceptionResNetV2
-      - InceptionV3
-      - ResNet50V2
       - EfficientNetB5
-      - VGG16
   grayscale:
     values:
       - 0
-      - 1
