@@ -152,6 +152,6 @@ class KerasClassifier(LegoClassifier):
 
         indices = [int(np.argmax(values)) for values in predictions]
         classes = [class_names[index] for index in indices]
-        scores = [prediction[index] for index, prediction in zip(indices, predictions)]
+        scores = [float(prediction[index]) for index, prediction in zip(indices, predictions)]
 
         return ClassificationResults(classes, scores)
