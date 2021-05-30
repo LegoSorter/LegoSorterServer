@@ -173,7 +173,7 @@ class TFLegoClassifier(LegoClassifier):
             img_arr = tf.keras.preprocessing.image.img_to_array(transformed)
 
             images_arr.append(img_arr)
-        gen = ImageDataGenerator().flow(np.array(images_arr), batch_size=16)
+        gen = ImageDataGenerator().flow(np.array(images_arr), shuffle=False, batch_size=16)
 
         processing_elapsed_time_ms = 1000 * (time.time() - start_time)
 
