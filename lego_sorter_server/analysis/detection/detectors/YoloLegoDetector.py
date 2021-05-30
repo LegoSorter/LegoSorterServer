@@ -24,7 +24,7 @@ class ThreadSafeSingleton(type):
 
 class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
     def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "detection", "models", "yolo_model",
-                                               "yolov5_small.pt")):
+                                               "yolov5_small_extended.pt")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
