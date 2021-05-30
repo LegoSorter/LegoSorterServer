@@ -9,8 +9,8 @@ git clone https://github.com/LegoSorter/LegoSorterServer.git
 ```
 2. Download network models for detecting lego bricks
 ```commandline
-wget https://github.com/LegoSorter/LegoSorterServer/releases/download/1.0.0-alpha/detection_models.zip
-wget https://github.com/LegoSorter/LegoSorterServer/releases/download/1.0.0-alpha/classification_models.zip
+wget https://github.com/LegoSorter/LegoSorterServer/releases/download/1.2.0/detection_models.zip
+wget https://github.com/LegoSorter/LegoSorterServer/releases/download/1.2.0/classification_models.zip
 ```
 
 3. Extract models
