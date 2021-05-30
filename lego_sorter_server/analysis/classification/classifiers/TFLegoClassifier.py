@@ -19,7 +19,6 @@ from pathlib import Path
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.classification.classifiers.LegoClassifier import LegoClassifier
 from lego_sorter_server.analysis.classification.toolkit.transformations.simple import Simple
-from lego_sorter_server.connection.KaskServerConnector import KaskServerConnector
 
 # physical_devices = tf.config.list_physical_devices('GPU')
 # tf.config.experimental.set_memory_growth(physical_devices[0], True)
