@@ -13,6 +13,9 @@ class LegoClassifier:
     def predict(self, images: [Image.Image]) -> ClassificationResults:
         pass
 
+    def load_model(self):
+        pass
+
     def read_classes_from_file(self, classes_file="./lego_sorter_server/analysis/classification/models/classes.txt") -> List[str]:
         with open(Path(classes_file)) as file:
             return [class_str.strip() for class_str in file]

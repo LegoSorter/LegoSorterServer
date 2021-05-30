@@ -49,6 +49,7 @@ CLASSES = [
 
 class TFLegoClassifier(LegoClassifier):
     def __init__(self, classes=None, dataSet=None):
+        super().__init__()
         if not classes:
             classes = CLASSES
         self.dataSet = dataSet
@@ -58,7 +59,7 @@ class TFLegoClassifier(LegoClassifier):
     def prepare_model(self, model_cls, weights=None):
         self.model = model_cls.prepare_model(len(self.classes), weights)
 
-    def load_trained_model(self, model_path=DEFAULT_MODEL_PATH):
+    def load_model(self, model_path=DEFAULT_MODEL_PATH):
         if not Path(model_path).exists():
             logging.error(f"[TFLegoClassifier] No model found in {str(model_path)}")
             raise RuntimeError(f"[TFLegoClassifier] No model found in {str(model_path)}")
@@ -67,7 +68,7 @@ class TFLegoClassifier(LegoClassifier):
 
     def train(self, epochs, tb_name):
         if self.model is None:
-            self.load_trained_model()
+            self.load_model()
         train_generator = self.dataSet.get_data_generator("train")
         validation_generator = self.dataSet.get_data_generator("val")
 
@@ -88,7 +89,7 @@ class TFLegoClassifier(LegoClassifier):
 
     def eval(self, input="test"):
         if self.model is None:
-            self.load_trained_model()
+            self.load_model()
         self.model.evaluate(self.dataSet.get_data_generator(input, 1), steps=20)
 
     def save_model(self, path):
@@ -113,7 +114,7 @@ class TFLegoClassifier(LegoClassifier):
         processing_elapsed_time_ms = 1000 * (time.time() - start_time)
 
         if self.model is None:
-            self.load_trained_model()
+            self.load_model()
 
         predictions = self.model.predict(gen)
 

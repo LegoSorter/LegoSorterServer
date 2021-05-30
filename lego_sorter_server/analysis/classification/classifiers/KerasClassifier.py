@@ -24,16 +24,17 @@ class KerasClassifier(LegoClassifier):
                                                "keras_model", "447_classes.h5")):
         super().__init__()
         self.model_path = model_path
+        self.model = None
         self.initialized = False
         self.size = (224, 224)
 
-    def __load_model(self):
+    def load_model(self):
         self.model = keras.models.load_model(self.model_path)
         self.initialized = True
 
     def predict(self, images: List[Image]) -> ClassificationResults:
         if not self.initialized:
-            self.__load_model()
+            self.load_model()
 
         if len(images) == 0:
             return ClassificationResults.empty()

@@ -8,7 +8,6 @@ from lego_sorter_server.analysis.classification.classifiers.TFLegoClassifier imp
 class LegoClassifierProvider:
     __lock = threading.Lock()
 
-    # classifier = KerasClassifier()
     classifier: LegoClassifier = None
 
     @staticmethod
@@ -16,8 +15,8 @@ class LegoClassifierProvider:
         if not LegoClassifierProvider.classifier:
             LegoClassifierProvider.__lock.acquire()
             if not LegoClassifierProvider.classifier:
-                LegoClassifierProvider.classifier = TFLegoClassifier()
-                LegoClassifierProvider.classifier.load_trained_model()
+                LegoClassifierProvider.classifier = KerasClassifier()
+                LegoClassifierProvider.classifier.load_model()
             LegoClassifierProvider.__lock.release()
 
         return LegoClassifierProvider.classifier
