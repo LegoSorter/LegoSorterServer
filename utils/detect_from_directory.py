@@ -98,7 +98,9 @@ if __name__ == "__main__":
 
     if not args.output_cropped:
         args.output_cropped = Path(args.output) / "cropped"
-        args.output_cropped.mkdir(exist_ok=True, parents=True)
+
+    Path(args.output_cropped).mkdir(exist_ok=True, parents=True)
+    Path(args.output).mkdir(exist_ok=True, parents=True)
 
     logging.getLogger().disabled = True
     analysis_service = AnalysisService()
