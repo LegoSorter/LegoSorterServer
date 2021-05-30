@@ -29,35 +29,21 @@ for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
 BATCH_SIZE = 32
-IMG_SIZE = (299, 299)
+IMG_SIZE = (224, 224)
 DEFAULT_MODEL_PATH = os.path.abspath(
-    os.path.join("lego_sorter_server", "analysis", "classification", "models", "saved"))
-
-CLASSES = [
-    "3001",
-    "3002",
-    "3003",
-    "3004",
-    "3710",
-    "3009",
-    "3010",
-    "3007",
-    "3034",
-    "3832"
-]
+    os.path.join("lego_sorter_server", "analysis", "classification", "models", "tf_model"))
 
 
 class TFLegoClassifier(LegoClassifier):
     def __init__(self, classes=None, dataSet=None):
         super().__init__()
-        if not classes:
-            classes = CLASSES
         self.dataSet = dataSet
-        self.classes = classes
+        if classes:
+            self.class_names = classes
         self.model = None
 
     def prepare_model(self, model_cls, weights=None):
-        self.model = model_cls.prepare_model(len(self.classes), weights)
+        self.model = model_cls.prepare_model(len(self.class_names), weights)
 
     def load_model(self, model_path=DEFAULT_MODEL_PATH):
         if not Path(model_path).exists():
@@ -124,7 +110,7 @@ class TFLegoClassifier(LegoClassifier):
                      f"when predicting took {predicting_elapsed_time_ms} ms.")
 
         indices = [int(np.argmax(values)) for values in predictions]
-        classes = [CLASSES[index] for index in indices]
+        classes = [self.class_names[index] for index in indices]
         scores = [float(prediction[index]) for index, prediction in zip(indices, predictions)]
         return ClassificationResults(classes, scores)
 
