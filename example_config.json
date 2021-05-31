@@ -1,0 +1,13 @@
+{
+	"opony": {
+		"position": 300,
+		"bricks": ["2410", "3010"]
+	},
+	"plaskie_strukturalne": {
+		"position": 400,
+		"bricks": ["3810", "2012"]
+	},
+	"default": {
+		"position": 0
+	}
+}
