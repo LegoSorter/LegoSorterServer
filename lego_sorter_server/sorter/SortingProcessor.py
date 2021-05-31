@@ -7,14 +7,15 @@ from PIL.Image import Image
 from lego_sorter_server.analysis.AnalysisService import AnalysisService
 from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
+from lego_sorter_server.service.BrickCategoryConfig import BrickCategoryConfig
 from lego_sorter_server.sorter.LegoSorterController import LegoSorterController
 from lego_sorter_server.sorter.ordering.SimpleOrdering import SimpleOrdering
 
 
 class SortingProcessor:
-    def __init__(self):
+    def __init__(self, brickCategoryConfig: BrickCategoryConfig):
         self.analysis_service: AnalysisService = AnalysisService()
-        self.sorter_controller: LegoSorterController = LegoSorterController()
+        self.sorter_controller: LegoSorterController = LegoSorterController(brickCategoryConfig)
         self.ordering: SimpleOrdering = SimpleOrdering()
         self.storage: LegoImageStorage = LegoImageStorage()
 
