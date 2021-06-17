@@ -6,13 +6,14 @@ from lego_sorter_server.generated.LegoSorter_pb2 import SorterConfiguration, Lis
     BoundingBoxWithIndex
 from lego_sorter_server.generated.Messages_pb2 import ImageRequest, BoundingBox, Empty
 from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
+from lego_sorter_server.service.BrickCategoryConfig import BrickCategoryConfig
 from lego_sorter_server.sorter.SortingProcessor import SortingProcessor
 
 
 class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
 
-    def __init__(self):
-        self.sortingProcessor = SortingProcessor()
+    def __init__(self, brickCategoryConfig: BrickCategoryConfig):
+        self.sortingProcessor = SortingProcessor(brickCategoryConfig)
 
     def processNextImage(self, request: ImageRequest, context) -> ListOfBoundingBoxesWithIndexes:
         start_time = time.time()

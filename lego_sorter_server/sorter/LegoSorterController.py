@@ -1,20 +1,27 @@
+import logging
+
 import requests
+
+from lego_sorter_server.service.BrickCategoryConfig import BrickCategoryConfig
 
 
 class LegoSorterController:
-    MACHINE_LOCAL_ADDRESS = "http://raspberrypi.local"
-    DEFAULT_ADDRESS = 8000
+    CONVEYOR_LOCAL_ADDRESS = "http://raspberrypi.local:8000"
+    SORTER_LOCAL_ADDRESS = "http://raspberrypi2.local:8000"
 
-    def __init__(self):
+    def __init__(self, brickCategoryConfig: BrickCategoryConfig):
         self.speed = 50
+        self.brickCategoryConfig = brickCategoryConfig
 
     def run_conveyor(self):
-        requests.get(f"{self.MACHINE_LOCAL_ADDRESS}:{self.DEFAULT_ADDRESS}/start?duty_cycle={self.speed}")
+        requests.get(f"{self.CONVEYOR_LOCAL_ADDRESS}/start?duty_cycle={self.speed}")
 
     def stop_conveyor(self):
-        requests.get(f"{self.MACHINE_LOCAL_ADDRESS}:{self.DEFAULT_ADDRESS}/stop")
+        requests.get(f"{self.CONVEYOR_LOCAL_ADDRESS}/stop")
 
     def on_brick_recognized(self, brick):
+        cat_name, pos = self.brickCategoryConfig[brick]
+        logging.info(F"Moving brick with class: {brick} to stack: {cat_name} (pos: {pos})")
         pass
 
     def set_machine_speed(self, speed):
