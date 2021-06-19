@@ -38,10 +38,9 @@ def process_images_in_path(input_path: Path, output_path: Path, analysis_service
             if not skip_images:
                 image.save(dest_path_img)
             if save_cropped is True and len(detection_results.detection_boxes) > 0:
-                output_cropped_images = output_cropped / file.parent.name
-                output_cropped_images.mkdir(exist_ok=True, parents=False)
+                output_cropped.mkdir(exist_ok=True, parents=True)
                 for i in range(len(detection_results.detection_boxes)):
-                    cropped_image_path = output_cropped_images / f"c{i}_{file.name}"
+                    cropped_image_path = output_cropped / f"c{i}_{file.name}"
                     image_cropped = DetectionUtils.crop_with_margin(image, *detection_results.detection_boxes[i])
                     image_cropped.save(cropped_image_path)
 
@@ -72,7 +71,8 @@ def process_recursive(input_path: Path,
     futures = []
     for directory in dirs_to_process:
         sub_out_path = (output_path / directory.name)
-        futures += process_recursive(directory, sub_out_path, executor, analysis_service, skip_images, save_cropped, output_cropped, skip_xml)
+        sub_out_cropped_path = (output_cropped / directory.name)
+        futures += process_recursive(directory, sub_out_path, executor, analysis_service, skip_images, save_cropped, sub_out_cropped_path, skip_xml)
 
     futures.append(executor.submit(process_images_in_path, input_path, output_path, analysis_service, skip_images, save_cropped, output_cropped, skip_xml))
     return futures
@@ -85,7 +85,7 @@ if __name__ == "__main__":
                         type=str, dest='input')
     parser.add_argument('-o', '--output_path', required=True, help='An output path.', type=str, dest='output')
     parser.add_argument('-co', '--cropped_output_path', required=False, type=str, dest='output_cropped',
-                        help='An output path for cropped bricks, if not set, \'output_path / cropped\' is being used.')
+                        help='An output path for cropped bricks, if not set, \'{output_path}_cropped\' is being used.')
     parser.add_argument('-r', '--recursive', action='store_true',
                         help='Process images in the input_path and its subdirectories.')
     parser.add_argument('-si', '--skip_images', action='store_true', dest='skip_images',
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if not args.output_cropped:
-        args.output_cropped = Path(args.output) / "cropped"
+        args.output_cropped = Path(args.output).parent / f"{Path(args.output).name}_cropped"
 
     Path(args.output_cropped).mkdir(exist_ok=True, parents=True)
     Path(args.output).mkdir(exist_ok=True, parents=True)
