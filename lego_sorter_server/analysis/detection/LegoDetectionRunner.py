@@ -38,7 +38,7 @@ class LegoDetectionRunner:
             logging.exception(f"[LegoDetectionRunner] Got an exception:\n {str(exc)}")
             raise exc
 
-    def _process_queue(self, save_cropped_image=True, save_label_file=False):
+    def _process_queue(self, save_cropped_image=True, save_label_file=True):
         polling_rate = 0.2  # in seconds
         logging_rate = 30  # in seconds
         logging_counter = 0

@@ -1,1 +1,1 @@
-python -m grpc_tools.protoc --proto_path=./lego_sorter_server/proto --python_out=./lego_sorter_server/generated --grpc_python_out=./lego_sorter_server/generated ./lego_sorter_server/proto/*.proto
+python3 -m grpc_tools.protoc --proto_path=./lego_sorter_server/proto --python_out=./lego_sorter_server/generated --grpc_python_out=./lego_sorter_server/generated ./lego_sorter_server/proto/*.proto
