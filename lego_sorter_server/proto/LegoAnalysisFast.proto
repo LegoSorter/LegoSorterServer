@@ -1,0 +1,12 @@
+syntax = "proto3";
+import "Messages.proto";
+
+package analysis;
+
+option java_package = "com.lsorter.analysis.fast";
+option java_outer_classname = "LegoAnalysisFastProto";
+
+service LegoAnalysisFast {
+  rpc DetectBricks (common.ImageRequest) returns (common.ListOfBoundingBoxes);
+  rpc DetectAndClassifyBricks (common.ImageRequest) returns (common.ListOfBoundingBoxes);
+}
