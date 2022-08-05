@@ -1,11 +1,20 @@
+#ukrywanie gpu
+# import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = ""
+# print("wył")
+
 import argparse
+
+import numpy as np
 
 from lego_sorter_server.server import Server
 import logging
 import sys
 import threading
+import warnings
 
 from lego_sorter_server.service.BrickCategoryConfig import BrickCategoryConfig
+
 
 
 def exception_handler(exc_type, value, tb):
@@ -19,4 +28,6 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.INFO)
     sys.excepthook = exception_handler
     threading.excepthook = exception_handler
+
+    warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
     Server.run(BrickCategoryConfig(args.brick_category_config))

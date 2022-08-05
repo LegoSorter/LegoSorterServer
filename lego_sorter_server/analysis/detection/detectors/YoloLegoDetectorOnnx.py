@@ -10,6 +10,7 @@ from lego_sorter_server.analysis.detection.DetectionResults import DetectionResu
 from lego_sorter_server.analysis.detection.detectors.LegoDetector import LegoDetector
 
 
+
 class ThreadSafeSingleton(type):
     _instances = {}
     _singleton_lock = threading.Lock()
@@ -22,28 +23,35 @@ class ThreadSafeSingleton(type):
         return cls._instances[cls]
 
 
-class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
-    def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "detection", "models", "yolo_model",
-                                               "yolov5_medium_extended.pt")):
+class YoloLegoDetectorOnnx(LegoDetector, metaclass=ThreadSafeSingleton):
+    def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "detection", "models", 
+                                            "onnx",
+                                            "last.onnx",
+                                            # "yolo_model",
+                                            #    "yolov5_medium_extended.pt"
+                                               )):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
     def __initialize__(self):
         if self.__initialized:
-            raise Exception("YoloLegoDetector already initialized")
+            raise Exception("YoloLegoDetectorOnnx already initialized")
 
         if not self.model_path.exists():
-            logging.error(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
-            raise RuntimeError(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
+            logging.error(f"[YoloLegoDetectorOnnx] No model found in {str(self.model_path)}")
+            raise RuntimeError(f"[YoloLegoDetectorOnnx] No model found in {str(self.model_path)}")
 
         start_time = time.time()
-        self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=str(self.model_path), trust_repo=True)
+        self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=str(self.model_path))
+
         if torch.cuda.is_available():
             self.model.cuda()
         elapsed_time = time.time() - start_time
 
         logging.info("Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
+
+
 
     @staticmethod
     def xyxy2yxyx_scaled(xyxy):
@@ -57,19 +65,19 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         image_predictions = results.xyxyn[0].cpu().numpy()
         scores = image_predictions[:, 4]
         classes = image_predictions[:, 5].astype(numpy.int64) + 1
-        boxes = YoloLegoDetector.xyxy2yxyx_scaled(image_predictions[:, :4])
+        boxes = YoloLegoDetectorOnnx.xyxy2yxyx_scaled(image_predictions[:, :4])
 
         return DetectionResults(detection_scores=scores, detection_classes=classes, detection_boxes=boxes)
 
     def detect_lego(self, image: numpy.ndarray) -> DetectionResults:
         if not self.__initialized:
-            logging.info("YoloLegoDetector is not initialized, this process can take a few seconds for the first time.")
+            logging.info("YoloLegoDetectorOnnx is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
-        logging.info("[YoloLegoDetector][detect_lego] Detecting bricks...")
+        logging.info("[YoloLegoDetectorOnnx][detect_lego] Detecting bricks...")
         start_time = time.time()
-        results = self.model([image], size=image.shape[0])
+        results = self.model([image.astype], size=image.shape[0])
         elapsed_time = 1000 * (time.time() - start_time)
-        logging.info(f"[YoloLegoDetector][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
+        logging.info(f"[YoloLegoDetectorOnnx][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
 
         return self.convert_results_to_common_format(results)
