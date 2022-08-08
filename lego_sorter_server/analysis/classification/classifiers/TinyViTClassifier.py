@@ -23,7 +23,7 @@ for gpu in gpus:
 import torch
 dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
-from tiny_vit import tiny_vit_5m_224
+from lego_sorter_server.analysis.classification.classifiers.tiny_vit import tiny_vit_5m_224
 
 try:
     from timm.data import TimmDatasetTar
