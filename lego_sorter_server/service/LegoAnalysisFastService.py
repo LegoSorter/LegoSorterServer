@@ -1,3 +1,5 @@
+from collections import deque
+
 from lego_sorter_server.analysis.AnalysisFastService import AnalysisFastService
 import logging
 import time
@@ -28,9 +30,10 @@ class MyMessage:
 
 class LegoAnalysisFastService(LegoAnalysisFast_pb2_grpc.LegoAnalysisFastServicer):
 
-    def __init__(self, hub_connection: HubConnectionBuilder):
+    def __init__(self, hub_connection: HubConnectionBuilder, lastImages: deque):
         print("LegoAnalysisFastService start")
         self.storage = LegoImageStorageFast()
+        self.lastImages = lastImages
         self.processing_queue = ImageProcessingQueueFast()
         self.storage_queue = ImageStorageQueueFast()
         self.storage_runner = LegoStorageFastRunner(self.storage_queue, self.processing_queue,  hub_connection, self.storage)
@@ -70,6 +73,7 @@ class LegoAnalysisFastService(LegoAnalysisFast_pb2_grpc.LegoAnalysisFastServicer
         return bbs_list
 
     def DetectAndClassifyBricks(self, request: ImageRequest, context):
+        self.lastImages.append(request.image)
         image = ImageProtoUtils.prepare_image(request)
         logging.info("[LegoAnalysisFastService] Request received, added to queue...")
         # self.processing_queue.add(CAPTURE_TAG, image, "?")

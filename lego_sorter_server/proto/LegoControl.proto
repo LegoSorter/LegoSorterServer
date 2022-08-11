@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "Messages.proto";
+
+package control;
+
+option java_package = "com.lsorter.control";
+option java_outer_classname = "LegoControlProto";
+
+message ImagePreview {
+  bytes image = 1;
+  string timestamp = 2;
+}
+
+service LegoControl {
+  rpc GetCameraPreview(common.Empty) returns (ImagePreview);
+}

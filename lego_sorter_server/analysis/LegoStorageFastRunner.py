@@ -38,7 +38,7 @@ class LegoStorageFastRunner:
         # self.storage = store
         self.hub_connection = hub_connection
         # queue, detector and storage are not thread safe, so it limits the number of workers to one
-        self.executor = futures.ThreadPoolExecutor(max_workers=1)
+        self.executor = futures.ThreadPoolExecutor(max_workers=4)
         logging.info("[LegoStorageFastRunner] Ready for processing the queue.")
 
     def start_detecting(self):
