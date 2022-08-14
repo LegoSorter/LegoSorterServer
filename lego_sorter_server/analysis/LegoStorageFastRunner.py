@@ -30,7 +30,8 @@ class MyMessage:
 class LegoStorageFastRunner:
     DETECTION_SCORE_THRESHOLD = 0.5
 
-    def __init__(self, storage_queue: ImageStorageQueueFast, processing_queue: ImageProcessingQueueFast, hub_connection: HubConnectionBuilder, store: LegoImageStorageFast):
+    def __init__(self, storage_queue: ImageStorageQueueFast, processing_queue: ImageProcessingQueueFast,
+                 hub_connection: HubConnectionBuilder, store: LegoImageStorageFast):
         self.storage = store
         self.storage_queue = storage_queue
         self.processing_queue = processing_queue
@@ -97,7 +98,6 @@ class LegoStorageFastRunner:
 
         # return bb_list
 
-
         # detection_results = self.analysis_service.detect(image)
         # detected_counter = 0
         # bbs = []
@@ -117,10 +117,10 @@ class LegoStorageFastRunner:
         #         self.storage.save_image(image_new, lego_class, prefix)
 
         # prefix = f'{detected_counter}_{prefix}'
-
         prefix = str(uuid7())
 
-        filename = self.storage.save_image(image, prefix)
+        # if lego_class != "":
+            # filename = self.storage.save_image(image, lego_class, prefix)
         self.processing_queue.add(CAPTURE_TAG, image, prefix)
 
         # if save_label_file is True:

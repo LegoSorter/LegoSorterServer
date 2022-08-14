@@ -1,3 +1,4 @@
+import io
 from collections import deque
 
 from lego_sorter_server.analysis.AnalysisFastService import AnalysisFastService
@@ -7,6 +8,7 @@ import time
 from lego_sorter_server.analysis.LegoAnalysisFastRunner import LegoAnalysisFastRunner
 from lego_sorter_server.analysis.LegoStorageFastRunner import LegoStorageFastRunner
 from lego_sorter_server.generated import LegoAnalysisFast_pb2_grpc
+from lego_sorter_server.generated.LegoAnalysisFast_pb2 import FastImageRequest
 from lego_sorter_server.generated.Messages_pb2 import ImageRequest, ListOfBoundingBoxes
 from lego_sorter_server.images.queue.ImageProcessingQueueFast import ImageProcessingQueueFast, CAPTURE_TAG
 from lego_sorter_server.images.queue.ImageStorageQueueFast import ImageStorageQueueFast
@@ -72,12 +74,15 @@ class LegoAnalysisFastService(LegoAnalysisFast_pb2_grpc.LegoAnalysisFastServicer
 
         return bbs_list
 
-    def DetectAndClassifyBricks(self, request: ImageRequest, context):
-        self.lastImages.append(request.image)
+    def DetectAndClassifyBricks(self, request: FastImageRequest, context):
         image = ImageProtoUtils.prepare_image(request)
+        imgByteArr = io.BytesIO()
+        image.save(imgByteArr, format='JPEG', quality=75)
+        self.lastImages.append(imgByteArr.getvalue())
+        # self.lastImages.append(request.image)  # send received image to web without any processing
         logging.info("[LegoAnalysisFastService] Request received, added to queue...")
         # self.processing_queue.add(CAPTURE_TAG, image, "?")
-        self.storage_queue.add(CAPTURE_TAG, image, "?")
+        self.storage_queue.add(CAPTURE_TAG, image, request.session)
 
         bounding_boxes = []
         bb_list = ListOfBoundingBoxes()

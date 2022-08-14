@@ -45,13 +45,13 @@ class LegoImageStorageFast:
 
         return self.create_directory(target_directory, parents=False)
 
-    def save_image(self, image: Image.Image, prefix: str = '') -> str:
+    def save_image(self, image: Image.Image,session:str, prefix: str = '') -> str:
         """Save the image as representation of specified lego_class. Returns a name of the saved image"""
-        target_directory = self.get_target_directory_for_lego_class('unknown')
+        target_directory = self.get_target_directory_for_lego_class(session)
         filename = self.generate_file_name(prefix=prefix)
 
-        image = image.convert("RGB")
-        image.save(str(target_directory / filename))
+        # image = image.convert("RGB") # already done for image analysis
+        image.save(str(target_directory / filename), quality=75)  # TODO config parameter
 
         logging.info(f"Saved the image {filename} of unknown class\n")
 

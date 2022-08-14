@@ -2,6 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
+import lego_sorter_server.generated.LegoAnalysisFast_pb2 as LegoAnalysisFast__pb2
 import lego_sorter_server.generated.Messages_pb2 as Messages__pb2
 
 
@@ -21,7 +22,7 @@ class LegoAnalysisFastStub(object):
                 )
         self.DetectAndClassifyBricks = channel.unary_unary(
                 '/analysis.LegoAnalysisFast/DetectAndClassifyBricks',
-                request_serializer=Messages__pb2.ImageRequest.SerializeToString,
+                request_serializer=LegoAnalysisFast__pb2.FastImageRequest.SerializeToString,
                 response_deserializer=Messages__pb2.ListOfBoundingBoxes.FromString,
                 )
 
@@ -51,7 +52,7 @@ def add_LegoAnalysisFastServicer_to_server(servicer, server):
             ),
             'DetectAndClassifyBricks': grpc.unary_unary_rpc_method_handler(
                     servicer.DetectAndClassifyBricks,
-                    request_deserializer=Messages__pb2.ImageRequest.FromString,
+                    request_deserializer=LegoAnalysisFast__pb2.FastImageRequest.FromString,
                     response_serializer=Messages__pb2.ListOfBoundingBoxes.SerializeToString,
             ),
     }
@@ -93,7 +94,7 @@ class LegoAnalysisFast(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/analysis.LegoAnalysisFast/DetectAndClassifyBricks',
-            Messages__pb2.ImageRequest.SerializeToString,
+            LegoAnalysisFast__pb2.FastImageRequest.SerializeToString,
             Messages__pb2.ListOfBoundingBoxes.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

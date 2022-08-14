@@ -6,7 +6,13 @@ package analysis;
 option java_package = "com.lsorter.analysis.fast";
 option java_outer_classname = "LegoAnalysisFastProto";
 
+message FastImageRequest {
+  bytes image = 1;
+  int32 rotation = 2;
+  string session = 3;
+}
+
 service LegoAnalysisFast {
   rpc DetectBricks (common.ImageRequest) returns (common.ListOfBoundingBoxes);
-  rpc DetectAndClassifyBricks (common.ImageRequest) returns (common.ListOfBoundingBoxes);
+  rpc DetectAndClassifyBricks (FastImageRequest) returns (common.ListOfBoundingBoxes);
 }

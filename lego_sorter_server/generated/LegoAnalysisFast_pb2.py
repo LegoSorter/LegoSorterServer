@@ -12,18 +12,28 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import Messages_pb2 as Messages__pb2
+import lego_sorter_server.generated.Messages_pb2 as Messages__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16LegoAnalysisFast.proto\x12\x08\x61nalysis\x1a\x0eMessages.proto2\xa3\x01\n\x10LegoAnalysisFast\x12\x41\n\x0c\x44\x65tectBricks\x12\x14.common.ImageRequest\x1a\x1b.common.ListOfBoundingBoxes\x12L\n\x17\x44\x65tectAndClassifyBricks\x12\x14.common.ImageRequest\x1a\x1b.common.ListOfBoundingBoxesB2\n\x19\x63om.lsorter.analysis.fastB\x15LegoAnalysisFastProtob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16LegoAnalysisFast.proto\x12\x08\x61nalysis\x1a\x0eMessages.proto\"D\n\x10\x46\x61stImageRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x10\n\x08rotation\x18\x02 \x01(\x05\x12\x0f\n\x07session\x18\x03 \x01(\t2\xa9\x01\n\x10LegoAnalysisFast\x12\x41\n\x0c\x44\x65tectBricks\x12\x14.common.ImageRequest\x1a\x1b.common.ListOfBoundingBoxes\x12R\n\x17\x44\x65tectAndClassifyBricks\x12\x1a.analysis.FastImageRequest\x1a\x1b.common.ListOfBoundingBoxesB2\n\x19\x63om.lsorter.analysis.fastB\x15LegoAnalysisFastProtob\x06proto3')
 
 
+
+_FASTIMAGEREQUEST = DESCRIPTOR.message_types_by_name['FastImageRequest']
+FastImageRequest = _reflection.GeneratedProtocolMessageType('FastImageRequest', (_message.Message,), {
+  'DESCRIPTOR' : _FASTIMAGEREQUEST,
+  '__module__' : 'LegoAnalysisFast_pb2'
+  # @@protoc_insertion_point(class_scope:analysis.FastImageRequest)
+  })
+_sym_db.RegisterMessage(FastImageRequest)
 
 _LEGOANALYSISFAST = DESCRIPTOR.services_by_name['LegoAnalysisFast']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'\n\031com.lsorter.analysis.fastB\025LegoAnalysisFastProto'
-  _LEGOANALYSISFAST._serialized_start=53
-  _LEGOANALYSISFAST._serialized_end=216
+  _FASTIMAGEREQUEST._serialized_start=52
+  _FASTIMAGEREQUEST._serialized_end=120
+  _LEGOANALYSISFAST._serialized_start=123
+  _LEGOANALYSISFAST._serialized_end=292
 # @@protoc_insertion_point(module_scope)
