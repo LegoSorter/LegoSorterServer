@@ -16,3 +16,5 @@ torchvision==0.13.0
 opencv-python-headless
 uuid6 
 tensorflow-cpu==2.8.2
+timm
+peewee

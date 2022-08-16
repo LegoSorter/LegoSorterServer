@@ -2,10 +2,10 @@ import random
 import string
 import time
 import logging
-from concurrent import futures
+from collections import deque
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 from uuid6 import uuid7
-
-from signalrcore.hub_connection_builder import HubConnectionBuilder
+import pathlib
 
 from lego_sorter_server.analysis.AnalysisFastService import AnalysisFastService
 from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
@@ -15,6 +15,8 @@ from lego_sorter_server.images.queue.ImageStorageQueueFast import ImageStorageQu
 from lego_sorter_server.images.queue.ImageProcessingQueueFast import ImageProcessingQueueFast, CAPTURE_TAG
 from lego_sorter_server.images.storage.LegoImageStorageFast import LegoImageStorageFast
 from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
+from peewee import *
+from lego_sorter_server.database.Models import *
 
 
 class MyMessage:
@@ -31,15 +33,16 @@ class LegoStorageFastRunner:
     DETECTION_SCORE_THRESHOLD = 0.5
 
     def __init__(self, storage_queue: ImageStorageQueueFast, processing_queue: ImageProcessingQueueFast,
-                 hub_connection: HubConnectionBuilder, store: LegoImageStorageFast):
+                 store: LegoImageStorageFast, storageFastRunerExecutor: ThreadPoolExecutor, lastImages: deque):
         self.storage = store
         self.storage_queue = storage_queue
         self.processing_queue = processing_queue
         self.analysis_service = AnalysisFastService()
+        self.lastImages = lastImages
         # self.storage = store
-        self.hub_connection = hub_connection
         # queue, detector and storage are not thread safe, so it limits the number of workers to one
-        self.executor = futures.ThreadPoolExecutor(max_workers=4)
+        self.executor = storageFastRunerExecutor
+        # self.executor = futures.ThreadPoolExecutor(max_workers=4)
         logging.info("[LegoStorageFastRunner] Ready for processing the queue.")
 
     def start_detecting(self):
@@ -58,10 +61,13 @@ class LegoStorageFastRunner:
             logging.exception(f"[LegoStorageFastRunner] Got an exception:\n {str(exc)}")
             raise exc
 
-    def _process_queue(self, save_cropped_image=True, save_label_file=True):
+    def _process_queue(self):
         polling_rate = 0.2  # in seconds
         logging_rate = 30  # in seconds
         logging_counter = 0
+        storageFastRunerExecutor_max_workers = DBConfiguration.get(option="storageFastRunerExecutor_max_workers")
+        limit = (int(storageFastRunerExecutor_max_workers.value)-1)*2
+        futures = set()
 
         while True:
             if self.storage_queue.len(CAPTURE_TAG) == 0:
@@ -73,55 +79,41 @@ class LegoStorageFastRunner:
                 time.sleep(polling_rate)
                 continue
 
-            logging.info("[LegoStorageFastRunner] Queue not empty - processing data")
-            self.__process_next_image(save_cropped_image, save_label_file)
+            # logging.info("[LegoStorageFastRunner] Queue not empty - processing data")
+            logging.info(f"[LegoStorageFastRunner] Storage queue length:{self.storage_queue.len(CAPTURE_TAG)}")
+            # self.__process_next_image()
+            if (storageFastRunerExecutor_max_workers.value == "1"):
+                request, lego_class = self.storage_queue.next(CAPTURE_TAG)
+                self.__process_next_image(request, lego_class)
+            else:
+                if len(futures) >= limit:
+                    completed, futures = wait(futures, return_when=FIRST_COMPLETED)
+                request, lego_class = self.storage_queue.next(CAPTURE_TAG)
+                futures.add(self.executor.submit(self.__process_next_image, request, lego_class))
+            # self.executor.submit(self.__process_next_image, request, lego_class)
 
-    def __process_next_image(self, save_cropped_image, save_label_file):
-        image, lego_class = self.storage_queue.next(CAPTURE_TAG)
-        # start_time = time.time()
-        #
-        # # image = ImageProtoUtils.prepare_image(request)
-        # detection_results, classification_results = self.analysis_service.detect_and_classify(image)
-        # bb_list: ListOfBoundingBoxes = ImageProtoUtils.prepare_response_from_analysis_results(detection_results,
-        #                                                                                       classification_results)
-        #
-        # elapsed_millis = (time.time() - start_time) * 1000
-        # logging.info(f"[LegoAnalysisFastService] Detecting, classifying and preparing response took "
-        #              f"{elapsed_millis} milliseconds.")
-        #
-        # dictionary = []
-        # if len(bb_list.packet) > 0:
-        #     for packet in bb_list.packet:
-        #         dictionary.append(
-        #             MyMessage(packet.ymin, packet.xmin, packet.ymax, packet.xmax, packet.label, packet.score))
-        #     self.hub_connection.send("sendMessage", [dictionary])
+    def __process_next_image(self, request, lego_class):
+        start_time = time.time()
+        # request, lego_class = self.storage_queue.next(CAPTURE_TAG)
 
-        # return bb_list
+        image = ImageProtoUtils.prepare_image(request)
 
-        # detection_results = self.analysis_service.detect(image)
-        # detected_counter = 0
-        # bbs = []
-        # for i in range(len(detection_results.detection_classes)):
-        #     if detection_results.detection_scores[i] < LegoStorageFastRunner.DETECTION_SCORE_THRESHOLD:
-        #         logging.info(
-        #             f"[LegoAnalysisFastRunner] One result discarded for {lego_class} as it is under the threshold:\n"
-        #             f"Score = {detection_results.detection_scores[i]}, "
-        #             f"BoundingBox = {detection_results.detection_boxes[i]}")
-        #         continue
-        #
-        #     detected_counter += 1
-        #     bbs.append(detection_results.detection_boxes[i])
-        #
-        #     if save_cropped_image is True:
-        #         image_new = crop_with_margin(image, *detection_results.detection_boxes[i])
-        #         self.storage.save_image(image_new, lego_class, prefix)
+        self.lastImages.append(image)
+
 
         # prefix = f'{detected_counter}_{prefix}'
         prefix = str(uuid7())
+        dbimage = None
+        if lego_class != "":
+            filename = self.storage.save_image(image, lego_class, prefix)
+            session, _ = DBSession.get_or_create(name=lego_class, path=f"{pathlib.Path().resolve()}/lego_sorter_server/images/storage/stored/{lego_class}")
+            dbimage = DBImage.create(owner=session, filename=filename, image_width=image.width, image_height=image.height, VOC_exist=False)
+            elapsed_millis = int((time.time() - start_time) * 1000)
+            logging.info(f"[LegoStorageFastRunner] JPG saved in {elapsed_millis} milliseconds.")
+        self.processing_queue.add(CAPTURE_TAG, image, dbimage)
 
-        # if lego_class != "":
-            # filename = self.storage.save_image(image, lego_class, prefix)
-        self.processing_queue.add(CAPTURE_TAG, image, prefix)
+        elapsed_millis = int((time.time() - start_time) * 1000)
+        logging.info(f"[LegoStorageFastRunner] Request processed in {elapsed_millis} milliseconds.")
 
         # if save_label_file is True:
         #     path = self.storage.find_image_path(filename)

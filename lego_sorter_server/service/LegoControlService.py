@@ -1,3 +1,5 @@
+import io
+import logging
 import time
 from collections import deque
 from concurrent import futures
@@ -19,11 +21,17 @@ class LegoControlService(LegoControl_pb2_grpc.LegoControlServicer):
         a = 12
 
     def GetCameraPreview(self, request: Empty, context) -> ImagePreview:
-        print("LegoAnalysisFastService start")
+        logging.info("[LegoControlService] GetCameraPreview")
         imagePreview = ImagePreview()
         if len(self.lastImages) > 1:
-            imagePreview.image = self.lastImages.popleft()
+            image = self.lastImages.popleft()
+            imgByteArr = io.BytesIO()
+            image.save(imgByteArr, format='JPEG', quality=75)
+            imagePreview.image = imgByteArr.getvalue()
         elif len(self.lastImages) == 1:
-            imagePreview.image = self.lastImages[0]
+            image = self.lastImages[0]
+            imgByteArr = io.BytesIO()
+            image.save(imgByteArr, format='JPEG', quality=75)
+            imagePreview.image = imgByteArr.getvalue()
         imagePreview.timestamp = str(int(time.time()))
         return imagePreview

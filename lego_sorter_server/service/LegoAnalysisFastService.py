@@ -1,15 +1,18 @@
 import io
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 
 from lego_sorter_server.analysis.AnalysisFastService import AnalysisFastService
 import logging
 import time
 
 from lego_sorter_server.analysis.LegoAnalysisFastRunner import LegoAnalysisFastRunner
+from lego_sorter_server.analysis.LegoAnnotationFastRunner import LegoAnnotationFastRunner
 from lego_sorter_server.analysis.LegoStorageFastRunner import LegoStorageFastRunner
 from lego_sorter_server.generated import LegoAnalysisFast_pb2_grpc
 from lego_sorter_server.generated.LegoAnalysisFast_pb2 import FastImageRequest
 from lego_sorter_server.generated.Messages_pb2 import ImageRequest, ListOfBoundingBoxes
+from lego_sorter_server.images.queue.ImageAnnotationQueueFast import ImageAnnotationQueueFast
 from lego_sorter_server.images.queue.ImageProcessingQueueFast import ImageProcessingQueueFast, CAPTURE_TAG
 from lego_sorter_server.images.queue.ImageStorageQueueFast import ImageStorageQueueFast
 from lego_sorter_server.images.storage.LegoImageStorageFast import LegoImageStorageFast
@@ -32,20 +35,26 @@ class MyMessage:
 
 class LegoAnalysisFastService(LegoAnalysisFast_pb2_grpc.LegoAnalysisFastServicer):
 
-    def __init__(self, hub_connection: HubConnectionBuilder, lastImages: deque):
-        print("LegoAnalysisFastService start")
+    def __init__(self, hub_connection: HubConnectionBuilder, lastImages: deque, storageFastRunerExecutor: ThreadPoolExecutor, analyzerFastRunerExecutor: ThreadPoolExecutor, annotationFastRunerExecutor: ThreadPoolExecutor):
         self.storage = LegoImageStorageFast()
-        self.lastImages = lastImages
+        # self.lastImages = lastImages
         self.processing_queue = ImageProcessingQueueFast()
         self.storage_queue = ImageStorageQueueFast()
-        self.storage_runner = LegoStorageFastRunner(self.storage_queue, self.processing_queue,  hub_connection, self.storage)
+        self.storage_runner = LegoStorageFastRunner(self.storage_queue, self.processing_queue, self.storage, storageFastRunerExecutor, lastImages)
         self.storage_runner.start_detecting()
-        self.detection_runner = LegoAnalysisFastRunner(self.processing_queue, hub_connection)
+        self.annotation_queue = ImageAnnotationQueueFast()
+        self.annotation_runner = LegoAnnotationFastRunner(self.annotation_queue, annotationFastRunerExecutor)
+        self.annotation_runner.start_detecting()
+        self.detection_runner = LegoAnalysisFastRunner(self.processing_queue, hub_connection, analyzerFastRunerExecutor, self.annotation_queue)
         self.detection_runner.start_detecting()
         self.analysis_service = AnalysisFastService()
         self.handler = logging.StreamHandler()
         self.handler.setLevel(logging.DEBUG)
-        print("LegoAnalysisFastService end init")
+
+        bounding_boxes = []
+        self.empty_bb_list = ListOfBoundingBoxes()
+        self.empty_bb_list.packet.extend(bounding_boxes)
+        logging.info("[LegoAnalysisFastService] started")
         # .configure_logging(logging.DEBUG, socket_trace=True, handler=self.handler) \
         # .with_url("http://localhost:5002/hubs/sorter", options={"verify_ssl": False}) \
         # self.hub_connection = hub_connection
@@ -74,39 +83,18 @@ class LegoAnalysisFastService(LegoAnalysisFast_pb2_grpc.LegoAnalysisFastServicer
 
         return bbs_list
 
+
+    cnt = 0;
+
+
     def DetectAndClassifyBricks(self, request: FastImageRequest, context):
-        image = ImageProtoUtils.prepare_image(request)
-        imgByteArr = io.BytesIO()
-        image.save(imgByteArr, format='JPEG', quality=75)
-        self.lastImages.append(imgByteArr.getvalue())
-        # self.lastImages.append(request.image)  # send received image to web without any processing
-        logging.info("[LegoAnalysisFastService] Request received, added to queue...")
-        # self.processing_queue.add(CAPTURE_TAG, image, "?")
-        self.storage_queue.add(CAPTURE_TAG, image, request.session)
+        # print(f"{self.cnt};{time.time()}")
+        self.cnt += 1
+        self.storage_queue.add(CAPTURE_TAG, request, request.session)
 
-        bounding_boxes = []
-        bb_list = ListOfBoundingBoxes()
-        bb_list.packet.extend(bounding_boxes)
-
-        return bb_list
-
-        # start_time = time.time()
-        #
-        # image = ImageProtoUtils.prepare_image(request)
-        # detection_results, classification_results = self.analysis_service.detect_and_classify(image)
-        # bb_list: ListOfBoundingBoxes = ImageProtoUtils.prepare_response_from_analysis_results(detection_results, classification_results)
-        #
-        # elapsed_millis = (time.time() - start_time) * 1000
-        # logging.info(f"[LegoAnalysisFastService] Detecting, classifying and preparing response took "
-        #              f"{elapsed_millis} milliseconds.")
-        #
-        # dictionary = []
-        # if len(bb_list.packet) > 0:
-        #     for packet in bb_list.packet:
-        #         dictionary.append(MyMessage(packet.ymin, packet.xmin, packet.ymax, packet.xmax, packet.label, packet.score))
-        #     self.hub_connection.send("sendMessage", [dictionary])
-        #
-        # return bb_list
+        # logging.info("[LegoAnalysisFastService] Request received, added to queue...")
+        logging.info(f"[LegoAnalysisFastService] Request received, added to queue {self.cnt};{time.time()}")
+        return self.empty_bb_list
 
     def _detect_bricks(self, request: ImageRequest) -> ListOfBoundingBoxes:
         image = ImageProtoUtils.prepare_image(request)

@@ -1,5 +1,8 @@
+from typing import Tuple, Optional
 from collections import deque
 from PIL.Image import Image
+
+from lego_sorter_server.database.Models import DBImage
 
 
 class Singleton(type):
@@ -22,13 +25,12 @@ class ImageProcessingQueueFast(metaclass=Singleton):
         self.limit = limit
         self.in_memory_stores = {SORTER_TAG: deque([], maxlen=limit), CAPTURE_TAG: deque([], maxlen=limit)}
 
-    def next(self, tag: str) -> (Image, str):
+    def next(self, tag: str) -> Tuple[Image, Optional[DBImage]]:
         return self.in_memory_stores.get(tag).pop()
 
-    def add(self, tag: str, image: Image, lego_class='unknown') -> None:
-        print("add to ImageProcessingQueueFast")
+    def add(self, tag: str, image: Image, dbimage: Optional[DBImage]) -> None:
         # self._check_limit(tag)
-        self.in_memory_stores.get(tag).append((image, lego_class))
+        self.in_memory_stores.get(tag).append((image, dbimage))
 
     def len(self, tag: str) -> int:
         return len(self.in_memory_stores.get(tag))
