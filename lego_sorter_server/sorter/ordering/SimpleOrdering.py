@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 
 from collections import OrderedDict
 from typing import List
@@ -14,21 +14,21 @@ class SimpleOrdering:
 
     def process_current_results(self, results, image_height: int):
         if len(results) == 0:
-            logging.info("[SimpleOrdering] No bricks detected. It means that all bricks have surpassed the camera line")
+            logger.info("[SimpleOrdering] No bricks detected. It means that all bricks have surpassed the camera line")
             self._extract_processed_bricks(len(self.memorized_state))
             return
 
         results = self.discard_border_results(results, image_height)
 
         if len(results) == 0:
-            logging.info("[SimpleOrdering] There is no bricks to process after skipping border results.")
+            logger.info("[SimpleOrdering] There is no bricks to process after skipping border results.")
             self._extract_processed_bricks(len(self.memorized_state))
             return
 
         first_brick_from_history = self._get_first_brick()
 
         if len(first_brick_from_history) == 0:
-            logging.info(f"[SimpleOrdering] Nothing in history, adding all results and moving the head index by 1")
+            logger.info(f"[SimpleOrdering] Nothing in history, adding all results and moving the head index by 1")
 
             self.head_index = self.head_index + 1
             self._add_results_to_current_state(results, start_from=self.head_index)
@@ -37,7 +37,7 @@ class SimpleOrdering:
         first_brick_from_results = results[0]
 
         if self._is_the_same_brick(first_brick_from_history, first_brick_from_results):
-            logging.info(f"[SimpleOrdering] No brick has surpassed the camera line."
+            logger.info(f"[SimpleOrdering] No brick has surpassed the camera line."
                          f"\n\t\t\t First brick from the history:"
                          f"\n\t\t\t {first_brick_from_history}"
                          f"\n\t\t\t Is the same brick as the current first brick:"
@@ -45,11 +45,11 @@ class SimpleOrdering:
             self._add_results_to_current_state(results, start_from=self.head_index)
             return
         else:
-            logging.info(f"[SimpleOrdering] Another brick detected at the head position. "
+            logger.info(f"[SimpleOrdering] Another brick detected at the head position. "
                          f"It means that the previous first brick has surpassed the camera line.")
             passed_bricks_count = self._get_count_of_passed_bricks(current_state=results)
             if passed_bricks_count >= 2:
-                logging.error(
+                logger.error(
                     f"[SimpleOrdering] {passed_bricks_count} bricks have overpassed the camera line!"
                     f"Such a state shouldn't happen. Sorting results can be incorrect.")
 
@@ -63,7 +63,7 @@ class SimpleOrdering:
             history_of_brick.append(result)
             self.memorized_state[start_from + index] = history_of_brick
 
-        logging.info(f"[SimpleOrdering] Added results, the current state is:"
+        logger.info(f"[SimpleOrdering] Added results, the current state is:"
                      f"\n {list(self.memorized_state.items())}")
 
     def get_current_state(self):
@@ -94,7 +94,7 @@ class SimpleOrdering:
         for i in range(count):
             current_first = self.memorized_state.pop(self.head_index + i)
             self.processed_bricks.append(current_first)
-            logging.info(f"[SimpleOrdering] A brick with id {self.head_index + i} was moved to the processed queue:"
+            logger.info(f"[SimpleOrdering] A brick with id {self.head_index + i} was moved to the processed queue:"
                          f"\n {current_first}")
 
         self.head_index = self.head_index + count
@@ -127,12 +127,12 @@ class SimpleOrdering:
         last_brick = results[-1]
 
         if first_brick[0][2] + self.BORDER_MARGIN >= image_height:
-            logging.info(f"[SimpleOrdering] One result has been discarded as it exceeds the bottom camera line:"
+            logger.info(f"[SimpleOrdering] One result has been discarded as it exceeds the bottom camera line:"
                          f"\n{first_brick}")
             results = results[1:]
 
         if last_brick[0][0] - self.BORDER_MARGIN <= 0:
-            logging.info(f"[SimpleOrdering] One result has been discarded as it exceeds the top camera line:"
+            logger.info(f"[SimpleOrdering] One result has been discarded as it exceeds the top camera line:"
                          f"\n{last_brick}")
             results = results[:-1]
 

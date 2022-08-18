@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 import os
 import time
 
@@ -52,7 +52,7 @@ class KerasClassifier(LegoClassifier):
 
         predicting_elapsed_time_ms = 1000 * (time.time() - start_time) - processing_elapsed_time_ms
 
-        logging.info(f"[KerasClassifier] Preparing images took {processing_elapsed_time_ms} ms, "
+        logger.info(f"[KerasClassifier] Preparing images took {processing_elapsed_time_ms} ms, "
                      f"when predicting took {predicting_elapsed_time_ms} ms.")
 
         indices = [int(np.argmax(values)) for values in predictions]

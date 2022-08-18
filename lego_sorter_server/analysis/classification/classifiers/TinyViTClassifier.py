@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 import os
 import time
 
@@ -128,10 +128,8 @@ class TinyViTClassifier(LegoClassifier):
         # probs2 = torch.nn.functional.softmax(predictions)
         indices2 = [int(values.argmax()) for values in probs]
         scores = [float(probs[index]) for index, probs in zip(indices, probs)]
-        scores_calc_time_ms = 1000 * (time.time() - start_time) - predicting_elapsed_time_ms
-
-        logging.info(f"[KerasClassifier] Preparing images took {processing_elapsed_time_ms} ms, "
-                     f"predicting took {predicting_elapsed_time_ms} ms, "
-                     f"when calculating scores took {scores_calc_time_ms} ms.")
+        all_time_ms = 1000 * (time.time() - start_time)
+        logger.debug(f"[TinyViTClassifier] Preparing images and classification took {all_time_ms} ms, "
+                     f"preparing images {processing_elapsed_time_ms} ms, classification {predicting_elapsed_time_ms} ms.")
 
         return ClassificationResults(classes, scores)

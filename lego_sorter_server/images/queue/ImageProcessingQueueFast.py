@@ -25,12 +25,12 @@ class ImageProcessingQueueFast(metaclass=Singleton):
         self.limit = limit
         self.in_memory_stores = {SORTER_TAG: deque([], maxlen=limit), CAPTURE_TAG: deque([], maxlen=limit)}
 
-    def next(self, tag: str) -> Tuple[Image, Optional[DBImage]]:
+    def next(self, tag: str) -> Tuple[Image, Optional[int]]:
         return self.in_memory_stores.get(tag).pop()
 
-    def add(self, tag: str, image: Image, dbimage: Optional[DBImage]) -> None:
+    def add(self, tag: str, image: Image, imageid: Optional[int]) -> None:
         # self._check_limit(tag)
-        self.in_memory_stores.get(tag).append((image, dbimage))
+        self.in_memory_stores.get(tag).append((image, imageid))
 
     def len(self, tag: str) -> int:
         return len(self.in_memory_stores.get(tag))

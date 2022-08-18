@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 
 import requests
 
@@ -22,7 +22,7 @@ class LegoSorterController:
     def on_brick_recognized(self, brick):
         brick_coords, brick_cls, brick_prob = brick
         cat_name, pos = self.brickCategoryConfig[brick_cls]
-        logging.info(f"Moving brick with class: {brick_cls} to stack: {cat_name} (pos: {pos})")
+        logger.info(f"Moving brick with class: {brick_cls} to stack: {cat_name} (pos: {pos})")
         requests.get(f"{self.SORTER_LOCAL_ADDRESS}/sort?action={pos}")
 
     def set_machine_speed(self, speed):

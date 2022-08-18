@@ -1,7 +1,7 @@
 import os
 import threading
 import time
-import logging
+from loguru import logger
 import torch
 import numpy
 from pathlib import Path
@@ -24,7 +24,8 @@ class ThreadSafeSingleton(type):
 
 class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
     def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "detection", "models", "yolo_model",
-                                               "yolov5_medium_extended.pt")):
+                                               "yolov5_small_extended.pt")):
+                                               # "yolov5_medium_extended.pt")):
         self.__initialized = False
         self.model_path = Path(model_path).absolute()
 
@@ -33,7 +34,7 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             raise Exception("YoloLegoDetector already initialized")
 
         if not self.model_path.exists():
-            logging.error(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
+            logger.error(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
             raise RuntimeError(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
 
         start_time = time.time()
@@ -42,7 +43,7 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             self.model.cuda()
         elapsed_time = time.time() - start_time
 
-        logging.info("Loading model took {} seconds".format(elapsed_time))
+        logger.info("[YoloLegoDetector] Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
 
     @staticmethod
@@ -63,13 +64,12 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
     def detect_lego(self, image: numpy.ndarray) -> DetectionResults:
         if not self.__initialized:
-            logging.info("YoloLegoDetector is not initialized, this process can take a few seconds for the first time.")
+            logger.info("YoloLegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
-        logging.info("[YoloLegoDetector][detect_lego] Detecting bricks...")
+        # logger.info("[YoloLegoDetector][detect_lego] Detecting bricks...")
         start_time = time.time()
         results = self.model([image], size=image.shape[0])
         elapsed_time = 1000 * (time.time() - start_time)
-        logging.info(f"[YoloLegoDetector][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
-
+        logger.debug(f"[YoloLegoDetector][detect_lego] Detecting bricks and converting took {elapsed_time} ms.")
         return self.convert_results_to_common_format(results)

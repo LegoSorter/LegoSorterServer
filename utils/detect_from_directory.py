@@ -1,6 +1,6 @@
 import argparse
 import time
-import logging
+from loguru import logger
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     Path(args.output_cropped).mkdir(exist_ok=True, parents=True)
     Path(args.output).mkdir(exist_ok=True, parents=True)
 
-    logging.getLogger().disabled = True
+    logger.disabled = True
     analysis_service = AnalysisService()
 
     if args.recursive:

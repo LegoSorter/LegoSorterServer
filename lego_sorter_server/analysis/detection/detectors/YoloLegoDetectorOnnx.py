@@ -1,7 +1,7 @@
 import os
 import threading
 import time
-import logging
+from loguru import logger
 import torch
 import numpy
 from pathlib import Path
@@ -38,7 +38,7 @@ class YoloLegoDetectorOnnx(LegoDetector, metaclass=ThreadSafeSingleton):
             raise Exception("YoloLegoDetectorOnnx already initialized")
 
         if not self.model_path.exists():
-            logging.error(f"[YoloLegoDetectorOnnx] No model found in {str(self.model_path)}")
+            logger.error(f"[YoloLegoDetectorOnnx] No model found in {str(self.model_path)}")
             raise RuntimeError(f"[YoloLegoDetectorOnnx] No model found in {str(self.model_path)}")
 
         start_time = time.time()
@@ -48,7 +48,7 @@ class YoloLegoDetectorOnnx(LegoDetector, metaclass=ThreadSafeSingleton):
             self.model.cuda()
         elapsed_time = time.time() - start_time
 
-        logging.info("Loading model took {} seconds".format(elapsed_time))
+        logger.info("[YoloLegoDetectorOnnx] Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
 
 
@@ -71,13 +71,13 @@ class YoloLegoDetectorOnnx(LegoDetector, metaclass=ThreadSafeSingleton):
 
     def detect_lego(self, image: numpy.ndarray) -> DetectionResults:
         if not self.__initialized:
-            logging.info("YoloLegoDetectorOnnx is not initialized, this process can take a few seconds for the first time.")
+            logger.info("YoloLegoDetectorOnnx is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
-        logging.info("[YoloLegoDetectorOnnx][detect_lego] Detecting bricks...")
+        logger.info("[YoloLegoDetectorOnnx][detect_lego] Detecting bricks...")
         start_time = time.time()
         results = self.model([image.astype], size=image.shape[0])
         elapsed_time = 1000 * (time.time() - start_time)
-        logging.info(f"[YoloLegoDetectorOnnx][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
+        logger.info(f"[YoloLegoDetectorOnnx][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
 
         return self.convert_results_to_common_format(results)

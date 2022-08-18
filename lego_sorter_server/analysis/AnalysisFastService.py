@@ -1,4 +1,5 @@
-import logging
+from loguru import logger
+import time
 from typing import Tuple, List
 
 import numpy
@@ -24,14 +25,15 @@ class AnalysisFastService:
 
     def detect(self, image: Image, resize: bool = True, threshold=0.5,
                discard_border_results: bool = True) -> DetectionResults:
+        start_time = time.time()
         if image.size is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is False:
-            logging.warning(f"[AnalysisService] Requested detection on an image with a non-standard size {image.size} "
+            logger.warning(f"[AnalysisFastService][detect] Requested detection on an image with a non-standard size {image.size} "
                             f"but 'resize' parameter is {resize}.")
 
         scale = 1
         original_size = image.size
         if image.size is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is True:
-            logging.info(f"[AnalysisService] Resizing an image from "
+            logger.info(f"[AnalysisFastService][detect] Resizing an image from "
                          f"{image.size} to {AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE}")
             image, scale = DetectionUtils.resize(image, AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
@@ -39,31 +41,38 @@ class AnalysisFastService:
             accepted_xy_range = [(original_size[0] * scale) / image.size[0], (original_size[1] * scale) / image.size[1]]
         else:
             accepted_xy_range = [1, 1]
-
-        detection_results = self.detector.detect_lego(numpy.array(image))
+        resize_time = 1000 * (time.time() - start_time)
+        numpy_image = numpy.array(image)
+        numpy_image_time = 1000 * (time.time() - start_time) - resize_time
+        detection_results = self.detector.detect_lego(numpy_image)
+        after_detect = 1000 * (time.time() - start_time) - resize_time - numpy_image_time
         detection_results = self.filter_detection_results(detection_results, threshold, accepted_xy_range)
+        translated = self.translate_bounding_boxes_to_original_size(detection_results, scale, original_size,
+                                                                    self.DEFAULT_IMAGE_DETECTION_SIZE[0])
 
-        return self.translate_bounding_boxes_to_original_size(detection_results,
-                                                              scale,
-                                                              original_size,
-                                                              self.DEFAULT_IMAGE_DETECTION_SIZE[0])
+        all = 1000 * (time.time() - start_time)
+        logger.debug(f"[AnalysisFastService][detect] Resizing and detection took {all} ms, resize {resize_time} ms, "
+                     f"numpy {numpy_image_time}ms, detection {after_detect}ms.")
+        return translated
 
     def classify(self, images: List[Image]) -> ClassificationResults:
         return self.classifier.predict(images)
 
     def detect_and_classify(self, image: Image, detection_threshold: float = 0.5, discard_border_results: bool = True) \
             -> Tuple[DetectionResults, ClassificationResults]:
-
+        start_time = time.time()
         detection_results = self.detect(image, threshold=detection_threshold,
                                         discard_border_results=discard_border_results)
-
+        detect = 1000 * (time.time() - start_time)
         cropped_images = []
         for bounding_box in detection_results.detection_boxes:
             cropped_image = DetectionUtils.crop_with_margin_from_bb(image, bounding_box)
             cropped_images.append(cropped_image)
-
         classification_results = self.classify(cropped_images)
-
+        classification = 1000 * (time.time() - start_time) - detect
+        elapsed_millis = 1000 * (time.time() - start_time)
+        logger.debug(f"[AnalysisFastService][detect_and_classify] Detecting and classifying took {elapsed_millis} ms, "
+                     f"detection {detect} ms, classification {classification} ms.")
         return detection_results, classification_results
 
     @staticmethod

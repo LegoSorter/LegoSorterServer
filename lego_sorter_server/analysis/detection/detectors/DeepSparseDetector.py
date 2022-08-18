@@ -1,7 +1,7 @@
 import os
 import threading
 import time
-import logging
+from loguru import logger
 import torch
 import numpy
 from pathlib import Path
@@ -67,7 +67,7 @@ class DeepSparseDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
         # load model
 
-        logging.info(f"Compiling DeepSparse model for {model_filepath}")
+        logger.info(f"Compiling DeepSparse model for {model_filepath}")
         model = compile_model(model_filepath, 1, num_cores)
 
         return model, has_postprocessing
@@ -77,7 +77,7 @@ class DeepSparseDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             raise Exception("DeepSparseDetector already initialized")
 
         if not self.model_path.exists():
-            logging.error(f"[DeepSparseDetector] No model found in {str(self.model_path)}")
+            logger.error(f"[DeepSparseDetector] No model found in {str(self.model_path)}")
             raise RuntimeError(f"[DeepSparseDetector] No model found in {str(self.model_path)}")
 
         start_time = time.time()
@@ -95,7 +95,7 @@ class DeepSparseDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         #     self.model.cuda()
         elapsed_time = time.time() - start_time
 
-        logging.info("Loading model took {} seconds".format(elapsed_time))
+        logger.info("[DeepSparseDetector] Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
 
     @staticmethod
@@ -134,10 +134,10 @@ class DeepSparseDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
     def detect_lego(self, image: numpy.ndarray) -> DetectionResults:
         if not self.__initialized:
-            logging.info("DeepSparseDetector is not initialized, this process can take a few seconds for the first time.")
+            logger.info("DeepSparseDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
-        logging.info("[DeepSparseDetector][detect_lego] Detecting bricks...")
+        logger.info("[DeepSparseDetector][detect_lego] Detecting bricks...")
         start_time = time.time()
         # results = self.model([image], size=image.shape[0])
         # inp = [numpy.random.rand(1, 3, 640, 640).astype(numpy.uint8)]
@@ -162,6 +162,6 @@ class DeepSparseDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         outputs = postprocess_nms(outputs)[0]
 
         elapsed_time = 1000 * (time.time() - start_time)
-        logging.info(f"[DeepSparseDetector][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
+        logger.info(f"[DeepSparseDetector][detect_lego] Detecting bricks took {elapsed_time} milliseconds")
 
         return self.convert_results_to_common_format(outputs)

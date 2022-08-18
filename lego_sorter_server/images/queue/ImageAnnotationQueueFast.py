@@ -28,12 +28,12 @@ class ImageAnnotationQueueFast(metaclass=Singleton):
         self.limit = limit
         self.in_memory_stores = {SORTER_TAG: deque([], maxlen=limit), CAPTURE_TAG: deque([], maxlen=limit)}
 
-    def next(self, tag: str) -> Tuple[DetectionResults, ClassificationResults, DBImage]:
+    def next(self, tag: str) -> Tuple[DetectionResults, ClassificationResults, int]:
         return self.in_memory_stores.get(tag).pop()
 
-    def add(self, tag: str, detectionResults: DetectionResults, classificationResults:ClassificationResults, dbimage:DBImage) -> None:
+    def add(self, tag: str, detectionResults: DetectionResults, classificationResults:ClassificationResults, imageid:int) -> None:
         # self._check_limit(tag)
-        self.in_memory_stores.get(tag).append((detectionResults, classificationResults, dbimage))
+        self.in_memory_stores.get(tag).append((detectionResults, classificationResults, imageid))
 
     def len(self, tag: str) -> int:
         return len(self.in_memory_stores.get(tag))

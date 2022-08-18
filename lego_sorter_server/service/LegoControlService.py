@@ -1,5 +1,5 @@
 import io
-import logging
+from loguru import logger
 import time
 from collections import deque
 from concurrent import futures
@@ -21,7 +21,7 @@ class LegoControlService(LegoControl_pb2_grpc.LegoControlServicer):
         a = 12
 
     def GetCameraPreview(self, request: Empty, context) -> ImagePreview:
-        logging.info("[LegoControlService] GetCameraPreview")
+        logger.info("[LegoControlService] GetCameraPreview")
         imagePreview = ImagePreview()
         if len(self.lastImages) > 1:
             image = self.lastImages.popleft()

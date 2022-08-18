@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 import os
 import argparse
 import time
@@ -46,7 +46,7 @@ class TFLegoClassifier(LegoClassifier):
 
     def load_model(self, model_path=DEFAULT_MODEL_PATH):
         if not Path(model_path).exists():
-            logging.error(f"[TFLegoClassifier] No model found in {str(model_path)}")
+            logger.error(f"[TFLegoClassifier] No model found in {str(model_path)}")
             raise RuntimeError(f"[TFLegoClassifier] No model found in {str(model_path)}")
 
         self.model = tf.keras.models.load_model(model_path)
@@ -105,7 +105,7 @@ class TFLegoClassifier(LegoClassifier):
 
         predicting_elapsed_time_ms = 1000 * (time.time() - start_time) - processing_elapsed_time_ms
 
-        logging.info(f"[TFLegoClassifier] Preparing images took {processing_elapsed_time_ms} ms, "
+        logger.info(f"[TFLegoClassifier] Preparing images took {processing_elapsed_time_ms} ms, "
                      f"when predicting took {predicting_elapsed_time_ms} ms.")
 
         indices = [int(np.argmax(values)) for values in predictions]

@@ -3,7 +3,7 @@ import threading
 import time
 import numpy as np
 import tensorflow as tf
-import logging
+from loguru import logger
 from pathlib import Path
 
 from lego_sorter_server.analysis.detection import DetectionUtils
@@ -43,19 +43,19 @@ class TFLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             raise Exception("TFLegoDetector already initialized")
 
         if not self.model_path.exists():
-            logging.error(f"[TFLegoDetector] No model found in {str(self.model_path)}")
+            logger.error(f"[TFLegoDetector] No model found in {str(self.model_path)}")
             raise RuntimeError(f"[TFLegoDetector] No model found in {str(self.model_path)}")
 
         start_time = time.time()
         self.model = tf.saved_model.load(str(self.model_path))
         elapsed_time = time.time() - start_time
 
-        logging.info("Loading model took {} seconds".format(elapsed_time))
+        logger.info("[TFLegoDetector] Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
 
     def detect_lego(self, image: np.array) -> DetectionResults:
         if not self.__initialized:
-            logging.info("TFLegoDetector is not initialized, this process can take a few seconds for the first time.")
+            logger.info("TFLegoDetector is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
         input_tensor = self.prepare_input_tensor(image)

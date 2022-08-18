@@ -1,8 +1,9 @@
 import random
 import string
 import time
-import logging
+from loguru import logger
 from concurrent import futures
+from threading import Event
 
 from lego_sorter_server.analysis.AnalysisService import AnalysisService
 from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
@@ -14,20 +15,22 @@ from lego_sorter_server.images.storage.LegoImageStorage import LegoImageStorage
 class LegoDetectionRunner:
     DETECTION_SCORE_THRESHOLD = 0.5
 
-    def __init__(self, queue: ImageProcessingQueue, store: LegoImageStorage):
+    def __init__(self, queue: ImageProcessingQueue, store: LegoImageStorage, event: Event):
         self.queue = queue
+        self.event = event
         self.analysis_service = AnalysisService()
         self.storage = store
         # queue, detector and storage are not thread safe, so it limits the number of workers to one
         self.executor = futures.ThreadPoolExecutor(max_workers=1)
-        logging.info("[LegoDetectionRunner] Ready for processing the queue.")
+        logger.info("[LegoDetectionRunner] Ready for processing the queue.")
 
     def start_detecting(self):
-        logging.info("[LegoDetectionRunner] Started processing the queue.")
+        logger.info("[LegoDetectionRunner] Started processing the queue.")
         return self.executor.submit(self._exception_handler, self._process_queue)
 
     def stop_detecting(self):
-        logging.info("[LegoDetectionRunner] Processing is being terminated.")
+        logger.info("[LegoDetectionRunner] Processing is being terminated.")
+        self.event.set()
         self.executor.shutdown()
 
     @staticmethod
@@ -35,7 +38,7 @@ class LegoDetectionRunner:
         try:
             method(*args)
         except Exception as exc:
-            logging.exception(f"[LegoDetectionRunner] Got an exception:\n {str(exc)}")
+            logger.exception(f"[LegoDetectionRunner] Got an exception:\n {str(exc)}")
             raise exc
 
     def _process_queue(self, save_cropped_image=True, save_label_file=True):
@@ -44,16 +47,19 @@ class LegoDetectionRunner:
         logging_counter = 0
 
         while True:
+            if self.event.isSet():
+                logger.info("[LegoDetectionRunner] Processing queue is being terminated.")
+                return
             if self.queue.len(CAPTURE_TAG) == 0:
                 if polling_rate * logging_counter >= logging_rate:
-                    logging.info("[LegoDetectionRunner] Queue is empty. Waiting... ")
+                    logger.info("[LegoDetectionRunner] Queue is empty. Waiting... ")
                     logging_counter = 0
                 else:
                     logging_counter += 1
                 time.sleep(polling_rate)
                 continue
 
-            logging.info("[LegoDetectionRunner] Queue not empty - processing data")
+            logger.info("[LegoDetectionRunner] Queue not empty - processing data")
             self.__process_next_image(save_cropped_image, save_label_file)
 
     def __process_next_image(self, save_cropped_image, save_label_file):
@@ -64,7 +70,7 @@ class LegoDetectionRunner:
         bbs = []
         for i in range(len(detection_results.detection_classes)):
             if detection_results.detection_scores[i] < LegoDetectionRunner.DETECTION_SCORE_THRESHOLD:
-                logging.info(
+                logger.info(
                     f"[LegoDetectionRunner] One result discarded for {lego_class} as it is under the threshold:\n"
                     f"Score = {detection_results.detection_scores[i]}, "
                     f"BoundingBox = {detection_results.detection_boxes[i]}")

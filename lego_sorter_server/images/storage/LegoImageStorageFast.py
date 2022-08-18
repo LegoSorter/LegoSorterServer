@@ -4,7 +4,7 @@ from time import time
 from typing import List
 
 from PIL import Image
-import logging
+from loguru import logger
 
 
 class LegoImageStorageFast:
@@ -53,7 +53,7 @@ class LegoImageStorageFast:
         # image = image.convert("RGB") # already done for image analysis
         image.save(str(target_directory / filename), quality=75)  # TODO config parameter
 
-        logging.info(f"Saved the image {filename} of unknown class\n")
+        logger.info(f"Saved the image {filename} of unknown class\n")
 
         return filename
 

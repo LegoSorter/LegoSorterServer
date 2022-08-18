@@ -28,3 +28,6 @@ dependencies:
     - uuid6 
     - tensorflow==2.8.2
     - timm
+    - fiftyone
+    - fastapi==0.75.2
+    - loguru

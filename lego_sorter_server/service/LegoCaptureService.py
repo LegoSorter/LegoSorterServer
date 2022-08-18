@@ -1,4 +1,5 @@
 from concurrent import futures
+from threading import Event
 
 from lego_sorter_server.analysis.detection.LegoDetectionRunner import LegoDetectionRunner
 from lego_sorter_server.generated import LegoCapture_pb2_grpc
@@ -11,11 +12,11 @@ from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
 
 
 class LegoCaptureService(LegoCapture_pb2_grpc.LegoCaptureServicer):
-    def __init__(self):
+    def __init__(self, event: Event):
         self.storage = LegoImageStorage()
         self.executor = futures.ThreadPoolExecutor(max_workers=1)
         self.processing_queue = ImageProcessingQueue()
-        self.detection_runner = LegoDetectionRunner(self.processing_queue, self.storage)
+        self.detection_runner = LegoDetectionRunner(self.processing_queue, self.storage, event)
         self.detection_runner.start_detecting()
 
     def CollectCroppedImages(self, request: ImageStore, context) -> Empty:

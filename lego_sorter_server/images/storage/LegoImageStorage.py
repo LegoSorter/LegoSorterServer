@@ -4,7 +4,7 @@ from time import time
 from typing import List
 
 from PIL import Image
-import logging
+from loguru import logger
 
 
 class LegoImageStorage:
@@ -53,7 +53,7 @@ class LegoImageStorage:
         image = image.convert("RGB")
         image.save(str(target_directory / filename))
 
-        logging.info(f"Saved the image {filename} of {lego_class} class\n")
+        logger.info(f"Saved the image {filename} of {lego_class} class\n")
 
         return filename
 
