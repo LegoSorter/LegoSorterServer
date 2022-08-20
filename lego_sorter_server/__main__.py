@@ -23,7 +23,7 @@ import warnings
 brickCategoryConfig = None
 
 
-LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "INFO"))
+LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
 # LOG_LEVEL = logging.getLevelName("INFO")
 JSON_LOGS = True if os.environ.get("JSON_LOGS", "0") == "1" else False
 
@@ -53,17 +53,26 @@ def setup_logging():
     # intercept everything at the root logger
     logging.root.handlers = [InterceptHandler()]
     logging.root.setLevel(LOG_LEVEL)
+    logging.root.propagate = False
+    logging.getLogger().handlers = [InterceptHandler()]
     logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().propagate = False
+    logging.getLogger("yolov5").handlers = [InterceptHandler()]
+    logging.getLogger("yolov5").setLevel(logging.INFO)
+    logging.getLogger("yolov5").propagate = False
+
 
     # remove every other logger's handlers
     # and propagate to root logger
     for name in logging.root.manager.loggerDict.keys():
-        logging.getLogger(name).handlers = []
-        logging.getLogger(name).propagate = True
+        logging.getLogger(name).handlers = [InterceptHandler()]
+        logging.getLogger(name).propagate = False
 
     # configure loguru
-    logger.configure(handlers=[{"sink": sys.stdout, "level": LOG_LEVEL, "format":"<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>", "serialize": JSON_LOGS}])
-    # logger.configure(handlers=[{"sink": sys.stdout, "serialize": JSON_LOGS}])
+    logger.remove()
+    # logger.add(sys.stdout, level=LOG_LEVEL, serialize=JSON_LOGS)
+    logger.add(sys.stdout, level=LOG_LEVEL, format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>", serialize=JSON_LOGS)
+    # logger.configure(handlers=[{"sink": sys.stdout, "level": LOG_LEVEL, "format":"<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <level>{message}</level>", "serialize": JSON_LOGS}])
 
 
 if __name__ == '__main__':

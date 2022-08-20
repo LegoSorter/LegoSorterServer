@@ -61,6 +61,14 @@ async def startup_event():
     db.close()
 
 
+@app.on_event("shutdown")
+def shutdown_event():
+    if len(server_elements) > 0:
+        Server.stop(*server_elements["elements"], event[0])
+        server_elements.clear()
+        event[0] = Event()
+
+
 origins = ["*"]
     # "http://localhost.tiangolo.com",
     # "https://localhost.tiangolo.com",

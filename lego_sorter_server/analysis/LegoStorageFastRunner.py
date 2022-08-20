@@ -19,7 +19,6 @@ from lego_sorter_server.images.queue.ImageStorageQueueFast import ImageStorageQu
 from lego_sorter_server.images.queue.ImageProcessingQueueFast import ImageProcessingQueueFast, CAPTURE_TAG
 from lego_sorter_server.images.storage.LegoImageStorageFast import LegoImageStorageFast
 from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
-from peewee import *
 from lego_sorter_server.database.Models import *
 
 
