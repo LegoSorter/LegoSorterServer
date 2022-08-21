@@ -1,6 +1,7 @@
 from io import BytesIO
 from typing import List, Tuple
-
+import cv2
+import numpy as np
 from PIL import Image
 
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
@@ -23,6 +24,27 @@ class ImageProtoUtils:
             image = image.rotate(180)
         elif request.rotation == 270:
             image = image.transpose(Image.ROTATE_90)
+
+        return image
+
+    def prepare_image_cv2(request: ImageRequest) -> Image.Image:
+        file_bytes = np.asarray(bytearray(BytesIO(request.image).read()), dtype=np.uint8)
+        image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+
+        # image = Image.open(BytesIO(request.image))
+        # image = image.convert('RGB')
+
+        if request.rotation == 90:
+            image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+            # image = image.transpose(Image.ROTATE_270)
+        elif request.rotation == 180:
+            image = cv2.rotate(image, cv2.ROTATE_180)
+            # image = image.rotate(180)
+        elif request.rotation == 270:
+            image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            # image = image.transpose(Image.ROTATE_90)
 
         return image
 

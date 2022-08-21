@@ -107,7 +107,7 @@ class LegoStorageFastRunner:
         start_time = time.time()
         # request, lego_class = self.storage_queue.next(CAPTURE_TAG)
 
-        image = ImageProtoUtils.prepare_image(request)
+        image = ImageProtoUtils.prepare_image_cv2(request)
 
         self.lastImages.append(image)
 
@@ -118,10 +118,11 @@ class LegoStorageFastRunner:
         dbimage = None
         if lego_class != "":
             db = SessionLocal()
-            filename = self.storage.save_image(image, lego_class, prefix)
+            filename = self.storage.save_image_cv2(image, lego_class, prefix)
             session, _ = get_or_create(db, Models.DBSession, name=lego_class, path=f"{pathlib.Path().resolve()}/lego_sorter_server/images/storage/stored/{lego_class}")
             # session, _ = DBSession.get_or_create(name=lego_class, path=f"{pathlib.Path().resolve()}/lego_sorter_server/images/storage/stored/{lego_class}")
-            dbimage = Models.DBImage(owner=session, filename=filename, image_width=image.width, image_height=image.height, VOC_exist=False)
+            height, width, channels = image.shape
+            dbimage = Models.DBImage(owner=session, filename=filename, image_width=width, image_height=height, VOC_exist=False)
             db.add(dbimage)
             db.commit()
             imageid = dbimage.id

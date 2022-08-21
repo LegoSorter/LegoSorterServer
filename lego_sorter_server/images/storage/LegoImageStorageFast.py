@@ -3,6 +3,8 @@ from pathlib import Path
 from time import time
 from typing import List
 
+import cv2
+import numpy
 from PIL import Image
 from loguru import logger
 
@@ -52,6 +54,22 @@ class LegoImageStorageFast:
 
         # image = image.convert("RGB") # already done for image analysis
         image.save(str(target_directory / filename), quality=75)  # TODO config parameter
+
+        logger.info(f"Saved the image {filename} of unknown class\n")
+
+        return filename
+
+    def save_image_cv2(self, image: numpy.ndarray, session:str, prefix: str = '') -> str:
+        """Save the image as representation of specified lego_class. Returns a name of the saved image"""
+        target_directory = self.get_target_directory_for_lego_class(session)
+        filename = self.generate_file_name(prefix=prefix)
+
+        # image = image.convert("RGB") # already done for image analysis
+        # image.save(str(target_directory / filename), quality=75)  # TODO config parameter
+        encode_param = [cv2.IMWRITE_JPEG_QUALITY, 75]  # TODO config parameter
+        # test = cv2.getBuildInformation()
+        cv2.imwrite(str(target_directory / filename), image)
+        # cv2.imwrite(str(target_directory / filename), image, [cv2.IMWRITE_JPEG_QUALITY, 75])
 
         logger.info(f"Saved the image {filename} of unknown class\n")
 

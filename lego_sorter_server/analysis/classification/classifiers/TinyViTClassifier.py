@@ -1,3 +1,5 @@
+import cv2
+import numpy
 from loguru import logger
 import os
 import time
@@ -8,8 +10,8 @@ import numpy as np
 from typing import List
 
 from tensorflow import keras
-from PIL.Image import Image
-
+from PIL import Image
+from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.classification.classifiers.LegoClassifier import LegoClassifier
 from lego_sorter_server.analysis.classification.toolkit.transformations.simple import Simple
@@ -100,7 +102,60 @@ class TinyViTClassifier(LegoClassifier):
         transform = transforms.Compose(t)
         return transform
 
-    def predict(self, images: List[Image]) -> ClassificationResults:
+    # based on https://github.com/YU-Zhiyang/opencv_transforms_torchvision/
+    def transform_cv2(self, image):
+        mean, std = (IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD)
+
+        if False:
+            size = int((256 / 224) * 224)
+            # resize
+            h, w, c = image.shape
+            if (w <= h and w == size) or (h <= w and h == size):
+                image = image
+            else:
+                if w < h:
+                    ow = size
+                    oh = int(size * h / w)
+                    image =  cv2.resize(image, dsize=(ow, oh), interpolation=cv2.INTER_CUBIC)
+                else:
+                    oh = size
+                    ow = int(size * w / h)
+                    image = cv2.resize(image, dsize=(ow, oh), interpolation=cv2.INTER_CUBIC)
+            # CenterCrop
+            h, w, _ = image.shape
+            th, tw = (224, 224)
+            i = int(round((h - th) * 0.5))
+            j = int(round((w - tw) * 0.5))
+            x1, y1, x2, y2 = round(i), round(j), round(i + th), round(j + tw)
+            try:
+                check_point1 = image[x1, y1, ...]
+                check_point2 = image[x2 - 1, y2 - 1, ...]
+            except IndexError:
+                # warnings.warn('crop region is {} but image size is {}'.format((x1, y1, x2, y2), img.shape))
+                image = cv2.copyMakeBorder(image, - min(0, x1), max(x2 - image.shape[0], 0),
+                                         -min(0, y1), max(y2 - image.shape[1], 0), cv2.BORDER_CONSTANT, value=[0, 0, 0])
+                y2 += -min(0, y1)
+                y1 += -min(0, y1)
+                x2 += -min(0, x1)
+                x1 += -min(0, x1)
+
+            finally:
+                image = image[x1:x2, y1:y2, ...].copy()
+        else:
+            image = cv2.resize(image, (224, 224))
+        # image, _ = DetectionUtils.resize_cv2(image, 224)  # resize fill blank
+        # to torch
+        tensor = torch.from_numpy(image.transpose((2, 0, 1)))
+        if isinstance(tensor, torch.ByteTensor) or tensor.max() > 1:
+            tensor = tensor.float().div(255)
+        # normalize
+        for t, m, s in zip(tensor, mean, std):
+            t.sub_(m).div_(s)
+
+        return tensor
+
+    # def predict(self, images: List[Image.Image]) -> ClassificationResults:
+    def predict(self, images: List[numpy.ndarray]) -> ClassificationResults:
         if not self.initialized:
             self.load_model()
 
@@ -109,8 +164,21 @@ class TinyViTClassifier(LegoClassifier):
         images_array = []
         start_time = time.time()
         for img in images:
-            res = self.transform(img)
-            images_array.append(res)
+            # res = self.transform(img)
+            # cv2.imshow('image', img)
+            # cv2.waitKey(0)
+            # pilimg = Image.fromarray(img)
+            # pilimg.show()
+            # res = self.transform(pilimg)
+            # transform = transforms.ToPILImage()
+            # img0 = transform(res)
+            # img0.show()
+            res2 = self.transform_cv2(img)
+            # transform2 = transforms.ToPILImage()
+            # img2 = transform2(res2)
+            # img2.show()
+            images_array.append(res2)
+            # images_array.append(res)
 
         images_array = torch.stack(images_array, dim=0)
         processing_elapsed_time_ms = 1000 * (time.time() - start_time)
