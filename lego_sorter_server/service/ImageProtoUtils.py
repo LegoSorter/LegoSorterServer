@@ -2,6 +2,7 @@ from io import BytesIO
 from typing import List, Tuple
 
 from PIL import Image
+import pyvips
 
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.detection import DetectionUtils
@@ -24,6 +25,22 @@ class ImageProtoUtils:
         elif request.rotation == 270:
             image = image.transpose(Image.ROTATE_90)
 
+        return image
+
+    @staticmethod
+    def prepare_image_vips(request: ImageRequest) -> pyvips.Image:
+        image = pyvips.Image.new_from_buffer(request.image, "")
+
+        if request.rotation == 90:
+            image = image.rot90()
+            # image = image.transpose(Image.ROTATE_270)
+        elif request.rotation == 180:
+            image = image.rot180()
+            # image = image.rotate(180)
+        elif request.rotation == 270:
+            image = image.rot270()
+        # im = Image.fromarray(image.numpy())
+        # im.show()
         return image
 
     @staticmethod

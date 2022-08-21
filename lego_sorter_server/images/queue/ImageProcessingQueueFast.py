@@ -1,6 +1,8 @@
 from typing import Tuple, Optional
 from collections import deque
-from PIL.Image import Image
+
+import pyvips
+from PIL import Image
 
 from lego_sorter_server.database.Models import DBImage
 
@@ -25,10 +27,12 @@ class ImageProcessingQueueFast(metaclass=Singleton):
         self.limit = limit
         self.in_memory_stores = {SORTER_TAG: deque([], maxlen=limit), CAPTURE_TAG: deque([], maxlen=limit)}
 
-    def next(self, tag: str) -> Tuple[Image, Optional[int]]:
+    def next(self, tag: str) -> Tuple[pyvips.Image, Optional[int]]:
+    # def next(self, tag: str) -> Tuple[Image.Image, Optional[int]]:
         return self.in_memory_stores.get(tag).pop()
 
-    def add(self, tag: str, image: Image, imageid: Optional[int]) -> None:
+    def add(self, tag: str, image: pyvips.Image, imageid: Optional[int]) -> None:
+    # def add(self, tag: str, image: Image.Image, imageid: Optional[int]) -> None:
         # self._check_limit(tag)
         self.in_memory_stores.get(tag).append((image, imageid))
 

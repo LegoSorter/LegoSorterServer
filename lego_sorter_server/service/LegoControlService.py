@@ -1,4 +1,6 @@
 import io
+
+import pyvips
 from loguru import logger
 import time
 from collections import deque
@@ -20,18 +22,35 @@ class LegoControlService(LegoControl_pb2_grpc.LegoControlServicer):
         self.lastImages = lastImages
         a = 12
 
+    # def GetCameraPreview(self, request: Empty, context) -> ImagePreview:
+    #     logger.info("[LegoControlService] GetCameraPreview")
+    #     imagePreview = ImagePreview()
+    #     if len(self.lastImages) > 1:
+    #         image = self.lastImages.popleft()
+    #         imgByteArr = io.BytesIO()
+    #         image.save(imgByteArr, format='JPEG', quality=75)
+    #         imagePreview.image = imgByteArr.getvalue()
+    #     elif len(self.lastImages) == 1:
+    #         image = self.lastImages[0]
+    #         imgByteArr = io.BytesIO()
+    #         image.save(imgByteArr, format='JPEG', quality=75)
+    #         imagePreview.image = imgByteArr.getvalue()
+    #     imagePreview.timestamp = str(int(time.time()))
+    #     return imagePreview
+
+    # # Vips
     def GetCameraPreview(self, request: Empty, context) -> ImagePreview:
         logger.info("[LegoControlService] GetCameraPreview")
         imagePreview = ImagePreview()
         if len(self.lastImages) > 1:
-            image = self.lastImages.popleft()
-            imgByteArr = io.BytesIO()
-            image.save(imgByteArr, format='JPEG', quality=75)
-            imagePreview.image = imgByteArr.getvalue()
+            image: pyvips.Image = self.lastImages.popleft()
+            target = pyvips.Target.new_to_memory()
+            image.write_to_target(target, '.jpg', Q=75)
+            imagePreview.image = target.get("blob")
         elif len(self.lastImages) == 1:
-            image = self.lastImages[0]
-            imgByteArr = io.BytesIO()
-            image.save(imgByteArr, format='JPEG', quality=75)
-            imagePreview.image = imgByteArr.getvalue()
+            image: pyvips.Image = self.lastImages[0]
+            target = pyvips.Target.new_to_memory()
+            image.write_to_target(target, '.jpg', Q=75)
+            imagePreview.image = target.get("blob")
         imagePreview.timestamp = str(int(time.time()))
         return imagePreview

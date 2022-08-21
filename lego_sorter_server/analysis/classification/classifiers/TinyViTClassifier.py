@@ -1,3 +1,4 @@
+import pyvips
 from loguru import logger
 import os
 import time
@@ -8,7 +9,7 @@ import numpy as np
 from typing import List
 
 from tensorflow import keras
-from PIL.Image import Image
+from PIL import Image
 
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.classification.classifiers.LegoClassifier import LegoClassifier
@@ -100,7 +101,8 @@ class TinyViTClassifier(LegoClassifier):
         transform = transforms.Compose(t)
         return transform
 
-    def predict(self, images: List[Image]) -> ClassificationResults:
+    def predict(self, images: List[pyvips.Image]) -> ClassificationResults:
+    # def predict(self, images: List[Image.Image]) -> ClassificationResults:
         if not self.initialized:
             self.load_model()
 
@@ -109,7 +111,11 @@ class TinyViTClassifier(LegoClassifier):
         images_array = []
         start_time = time.time()
         for img in images:
-            res = self.transform(img)
+            # res = self.transform(img)
+            # img.show()
+            im = Image.fromarray(img.numpy())
+            # # im.show()
+            res = self.transform(im)
             images_array.append(res)
 
         images_array = torch.stack(images_array, dim=0)

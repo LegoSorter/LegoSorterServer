@@ -3,6 +3,7 @@ from pathlib import Path
 from time import time
 from typing import List
 
+import pyvips
 from PIL import Image
 from loguru import logger
 
@@ -52,6 +53,18 @@ class LegoImageStorageFast:
 
         # image = image.convert("RGB") # already done for image analysis
         image.save(str(target_directory / filename), quality=75)  # TODO config parameter
+
+        logger.info(f"Saved the image {filename} of unknown class\n")
+
+        return filename
+
+    def save_image_vips(self, image: pyvips.Image, session:str, prefix: str = '') -> str:
+        """Save the image as representation of specified lego_class. Returns a name of the saved image"""
+        target_directory = self.get_target_directory_for_lego_class(session)
+        filename = self.generate_file_name(prefix=prefix)
+
+        # image = image.convert("RGB") # already done for image analysis
+        image.write_to_file(str(target_directory / filename), Q=75)  # TODO config parameter
 
         logger.info(f"Saved the image {filename} of unknown class\n")
 

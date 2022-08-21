@@ -1,10 +1,11 @@
+import pyvips
 from loguru import logger
 import time
 from typing import Tuple, List
 
 import numpy
 
-from PIL.Image import Image
+from PIL import Image
 
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.classification.LegoClassifierProvider import LegoClassifierProvider
@@ -23,22 +24,39 @@ class AnalysisFastService:
         self.detector: LegoDetector = LegoDetectorProvider.get_default_detector()
         self.classifier = LegoClassifierProvider.get_default_classifier()
 
-    def detect(self, image: Image, resize: bool = True, threshold=0.5,
+    def detect(self, image: pyvips.Image, resize: bool = True, threshold=0.5,
+    # def detect(self, image: Image.Image, resize: bool = True, threshold=0.5,
                discard_border_results: bool = True) -> DetectionResults:
         start_time = time.time()
-        if image.size is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is False:
-            logger.warning(f"[AnalysisFastService][detect] Requested detection on an image with a non-standard size {image.size} "
+        # print(image.size)
+        # if image.size is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is False:
+        #     logger.warning(f"[AnalysisFastService][detect] Requested detection on an image with a non-standard size {image.size} "
+        #                     f"but 'resize' parameter is {resize}.")
+
+        # print((image.width, image.height))
+        if (image.width, image.height) is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is False:
+            logger.warning(f"[AnalysisFastService][detect] Requested detection on an image with a non-standard size {(image.width, image.height)} "
                             f"but 'resize' parameter is {resize}.")
 
         scale = 1
-        original_size = image.size
-        if image.size is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is True:
+        # original_size = image.size
+        # if image.size is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is True:
+        #     logger.info(f"[AnalysisFastService][detect] Resizing an image from "
+        #                  f"{image.size} to {AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE}")
+        #     image, scale = DetectionUtils.resize(image, AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE[0])
+        #     # image.show()
+
+        original_size = (image.width, image.height)
+        if (image.height, image.width) is not AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE and resize is True:
             logger.info(f"[AnalysisFastService][detect] Resizing an image from "
-                         f"{image.size} to {AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE}")
-            image, scale = DetectionUtils.resize(image, AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE[0])
+                         f"{(image.height, image.width)} to {AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE}")
+            image, scale = DetectionUtils.resizeVips(image, AnalysisFastService.DEFAULT_IMAGE_DETECTION_SIZE[0])
+            # im = Image.fromarray(image.numpy())
+            # im.show()
 
         if discard_border_results:
-            accepted_xy_range = [(original_size[0] * scale) / image.size[0], (original_size[1] * scale) / image.size[1]]
+            # accepted_xy_range = [(original_size[0] * scale) / image.size[0], (original_size[1] * scale) / image.size[1]]
+            accepted_xy_range = [(original_size[0] * scale) / image.height, (original_size[1] * scale) / image.width]
         else:
             accepted_xy_range = [1, 1]
         resize_time = 1000 * (time.time() - start_time)
@@ -55,10 +73,12 @@ class AnalysisFastService:
                      f"numpy {numpy_image_time}ms, detection {after_detect}ms.")
         return translated
 
-    def classify(self, images: List[Image]) -> ClassificationResults:
+    def classify(self, images: List[pyvips.Image]) -> ClassificationResults:
+    # def classify(self, images: List[Image.Image]) -> ClassificationResults:
         return self.classifier.predict(images)
 
-    def detect_and_classify(self, image: Image, detection_threshold: float = 0.5, discard_border_results: bool = True) \
+    # def detect_and_classify(self, image: Image.Image, detection_threshold: float = 0.5, discard_border_results: bool = True) \
+    def detect_and_classify(self, image: pyvips.Image, detection_threshold: float = 0.5, discard_border_results: bool = True) \
             -> Tuple[DetectionResults, ClassificationResults]:
         start_time = time.time()
         detection_results = self.detect(image, threshold=detection_threshold,
@@ -66,7 +86,8 @@ class AnalysisFastService:
         detect = 1000 * (time.time() - start_time)
         cropped_images = []
         for bounding_box in detection_results.detection_boxes:
-            cropped_image = DetectionUtils.crop_with_margin_from_bb(image, bounding_box)
+            # cropped_image = DetectionUtils.crop_with_margin_from_bb(image, bounding_box)
+            cropped_image = DetectionUtils.crop_with_margin_from_bb_vips(image, bounding_box)
             cropped_images.append(cropped_image)
         classification_results = self.classify(cropped_images)
         classification = 1000 * (time.time() - start_time) - detect
