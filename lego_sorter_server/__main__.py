@@ -6,6 +6,20 @@
 import argparse
 import os
 
+# Options for Analyze Fast
+# 0 - Keras
+# 1 - TinyVit
+if "LEGO_SORTER_CLASSIFIER" not in os.environ:
+    os.environ["LEGO_SORTER_CLASSIFIER"] = "1"
+
+# 0 - YOLOv5
+# 1 - YOLOv5 run in DeepSparse
+# 2 - YOLOv5 Google Coral Edge TPU classify 3 parts of scaled image
+# 3 - YOLOv5 run in Onnx
+# 4 - YOLOv5 Google Coral Edge TPU classify 3 parts of scaled and cropped image
+if "LEGO_SORTER_DETECTOR" not in os.environ:
+    os.environ["LEGO_SORTER_DETECTOR"] = "0"
+
 import numpy as np
 import uvicorn
 import logging
@@ -18,6 +32,8 @@ from loguru import logger
 import sys
 import threading
 import warnings
+
+
 
 
 brickCategoryConfig = None

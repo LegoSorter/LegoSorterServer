@@ -18,7 +18,7 @@ uuid6
 tensorflow-cpu==2.8.2
 timm
 fiftyone==0.16.5
-fastapi==0.75.2
+# fastapi==0.75.2
 loguru
 uvicorn[standard]
 SQLAlchemy

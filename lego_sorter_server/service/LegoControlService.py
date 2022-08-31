@@ -5,7 +5,7 @@ from collections import deque
 import cv2
 from concurrent import futures
 
-from lego_sorter_server.analysis.detection.LegoDetectionRunner import LegoDetectionRunner
+# from lego_sorter_server.analysis.detection.LegoDetectionRunner import LegoDetectionRunner
 from lego_sorter_server.generated import LegoControl_pb2_grpc
 from lego_sorter_server.generated.LegoControl_pb2 import ImagePreview
 from lego_sorter_server.generated.Messages_pb2 import Empty

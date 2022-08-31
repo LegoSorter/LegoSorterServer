@@ -22,7 +22,7 @@ class ThreadSafeSingleton(type):
         return cls._instances[cls]
 
 
-class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
+class YoloLegoDetectorFast(LegoDetector, metaclass=ThreadSafeSingleton):
     def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "detection", "models", "yolo_model",
                                                # "epoch690.pt")):
                                                # "yolov5_n.pt")):
@@ -33,11 +33,11 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
 
     def __initialize__(self):
         if self.__initialized:
-            raise Exception("YoloLegoDetector already initialized")
+            raise Exception("YoloLegoDetectorFast already initialized")
 
         if not self.model_path.exists():
-            logger.error(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
-            raise RuntimeError(f"[YoloLegoDetector] No model found in {str(self.model_path)}")
+            logger.error(f"[YoloLegoDetectorFast] No model found in {str(self.model_path)}")
+            raise RuntimeError(f"[YoloLegoDetectorFast] No model found in {str(self.model_path)}")
 
         start_time = time.time()
         self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=str(self.model_path), trust_repo=True)  # , force_reload=True)
@@ -45,7 +45,7 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
             self.model.cuda()
         elapsed_time = time.time() - start_time
 
-        logger.info("[YoloLegoDetector] Loading model took {} seconds".format(elapsed_time))
+        logger.info("[YoloLegoDetectorFast] Loading model took {} seconds".format(elapsed_time))
         self.__initialized = True
 
     @staticmethod
@@ -60,18 +60,18 @@ class YoloLegoDetector(LegoDetector, metaclass=ThreadSafeSingleton):
         image_predictions = results.xyxyn[0].cpu().numpy()
         scores = image_predictions[:, 4]
         classes = image_predictions[:, 5].astype(numpy.int64) + 1
-        boxes = YoloLegoDetector.xyxy2yxyx_scaled(image_predictions[:, :4])
+        boxes = YoloLegoDetectorFast.xyxy2yxyx_scaled(image_predictions[:, :4])
 
         return DetectionResults(detection_scores=scores, detection_classes=classes, detection_boxes=boxes)
 
     def detect_lego(self, image: numpy.ndarray) -> DetectionResults:
         if not self.__initialized:
-            logger.info("YoloLegoDetector is not initialized, this process can take a few seconds for the first time.")
+            logger.info("YoloLegoDetectorFast is not initialized, this process can take a few seconds for the first time.")
             self.__initialize__()
 
         # logger.info("[YoloLegoDetector][detect_lego] Detecting bricks...")
         start_time = time.time()
         results = self.model([image], size=image.shape[0])
         elapsed_time = 1000 * (time.time() - start_time)
-        logger.debug(f"[YoloLegoDetector][detect_lego] Detecting bricks and converting took {elapsed_time} ms.")
+        logger.debug(f"[YoloLegoDetectorFast][detect_lego] Detecting bricks and converting took {elapsed_time} ms.")
         return self.convert_results_to_common_format(results)

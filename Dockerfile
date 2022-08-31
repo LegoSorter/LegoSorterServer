@@ -9,9 +9,12 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+RUN  apt update && apt install libcurl4 -y && rm -rf /var/lib/apt/lists/*
+
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt --no-cache-dir
+RUN python -m pip install fastapi==0.75.2 --no-cache-dir
 
 FROM base as app
 

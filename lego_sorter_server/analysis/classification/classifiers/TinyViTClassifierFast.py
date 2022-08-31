@@ -4,21 +4,21 @@ from loguru import logger
 import os
 import time
 
-import tensorflow as tf
+# import tensorflow as tf
 import numpy as np
 
 from typing import List
 
-from tensorflow import keras
+# from tensorflow import keras
 from PIL import Image
 from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.analysis.classification.ClassificationResults import ClassificationResults
 from lego_sorter_server.analysis.classification.classifiers.LegoClassifier import LegoClassifier
 from lego_sorter_server.analysis.classification.toolkit.transformations.simple import Simple
 
-gpus = tf.config.list_physical_devices('GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
+# gpus = tf.config.list_physical_devices('GPU')
+# for gpu in gpus:
+#     tf.config.experimental.set_memory_growth(gpu, True)
 
 
 
@@ -197,7 +197,7 @@ class TinyViTClassifier(LegoClassifier):
         indices2 = [int(values.argmax()) for values in probs]
         scores = [float(probs[index]) for index, probs in zip(indices, probs)]
         all_time_ms = 1000 * (time.time() - start_time)
-        logger.debug(f"[TinyViTClassifier] Preparing images and classification took {all_time_ms} ms, "
+        logger.debug(f"[TinyViTClassifierFast] Preparing images and classification took {all_time_ms} ms, "
                      f"preparing images {processing_elapsed_time_ms} ms, classification {predicting_elapsed_time_ms} ms.")
 
         return ClassificationResults(classes, scores)

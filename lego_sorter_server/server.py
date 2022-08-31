@@ -1,6 +1,6 @@
 from threading import Event
 from typing import Tuple
-
+import os
 import grpc
 from loguru import logger
 from concurrent import futures
@@ -44,11 +44,21 @@ class Server:
         db = SessionLocal()
 
         web_address = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "web_address").one_or_none()
-        if web_address is None:
-            web_address = Models.DBConfiguration(option="web_address", value="http://192.168.11.189:5002")
-            db.add(web_address)
-            db.commit()
-            db.refresh(web_address)
+        if "LEGO_SORTER_WEB_ADDRESS" in os.environ:
+            if web_address is None:
+                web_address = Models.DBConfiguration(option="web_address", value=os.getenv("LEGO_SORTER_WEB_ADDRESS"))
+                db.add(web_address)
+                db.commit()
+                db.refresh(web_address)
+            else:
+                web_address.value = os.getenv("LEGO_SORTER_WEB_ADDRESS")
+                db.commit()
+        else:
+            if web_address is None:
+                web_address = Models.DBConfiguration(option="web_address", value="http://192.168.11.189:5002")
+                db.add(web_address)
+                db.commit()
+                db.refresh(web_address)
 
         server_grpc_port_1 = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "server_grpc_port_1").one_or_none()
         if server_grpc_port_1 is None:
@@ -160,6 +170,7 @@ class Server:
                 LegoAnalysisFastService(hub_connection, lastImages, storageFastRunerExecutor, analyzerFastRunerExecutor, annotationFastRunerExecutor, event), server)
 
         except Exception as exc:
+            logger.error(exc)
             logger.warning("Can't connect to web gui and start LegoAnalysisFastService")
         # LegoControl_pb2_grpc.add_LegoControlServicer_to_server((LegoControlService(lastImages)), server)
         LegoControl_pb2_grpc.add_LegoControlServicer_to_server((LegoControlService(lastImages)), server2)
