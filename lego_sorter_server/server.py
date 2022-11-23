@@ -163,6 +163,7 @@ class Server:
             }).build()
             hub_connection.on_open(lambda: logger.info("[hub_connection] connection opened and handshake received ready to send messages"))
             hub_connection.on_close(lambda: logger.info("[hub_connection] connection closed"))
+            hub_connection.on_error(lambda data: logger.info(f"[hub_connection] An exception was thrown closed{data.error}"))
             # hub_connection.on("messageReceived", print)
             hub_connection.start()
 
