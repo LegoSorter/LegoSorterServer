@@ -15,4 +15,4 @@ lego_sorter_server/classifier/models/saved
 /lego_sorter_server/analysis/classification/models/tf_model
 /lego_sorter_server/analysis/classification/models/tiny_vit_model
 
-/lego_sorter_server/database/LegoSorterServerDB.db
+/lego_sorter_server/database/sqlite_file
