@@ -55,7 +55,7 @@ class Server:
                 db.commit()
         else:
             if web_address is None:
-                web_address = Models.DBConfiguration(option="web_address", value="http://192.168.11.189:5002")
+                web_address = Models.DBConfiguration(option="web_address", value="http://127.0.0.1:5002")
                 db.add(web_address)
                 db.commit()
                 db.refresh(web_address)
