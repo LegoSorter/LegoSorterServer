@@ -32,3 +32,4 @@ dependencies:
     - loguru
     - uvicorn[standard]
     - SQLAlchemy
+    - gitpython

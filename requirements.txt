@@ -22,3 +22,4 @@ fastapi==0.86.0
 loguru
 uvicorn[standard]
 SQLAlchemy
+gitpython
