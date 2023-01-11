@@ -57,7 +57,11 @@ class TinyViTClassifier(LegoClassifier):
     def __init__(self, model_path=os.path.join("lego_sorter_server", "analysis", "classification", "models",
                                                "tiny_vit_model", "tinyvit.pth")):
         super().__init__()
-        self.model_path = model_path
+        env_model_path = os.getenv("LEGO_SORTER_TINYVIT_MODEL_PATH")
+        if env_model_path is None or env_model_path == "":
+            self.model_path = model_path
+        else:
+            self.model_path = env_model_path
         self.model = None
         self.initialized = False
         self.transform = None
@@ -190,14 +194,24 @@ class TinyViTClassifier(LegoClassifier):
 
         # predictions = predictions.cpu()
         indices = [int(values.argmax()) for values in predictions]
+        # predictions_np_array = np.array(predictions)
+        indices_top5_sorted = []
+        for values in predictions:
+            _, ind = values.topk(5)
+            indices_top5_sorted.append(ind)
+        # indices_top5 = np.array([np.argpartition(values, -5)[-5:].tolist() for values in predictions])
+        # indices_top5_sorted = [index[np.argsort(predictions[i][index])][::-1] for i, index in enumerate(indices_top5)]
+        # indices_top5_sorted = [index[np.argsort(predictions_np_array[i][index])][::-1] for i, index in enumerate(indices_top5)]
         classes = [self.class_names[index] for index in indices]
+        classes_top5 = [[self.class_names[ind] for ind in index] for index in indices_top5_sorted]
         # scores = [float(prediction[index]) for index, prediction in zip(indices, predictions)]
         probs = torch.nn.functional.softmax(predictions, dim=1)
         # probs2 = torch.nn.functional.softmax(predictions)
         indices2 = [int(values.argmax()) for values in probs]
         scores = [float(probs[index]) for index, probs in zip(indices, probs)]
+        scores_top5 = [[float(probs[ind]) for ind in index] for index, probs in zip(indices_top5_sorted, probs)]
         all_time_ms = 1000 * (time.time() - start_time)
         logger.debug(f"[TinyViTClassifierFast] Preparing images and classification took {all_time_ms} ms, "
                      f"preparing images {processing_elapsed_time_ms} ms, classification {predicting_elapsed_time_ms} ms.")
 
-        return ClassificationResults(classes, scores)
+        return ClassificationResults(classes, scores, classes_top5, scores_top5)

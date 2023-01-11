@@ -1,3 +1,4 @@
+import os
 from typing import Tuple, Optional
 from collections import deque
 
@@ -23,18 +24,20 @@ CAPTURE_TAG = "capture"
 class ImageProcessingQueueFast(metaclass=Singleton):
     """Stores lego images for processing. Format of returned objects is a tuple (image, lego_class)"""
 
-    def __init__(self, limit=1000):
+    def __init__(self, limit=None):
         self.limit = limit
-        self.in_memory_stores = {SORTER_TAG: deque([], maxlen=limit), CAPTURE_TAG: deque([], maxlen=limit)}
+        if self.limit is None:
+            self.limit = int(os.getenv("LEGO_SORTER_PROCESSING_QUEUE_LIMIT"))
+        self.in_memory_stores = {SORTER_TAG: deque([], maxlen=self.limit), CAPTURE_TAG: deque([], maxlen=self.limit)}
 
     # def next(self, tag: str) -> Tuple[Image, Optional[int]]:
-    def next(self, tag: str) -> Tuple[numpy.ndarray, Optional[int]]:
-        return self.in_memory_stores.get(tag).pop()
+    def next(self, tag: str) -> Tuple[numpy.ndarray, Optional[int], str, str]:
+        return self.in_memory_stores.get(tag).popleft()
 
     # def add(self, tag: str, image: Image, imageid: Optional[int]) -> None:
-    def add(self, tag: str, image: numpy.ndarray, imageid: Optional[int]) -> None:
+    def add(self, tag: str, image: numpy.ndarray, imageid: Optional[int], id: str, session: str) -> None:
         # self._check_limit(tag)
-        self.in_memory_stores.get(tag).append((image, imageid))
+        self.in_memory_stores.get(tag).append((image, imageid, id, session))
 
     def len(self, tag: str) -> int:
         return len(self.in_memory_stores.get(tag))

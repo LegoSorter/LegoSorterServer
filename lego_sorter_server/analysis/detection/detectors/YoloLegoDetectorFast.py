@@ -29,7 +29,11 @@ class YoloLegoDetectorFast(LegoDetector, metaclass=ThreadSafeSingleton):
                                                # "yolov5_small_extended.pt")):
                                                # "yolov5_medium_extended.pt")):
         self.__initialized = False
-        self.model_path = Path(model_path).absolute()
+        env_model_path = os.getenv("LEGO_SORTER_YOLOV5_MODEL_PATH")
+        if env_model_path is None or env_model_path == "":
+           self.model_path = Path(model_path).absolute()
+        else:
+           self.model_path = Path(env_model_path).absolute()
 
     def __initialize__(self):
         if self.__initialized:

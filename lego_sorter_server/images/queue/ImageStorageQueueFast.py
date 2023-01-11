@@ -1,5 +1,6 @@
 from collections import deque
 from typing import Tuple
+import os
 # from PIL.Image import Image
 
 from lego_sorter_server.generated.LegoAnalysisFast_pb2 import FastImageRequest
@@ -21,12 +22,14 @@ CAPTURE_TAG = "capture"
 class ImageStorageQueueFast(metaclass=Singleton):
     """Stores lego images for processing. Format of returned objects is a tuple (image, lego_class)"""
 
-    def __init__(self, limit=1000):
+    def __init__(self, limit=None):
         self.limit = limit
-        self.in_memory_stores = {SORTER_TAG: deque([], maxlen=limit), CAPTURE_TAG: deque([], maxlen=limit)}
+        if self.limit is None:
+            self.limit = int(os.getenv("LEGO_SORTER_STORAGE_QUEUE_LIMIT"))
+        self.in_memory_stores = {SORTER_TAG: deque([], maxlen=self.limit), CAPTURE_TAG: deque([], maxlen=self.limit)}
 
     def next(self, tag: str) -> Tuple[FastImageRequest, str]:
-        return self.in_memory_stores.get(tag).pop()
+        return self.in_memory_stores.get(tag).popleft()
 
     def add(self, tag: str, image: FastImageRequest, lego_class='unknown') -> None:
         # self._check_limit(tag)

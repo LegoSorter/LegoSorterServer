@@ -22,21 +22,21 @@ SORTER_TAG = "sorter"
 CAPTURE_TAG = "capture"
 
 
-class ImageAnnotationQueueFast(metaclass=Singleton):
+class ImageSortQueueFast(metaclass=Singleton):
     """Stores lego images for processing. Format of returned objects is a tuple (image, lego_class)"""
 
     def __init__(self, limit=None):
         self.limit = limit
         if self.limit is None:
-            self.limit = int(os.getenv("LEGO_SORTER_ANNOTATION_QUEUE_LIMIT"))
+            self.limit = int(os.getenv("LEGO_SORTER_SORT_QUEUE_LIMIT"))
         self.in_memory_stores = {SORTER_TAG: deque([], maxlen=self.limit), CAPTURE_TAG: deque([], maxlen=self.limit)}
 
-    def next(self, tag: str) -> Tuple[DetectionResults, ClassificationResults, int]:
+    def next(self, tag: str) -> Tuple[DetectionResults, ClassificationResults, str, str]:
         return self.in_memory_stores.get(tag).popleft()
 
-    def add(self, tag: str, detectionResults: DetectionResults, classificationResults:ClassificationResults, imageid:int) -> None:
+    def add(self, tag: str, detectionResults: DetectionResults, classificationResults:ClassificationResults, id: str, session: str) -> None:
         # self._check_limit(tag)
-        self.in_memory_stores.get(tag).append((detectionResults, classificationResults, imageid))
+        self.in_memory_stores.get(tag).append((detectionResults, classificationResults, id, session))
 
     def len(self, tag: str) -> int:
         return len(self.in_memory_stores.get(tag))

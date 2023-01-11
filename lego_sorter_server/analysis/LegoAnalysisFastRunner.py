@@ -9,39 +9,27 @@ from threading import Event
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 
 from lego_sorter_server.analysis.AnalysisFastService import AnalysisFastService
-from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
-from lego_sorter_server.analysis.detection.LegoLabeler import LegoLabeler
 from lego_sorter_server.database import Models
 from lego_sorter_server.database.Database import SessionLocal
-from lego_sorter_server.database.Models import DBConfiguration
 from lego_sorter_server.generated.Messages_pb2 import ListOfBoundingBoxes
 from lego_sorter_server.images.queue.ImageAnnotationQueueFast import ImageAnnotationQueueFast
 from lego_sorter_server.images.queue.ImageProcessingQueueFast import ImageProcessingQueueFast, CAPTURE_TAG
-from lego_sorter_server.images.queue.ImageStorageQueueFast import ImageStorageQueueFast
+from lego_sorter_server.images.queue.ImageSortQueueFast import ImageSortQueueFast
 from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
-
-
-class MyMessage:
-    def __init__(self, ymin, xmin, ymax, xmax, label, score):
-        self.ymin = ymin
-        self.xmin = xmin
-        self.ymax = ymax
-        self.xmax = xmax
-        self.label = label
-        self.score = score
 
 
 class LegoAnalysisFastRunner:
     DETECTION_SCORE_THRESHOLD = 0.5
 
-    def __init__(self, processing_queue: ImageProcessingQueueFast, hub_connection: HubConnectionBuilder, analyzerFastRunerExecutor: ThreadPoolExecutor, annotation_queue: ImageAnnotationQueueFast, event: Event):
+    def __init__(self, processing_queue: ImageProcessingQueueFast, hub_connection: HubConnectionBuilder, analyzer_fast_runer_executor: ThreadPoolExecutor, annotation_queue: ImageAnnotationQueueFast, sort_queue: ImageSortQueueFast, event: Event):
         self.processing_queue = processing_queue
         self.event = event
         self.annotation_queue = annotation_queue
+        self.sort_queue = sort_queue
         self.hub_connection = hub_connection
         self.analysis_service = AnalysisFastService()
         # queue, detector and storage are not thread safe, so it limits the number of workers to one
-        self.executor = analyzerFastRunerExecutor
+        self.executor = analyzer_fast_runer_executor
         # self.executor = futures.ThreadPoolExecutor(max_workers=1)
         logger.info("[LegoAnalysisFastRunner] Ready for processing the queue.")
 
@@ -67,7 +55,7 @@ class LegoAnalysisFastRunner:
         logging_rate = 30  # in seconds
         logging_counter = 0
         db = SessionLocal()
-        analyzerFastRunerExecutor_max_workers = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "analyzerFastRunerExecutor_max_workers").first()
+        analyzer_fast_runer_executor_max_workers = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "analyzer_fast_runer_executor_max_workers").first()
         db.close()
         limit = 2
         futures = set()
@@ -86,7 +74,7 @@ class LegoAnalysisFastRunner:
                 continue
             logger.info(f"[LegoAnalysisFastService] Analysis queue length:{self.processing_queue.len(CAPTURE_TAG)}")
             # logging.info("[LegoAnalysisFastRunner] Queue not empty - processing data")
-            if(analyzerFastRunerExecutor_max_workers.value=="1"):
+            if analyzer_fast_runer_executor_max_workers.value == "1":
                 self.__process_next_image()
             else:
                 if len(futures) >= limit:
@@ -95,25 +83,28 @@ class LegoAnalysisFastRunner:
 
     def __process_next_image(self):
         start_time = time.time()
-        image, imageid = self.processing_queue.next(CAPTURE_TAG)
+        image, imageid, id, session = self.processing_queue.next(CAPTURE_TAG)
 
         # image = ImageProtoUtils.prepare_image(request)
-        detection_results, classification_results = self.analysis_service.detect_and_classify(image)
+        detection_results, classification_results = self.analysis_service.detect_and_classify(image, imageid, id, session)
 
-        bb_list: ListOfBoundingBoxes = ImageProtoUtils.prepare_response_from_analysis_results(detection_results,
-                                                                                              classification_results)
+        # bb_list: ListOfBoundingBoxes = ImageProtoUtils.prepare_response_from_analysis_results(detection_results,classification_results)
+        bb_list = ImageProtoUtils.prepare_response_from_analysis_results_top5(detection_results,classification_results)
 
         elapsed_millis = (time.time() - start_time) * 1000
         logger.info(f"[LegoAnalysisFastService] Detecting, classifying and preparing response took "
                      f"{elapsed_millis} ms.")
 
         dictionary = []
+
         if imageid is not None:
             self.annotation_queue.add(CAPTURE_TAG, detection_results, classification_results, imageid)
-        if len(bb_list.packet) > 0:
-            for packet in bb_list.packet:
-                dictionary.append(
-                    MyMessage(packet.ymin, packet.xmin, packet.ymax, packet.xmax, packet.label, packet.score))
+        if len(bb_list) > 0:
+            for packet in bb_list:
+                packet.id = id
+                packet.session = session
+                dictionary.append(packet)
+            self.sort_queue.add(CAPTURE_TAG, detection_results, classification_results, id, session)
             self.hub_connection.send("sendMessage", [dictionary])
 
         # return bb_list

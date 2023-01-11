@@ -1,4 +1,5 @@
 import argparse
+import requests
 from loguru import logger
 
 import fiftyone as fo
@@ -6,16 +7,21 @@ from threading import Event
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from lego_sorter_server.database import Crud, Models, Schemas
 from lego_sorter_server.database.Database import SessionLocal, engine
 from lego_sorter_server.server import Server
 from lego_sorter_server.service.BrickCategoryConfig import BrickCategoryConfig
+import os
 
 Models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+path = os.path.abspath("lego_sorter_server/images/storage/stored")
+app.mount("/static", StaticFiles(directory=path), name="static")
 
 brickCategoryConfig = {}
 
@@ -35,15 +41,18 @@ def get_db():
 
 @app.on_event("startup")
 async def startup_event():
+    db = SessionLocal()
     parser = argparse.ArgumentParser()
     parser.add_argument("--brick_category_config", "-c", help='.json file with brick-category mapping specification',
                         type=str, required=False)
     args = parser.parse_args()
-    brickCategoryConfig["brickCategoryConfig"] = BrickCategoryConfig(args.brick_category_config)
+    brick_category_config_path = args.brick_category_config
+    if brick_category_config_path is None or brick_category_config_path == "":
+        brick_category_config_path = Server.init_config_str(db, "brick_category_config", "example_config.json", "LEGO_SORTER_BRICK_CATEGORY_CONFIG").value
+    brickCategoryConfig["brickCategoryConfig"] = BrickCategoryConfig(brick_category_config_path)
     server_elements["elements"] = Server.run(brickCategoryConfig["brickCategoryConfig"], event[0])
     # name = "testDB7"
     # dataset = fo.load_dataset(name)
-    db = SessionLocal()
     server_fiftyone_port = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "server_fiftyone_port").one_or_none()
     if server_fiftyone_port is None:
         server_fiftyone_port = Models.DBConfiguration(option="server_fiftyone_port", value="5151")
@@ -193,6 +202,33 @@ def start_server():
 
     return {False}
 
+
+@app.get("/start_camera_conveyor/")
+def start_server(db: Session = Depends(get_db)):
+    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/start",
+                            params={"frequency": Crud.get_config(db, option='camera_conveyor_frequency').value,
+                                    "duty_cycle": Crud.get_config(db, option='camera_conveyor_duty_cycle').value})
+    return {False}
+
+
+@app.get("/stop_camera_conveyor/")
+def start_server(db: Session = Depends(get_db)):
+    response = requests.get(Crud.get_config(db, option="conveyor_local_address").value)
+    return {False}
+
+
+@app.get("/start_splitting_conveyor/")
+def start_server(db: Session = Depends(get_db)):
+    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/start",
+                            params={"frequency": Crud.get_config(db, option='camera_conveyor_frequency').value,
+                                    "duty_cycle": Crud.get_config(db, option='camera_conveyor_duty_cycle').value})
+    return {False}
+
+
+@app.get("/stop_splitting_conveyor/")
+def start_server(db: Session = Depends(get_db)):
+    response = requests.get(Crud.get_config(db, option="conveyor_local_address").value)
+    return {False}
 
 @app.get("/restart/")
 def restart_server():

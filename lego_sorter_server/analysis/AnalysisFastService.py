@@ -1,7 +1,7 @@
 import cv2
 from loguru import logger
 import time
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 import numpy
 import os
@@ -15,6 +15,7 @@ from lego_sorter_server.analysis.detection import DetectionUtils
 from lego_sorter_server.analysis.detection.DetectionResults import DetectionResults
 from lego_sorter_server.analysis.detection.detectors.LegoDetector import LegoDetector
 from lego_sorter_server.analysis.detection.detectors.LegoDetectorProviderFast import LegoDetectorProviderFast
+from lego_sorter_server.images.queue.ImageCropQueueFast import ImageCropQueueFast, CAPTURE_TAG
 
 
 class AnalysisFastService:
@@ -27,6 +28,7 @@ class AnalysisFastService:
     def __init__(self):
         self.detector: LegoDetector = LegoDetectorProviderFast.get_default_detector()
         self.classifier = LegoClassifierProviderFast.get_default_classifier()
+        self.ImageCropQueueFast = ImageCropQueueFast()
 
     # def detect(self, image: Image.Image, resize: bool = True, threshold=0.5,
     def detect(self, image: numpy.ndarray, resize: bool = True, threshold=0.5,
@@ -93,7 +95,7 @@ class AnalysisFastService:
 
 
     # def detect_and_classify(self, image: Image.Image, detection_threshold: float = 0.5, discard_border_results: bool = True) \
-    def detect_and_classify(self, image: numpy.ndarray, detection_threshold: float = 0.5,discard_border_results: bool = True) \
+    def detect_and_classify(self, image: numpy.ndarray, imageid: Optional[int], id:str, session:str, detection_threshold: float = 0.5,discard_border_results: bool = True) \
             -> Tuple[DetectionResults, ClassificationResults]:
         start_time = time.time()
         # cv2.imshow('image', image)
@@ -107,6 +109,7 @@ class AnalysisFastService:
             # cropped_image = DetectionUtils.crop_with_margin_from_bb(image, bounding_box)
             cropped_images.append(cropped_image)
         classification_results = self.classify(cropped_images)
+        self.ImageCropQueueFast.add(CAPTURE_TAG, cropped_images, detection_results, classification_results, imageid, id, session)
         classification = 1000 * (time.time() - start_time) - detect
         elapsed_millis = 1000 * (time.time() - start_time)
         logger.debug(f"[AnalysisFastService][detect_and_classify] Detecting and classifying took {elapsed_millis} ms, "

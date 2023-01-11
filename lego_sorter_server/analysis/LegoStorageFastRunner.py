@@ -1,3 +1,4 @@
+import os
 import random
 import string
 import time
@@ -7,9 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 from threading import Event
 
 from uuid6 import uuid7
-import pathlib
 
-from lego_sorter_server.analysis.AnalysisFastService import AnalysisFastService
 from lego_sorter_server.analysis.detection.DetectionUtils import crop_with_margin
 from lego_sorter_server.analysis.detection.LegoLabeler import LegoLabeler
 from lego_sorter_server.database import Models
@@ -22,30 +21,19 @@ from lego_sorter_server.service.ImageProtoUtils import ImageProtoUtils
 from lego_sorter_server.database.Models import *
 
 
-class MyMessage:
-    def __init__(self, ymin, xmin, ymax, xmax, label, score):
-        self.ymin = ymin
-        self.xmin = xmin
-        self.ymax = ymax
-        self.xmax = xmax
-        self.label = label
-        self.score = score
-
-
 class LegoStorageFastRunner:
     DETECTION_SCORE_THRESHOLD = 0.5
 
     def __init__(self, storage_queue: ImageStorageQueueFast, processing_queue: ImageProcessingQueueFast,
-                 store: LegoImageStorageFast, storageFastRunerExecutor: ThreadPoolExecutor, lastImages: deque, event: Event):
+                 store: LegoImageStorageFast, storage_fast_runer_executor: ThreadPoolExecutor, last_images: deque, event: Event):
         self.storage = store
         self.event = event
         self.storage_queue = storage_queue
         self.processing_queue = processing_queue
-        self.analysis_service = AnalysisFastService()
-        self.lastImages = lastImages
+        self.lastImages = last_images
         # self.storage = store
         # queue, detector and storage are not thread safe, so it limits the number of workers to one
-        self.executor = storageFastRunerExecutor
+        self.executor = storage_fast_runer_executor
         # self.executor = futures.ThreadPoolExecutor(max_workers=4)
         logger.info("[LegoStorageFastRunner] Ready for processing the queue.")
 
@@ -71,10 +59,10 @@ class LegoStorageFastRunner:
         logging_rate = 30  # in seconds
         logging_counter = 0
         db = SessionLocal()
-        storageFastRunerExecutor_max_workers = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "storageFastRunerExecutor_max_workers").first()
+        storage_fast_runer_executor_max_workers = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "storage_fast_runer_executor_max_workers").first()
         db.close()
-        # storageFastRunerExecutor_max_workers = DBConfiguration.get(option="storageFastRunerExecutor_max_workers")
-        limit = (int(storageFastRunerExecutor_max_workers.value)-1)*2
+        # storage_fast_runer_executor_max_workers = DBConfiguration.get(option="storage_fast_runer_executor_max_workers")
+        limit = (int(storage_fast_runer_executor_max_workers.value)-1)*2
         futures = set()
 
         while True:
@@ -93,7 +81,7 @@ class LegoStorageFastRunner:
             # logger.info("[LegoStorageFastRunner] Queue not empty - processing data")
             logger.info(f"[LegoStorageFastRunner] Storage queue length:{self.storage_queue.len(CAPTURE_TAG)}")
             # self.__process_next_image()
-            if (storageFastRunerExecutor_max_workers.value == "1"):
+            if (storage_fast_runer_executor_max_workers.value == "1"):
                 request, lego_class = self.storage_queue.next(CAPTURE_TAG)
                 self.__process_next_image(request, lego_class)
             else:
@@ -116,21 +104,25 @@ class LegoStorageFastRunner:
         prefix = str(uuid7())
         imageid = None
         dbimage = None
+        db = SessionLocal()
+        store_img_override = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "store_img_override").first().value == "true"
+        if store_img_override:
+            lego_class = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "store_img_session").first().value
         if lego_class != "":
-            db = SessionLocal()
             filename = self.storage.save_image_cv2(image, lego_class, prefix)
-            session, _ = get_or_create(db, Models.DBSession, name=lego_class, path=f"{pathlib.Path().resolve()}/lego_sorter_server/images/storage/stored/{lego_class}")
+            path = os.path.abspath("lego_sorter_server/images/storage/stored")
+            session, _ = get_or_create(db, Models.DBSession, name=lego_class, path=os.path.join(path, lego_class))
             # session, _ = DBSession.get_or_create(name=lego_class, path=f"{pathlib.Path().resolve()}/lego_sorter_server/images/storage/stored/{lego_class}")
             height, width, channels = image.shape
             dbimage = Models.DBImage(owner=session, filename=filename, image_width=width, image_height=height, VOC_exist=False)
             db.add(dbimage)
             db.commit()
             imageid = dbimage.id
-            db.close()
             # dbimage = DBImage.create(owner=session, filename=filename, image_width=image.width, image_height=image.height, VOC_exist=False)
             elapsed_millis = (time.time() - start_time) * 1000
             logger.debug(f"[LegoStorageFastRunner] JPG saved in {elapsed_millis} ms.")
-        self.processing_queue.add(CAPTURE_TAG, image, imageid)
+        db.close()
+        self.processing_queue.add(CAPTURE_TAG, image, imageid, prefix, lego_class)
 
         elapsed_millis = (time.time() - start_time) * 1000
         logger.info(f"[LegoStorageFastRunner] Request processed in {elapsed_millis} ms.")

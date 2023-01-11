@@ -3,6 +3,7 @@ from pathlib import Path
 from time import time
 from typing import List
 
+import os
 import cv2
 import numpy
 from PIL import Image
@@ -43,7 +44,7 @@ class LegoImageStorageFast:
         return image_path
 
     def get_target_directory_for_lego_class(self, label: str) -> Path:
-        target_directory = self.images_base_path / label
+        target_directory = Path(os.path.join(self.images_base_path, label))
 
         return self.create_directory(target_directory, parents=False)
 
@@ -53,7 +54,7 @@ class LegoImageStorageFast:
         filename = self.generate_file_name(prefix=prefix)
 
         # image = image.convert("RGB") # already done for image analysis
-        image.save(str(target_directory / filename), quality=75)  # TODO config parameter
+        image.save(os.path.join(target_directory, filename), quality=75)  # TODO config parameter
 
         logger.info(f"Saved the image {filename} of unknown class\n")
 
