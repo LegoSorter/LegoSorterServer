@@ -7,7 +7,7 @@ from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 from threading import Event
 from collections import Counter
-
+import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from uuid6 import uuid7
 
@@ -59,6 +59,8 @@ class LegoSortFastRunner:
         self.sort = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "sort").first().value == "true"
         self.active_time = int(db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "camera_conveyor_active_time").first().value)
         self.wait_time = int(db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "camera_conveyor_wait_time").first().value)
+        self.conveyor_local_address = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "conveyor_local_address").first().value
+        self.sorter_local_address = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "sorter_local_address").first().value
         db.close()
 
         # self.storage = store
@@ -126,6 +128,18 @@ class LegoSortFastRunner:
             Models.DBConfiguration.option == "camera_conveyor_active_time").first().value)
         self.wait_time = int(db.query(Models.DBConfiguration).filter(
             Models.DBConfiguration.option == "camera_conveyor_wait_time").first().value)
+        self.camera_conveyor_frequency = int(db.query(Models.DBConfiguration).filter(
+            Models.DBConfiguration.option == "camera_conveyor_frequency").first().value)
+        self.camera_conveyor_duty_cycle = int(db.query(Models.DBConfiguration).filter(
+            Models.DBConfiguration.option == "camera_conveyor_duty_cycle").first().value)
+        self.splitting_conveyor_frequency = int(db.query(Models.DBConfiguration).filter(
+            Models.DBConfiguration.option == "splitting_conveyor_frequency").first().value)
+        self.splitting_conveyor_duty_cycle = int(db.query(Models.DBConfiguration).filter(
+            Models.DBConfiguration.option == "splitting_conveyor_duty_cycle").first().value)
+        self.conveyor_local_address = db.query(Models.DBConfiguration).filter(
+            Models.DBConfiguration.option == "conveyor_local_address").first().value
+        self.sorter_local_address = db.query(Models.DBConfiguration).filter(
+            Models.DBConfiguration.option == "sorter_local_address").first().value
         db.close()
         logger.info(f"[LegoSortFastRunner] sort {self.sort} active_time {self.active_time} wait_time {self.wait_time}")
         # detectionResults, classificationResults, image = self.storage_queue.next(CAPTURE_TAG)
@@ -160,20 +174,26 @@ class LegoSortFastRunner:
                     lowest_cat, lowest_pos = self.sorter_config[label]
             valid_detections.append({"x": x_mean, "y": y_mean, "score": score, "label": label, "score_top5": score_top5, "label_top5": label_top5})
 
-        # wait if detected new lego
+        # wait if detected new lego - at the moment sorter is sorting previous lego
         if self.wait_time_start != 0.0 and time.time() * 1000 < self.wait_time_start + self.wait_time:
             if self.sort:
-                dictionary_sort = []
-                dictionary_sort.append(MySortMessage("new lego", 0.0, f"Start waiting, detected new lego", id, session))
+                dictionary_sort = [MySortMessage("new lego", 0.0, f"Start waiting, detected new lego", id, session)]
                 self.hub_connection.send("sendSortMessage", [dictionary_sort])
+                requests.get(f"{self.conveyor_local_address}/stop_splitting_conveyor")
+                requests.get(f"{self.conveyor_local_address}/stop_camera_conveyor")
             time.sleep(((self.wait_time_start + self.wait_time) - (time.time() * 1000))/1000)
 
         # reset if wait time ended or active_time + wait_time ended (if no detection since active_time start)
         if self.active_time_start != 0.0 and time.time()*1000 > self.active_time_start+self.active_time+self.wait_time or self.wait_time_start != 0.0 and time.time()*1000 > self.wait_time_start + self.wait_time:
             if self.sort:
-                dictionary_sort = []
-                dictionary_sort.append(MySortMessage(self.selected_label, 0.0, f"Reset", id, session))
+                dictionary_sort = [MySortMessage(self.selected_label, 0.0, f"Reset", id, session)]
                 self.hub_connection.send("sendSortMessage", [dictionary_sort])
+                requests.get(f"{self.conveyor_local_address}/start_camera_conveyor",
+                             params={"frequency": self.camera_conveyor_frequency,
+                                     "duty_cycle": self.camera_conveyor_duty_cycle})
+                requests.get(f"{self.conveyor_local_address}/start_splitting_conveyor",
+                             params={"frequency": self.splitting_conveyor_frequency,
+                                     "duty_cycle": self.splitting_conveyor_duty_cycle})
             self.selected_label = ""
             self.active_time_start = 0.0
             self.wait_time_start = 0.0
@@ -187,8 +207,7 @@ class LegoSortFastRunner:
             self.poz = lowest_y
             self.low_label.append(lowest_label)
             if self.sort:
-                dictionary_sort = []
-                dictionary_sort.append(MySortMessage(lowest_label, 0.0, f"New LEGO sorting started", id, session))
+                dictionary_sort = [MySortMessage(lowest_label, 0.0, f"New LEGO sorting started", id, session)]
                 self.hub_connection.send("sendSortMessage", [dictionary_sort])
 
         # last lego still on conveyor
@@ -196,8 +215,7 @@ class LegoSortFastRunner:
             self.low_label.append(lowest_label)
             self.poz = lowest_y
             if self.sort:
-                dictionary_sort = []
-                dictionary_sort.append(MySortMessage(lowest_label, 0.0, f"Updating poz of last LEGO {lowest_label}", id, session))
+                dictionary_sort = [MySortMessage(lowest_label, 0.0, f"Updating poz of last LEGO {lowest_label}", id, session)]
                 self.hub_connection.send("sendSortMessage", [dictionary_sort])
 
         # start setting sorting arm
@@ -206,9 +224,9 @@ class LegoSortFastRunner:
             self.selected_label = occurence_count.most_common(1)[0][0]
             how_many = occurence_count.most_common(1)[0][1]
             if self.sort:
-                dictionary_sort = []
-                dictionary_sort.append(MySortMessage(self.selected_label, 0.0, f"set arm for {self.selected_label} {how_many}/{len(self.low_label)} from {lowest_cat} to poz {lowest_pos}", id, session))
+                dictionary_sort = [MySortMessage(self.selected_label, 0.0, f"set arm for {self.selected_label} {how_many}/{len(self.low_label)} from {lowest_cat} to poz {lowest_pos}", id, session)]
                 self.hub_connection.send("sendSortMessage", [dictionary_sort])
+                requests.get(f"{self.sorter_local_address}/sort?action={lowest_pos}")
 
         if self.poz > 1920 * (3 / 4) and self.active_time_start == 0.0:
             self.active_time_start = time.time() * 1000
@@ -217,28 +235,29 @@ class LegoSortFastRunner:
             how_many = occurence_count.most_common(1)[0][1]
             if most_common != self.selected_label and self.sort:
                 self.selected_label = most_common  # todo
-                dictionary_sort = []
-                dictionary_sort.append(MySortMessage(self.selected_label, 0.0,
-                                                    f"Changed arm for {self.selected_label} {how_many}/{len(self.low_label)} from {lowest_cat} to poz {lowest_pos}",
-                                                    id, session))
+                dictionary_sort = [MySortMessage(self.selected_label, 0.0,f"Changed arm for {self.selected_label} {how_many}/{len(self.low_label)} from {lowest_cat} to poz {lowest_pos}", id, session)]
                 self.hub_connection.send("sendSortMessage", [dictionary_sort])
+                requests.get(f"{self.sorter_local_address}/sort?action={lowest_pos}")
 
         # start waiting, reset variables (trust timing that it will drop lego)
         if self.active_time_start != 0.0 and time.time()*1000 > self.active_time_start+self.active_time and self.wait_time_start == 0.0:
             self.wait_time_start = time.time() * 1000
             if self.sort:
-                dictionary_sort = []
-                dictionary_sort.append(MySortMessage(self.selected_label, 0.0,f"Started waiting for {self.selected_label} sorting end", id, session))
+                dictionary_sort = [MySortMessage(self.selected_label, 0.0, f"Started waiting for {self.selected_label} sorting end", id, session)]
                 self.hub_connection.send("sendSortMessage", [dictionary_sort])
 
             # trust model, if nothing detected assume no lego on conveyor, override stop
             if len(valid_detections) == 0:
                 if self.sort:
-                    dictionary_sort = []
-                    dictionary_sort.append(MySortMessage("nothing", 0.0,f"Override stop, nothing detected", id, session))
+                    dictionary_sort = [MySortMessage("nothing", 0.0, f"Override stop, nothing detected", id, session)]
                     self.hub_connection.send("sendSortMessage", [dictionary_sort])
-            # eles wait till end of wait time
+                    # TODO uncomment if we are sure that LEGO from splitting conveyor will be detected at top of camera conveyor
+                    # requests.get(f"{self.conveyor_local_address}/stop_camera_conveyor")
+            # else wait till end of wait time
             else:
+                # stop conveyors lego detected
+                requests.get(f"{self.conveyor_local_address}/stop_splitting_conveyor")
+                requests.get(f"{self.conveyor_local_address}/stop_camera_conveyor")
                 time.sleep(self.wait_time/1000)
 
         elapsed_millis = (time.time() - start_time) * 1000

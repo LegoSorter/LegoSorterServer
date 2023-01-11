@@ -205,7 +205,7 @@ def start_server():
 
 @app.get("/start_camera_conveyor/")
 def start_server(db: Session = Depends(get_db)):
-    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/start",
+    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/start_camera_conveyor",
                             params={"frequency": Crud.get_config(db, option='camera_conveyor_frequency').value,
                                     "duty_cycle": Crud.get_config(db, option='camera_conveyor_duty_cycle').value})
     return {False}
@@ -213,21 +213,21 @@ def start_server(db: Session = Depends(get_db)):
 
 @app.get("/stop_camera_conveyor/")
 def start_server(db: Session = Depends(get_db)):
-    response = requests.get(Crud.get_config(db, option="conveyor_local_address").value)
+    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/stop_camera_conveyor")
     return {False}
 
 
 @app.get("/start_splitting_conveyor/")
 def start_server(db: Session = Depends(get_db)):
-    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/start",
-                            params={"frequency": Crud.get_config(db, option='camera_conveyor_frequency').value,
-                                    "duty_cycle": Crud.get_config(db, option='camera_conveyor_duty_cycle').value})
+    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/start_splitting_conveyor",
+                            params={"frequency": Crud.get_config(db, option='splitting_conveyor_frequency').value,
+                                    "duty_cycle": Crud.get_config(db, option='splitting_conveyor_duty_cycle').value})
     return {False}
 
 
 @app.get("/stop_splitting_conveyor/")
 def start_server(db: Session = Depends(get_db)):
-    response = requests.get(Crud.get_config(db, option="conveyor_local_address").value)
+    response = requests.get(f"{Crud.get_config(db, option='conveyor_local_address').value}/stop_splitting_conveyor")
     return {False}
 
 @app.get("/restart/")
