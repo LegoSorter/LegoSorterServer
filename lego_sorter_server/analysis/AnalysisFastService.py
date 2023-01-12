@@ -184,8 +184,9 @@ class AnalysisFastService:
                 results.append([score, clazz, box])
 
             if len(results) != 0:
-                results = numpy.stack(results)
-                filtered_results = DetectionResults(results[:, 0], results[:, 1], results[:, 2])
+                np_results = numpy.asarray(results, numpy.dtype(object))
+                results2 = numpy.stack(np_results)
+                filtered_results = DetectionResults(results2[:, 0], results2[:, 1], results2[:, 2])
             else:
                 filtered_results = DetectionResults([], [], [])
 
