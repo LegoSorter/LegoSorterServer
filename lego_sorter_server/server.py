@@ -251,7 +251,7 @@ class Server:
             #     db.commit()
             #     db.refresh(camera_conveyor_frequency)
 
-        splitting_conveyor_duty_cycle = Server.init_config_int(db, "splitting_conveyor_duty_cycle", "50", "LEGO_SORTER_SPLITTING_CONVEYOR_DUTY_CYCLE")
+        splitting_conveyor_duty_cycle = Server.init_config_int(db, "splitting_conveyor_duty_cycle", "40", "LEGO_SORTER_SPLITTING_CONVEYOR_DUTY_CYCLE")
             # splitting_conveyor_duty_cycle = db.query(Models.DBConfiguration).filter(
             #     Models.DBConfiguration.option == "splitting_conveyor_duty_cycle").one_or_none()
             # if splitting_conveyor_duty_cycle is None:
@@ -260,7 +260,7 @@ class Server:
             #     db.commit()
             #     db.refresh(splitting_conveyor_duty_cycle)
 
-        splitting_conveyor_frequency = Server.init_config_int(db, "splitting_conveyor_frequency", "50", "LEGO_SORTER_SPLITTING_CONVEYOR_FREQUENCY")
+        splitting_conveyor_frequency = Server.init_config_int(db, "splitting_conveyor_frequency", "20", "LEGO_SORTER_SPLITTING_CONVEYOR_FREQUENCY")
             # splitting_conveyor_frequency = db.query(Models.DBConfiguration).filter(
             #     Models.DBConfiguration.option == "splitting_conveyor_frequency").one_or_none()
             # if splitting_conveyor_frequency is None:
