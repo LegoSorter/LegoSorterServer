@@ -19,6 +19,7 @@ import sys
 import threading
 import warnings
 
+from lego_sorter_server.server import Server
 
 brickCategoryConfig = None
 
@@ -80,12 +81,13 @@ if __name__ == '__main__':
     threading.excepthook = exception_handler
     warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
     db = SessionLocal()
-    server_fastapi_port = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "server_fastapi_port").one_or_none()
-    if server_fastapi_port is None:
-        server_fastapi_port = Models.DBConfiguration(option="server_fastapi_port", value="5005")
-        db.add(server_fastapi_port)
-        db.commit()
-        db.refresh(server_fastapi_port)
+    server_fastapi_port = Server.init_config_int(db, "server_fastapi_port", "5005", "LEGO_SORTER_SERVER_FASTAPI_PORT")
+    # server_fastapi_port = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "server_fastapi_port").one_or_none()
+    # if server_fastapi_port is None:
+    #     server_fastapi_port = Models.DBConfiguration(option="server_fastapi_port", value="5005")
+    #     db.add(server_fastapi_port)
+    #     db.commit()
+    #     db.refresh(server_fastapi_port)
     db.close()
     # setup_logging()
     # uvicorn.run(app, host="0.0.0.0", port=int(server_fastapi_port.value), log_level="info")

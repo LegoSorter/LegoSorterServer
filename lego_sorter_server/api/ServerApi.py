@@ -53,19 +53,8 @@ async def startup_event():
     server_elements["elements"] = Server.run(brickCategoryConfig["brickCategoryConfig"], event[0])
     # name = "testDB7"
     # dataset = fo.load_dataset(name)
-    server_fiftyone_port = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "server_fiftyone_port").one_or_none()
-    if server_fiftyone_port is None:
-        server_fiftyone_port = Models.DBConfiguration(option="server_fiftyone_port", value="5151")
-        db.add(server_fiftyone_port)
-        db.commit()
-        db.refresh(server_fiftyone_port)
-
-    server_fiftyone_address = db.query(Models.DBConfiguration).filter(Models.DBConfiguration.option == "server_fiftyone_address").one_or_none()
-    if server_fiftyone_address is None:
-        server_fiftyone_address = Models.DBConfiguration(option="server_fiftyone_address", value="0.0.0.0")
-        db.add(server_fiftyone_address)
-        db.commit()
-        db.refresh(server_fiftyone_address)
+    server_fiftyone_port = Server.init_config_int(db, "server_fiftyone_port", "5151", "LEGO_SORTER_SERVER_FIFTYONE_PORT")
+    server_fiftyone_address = Server.init_config_str(db, "server_fiftyone_address", "0.0.0.0", "LEGO_SORTER_SERVER_FIFTYONE_ADDRESS")
     fo.launch_app(port=int(server_fiftyone_port.value), remote=True, address=server_fiftyone_address.value)  # , address="192.168.11.189"
     db.close()
 
