@@ -4,6 +4,9 @@ Lego Sorter Server provides methods for detecting and classifying Lego bricks.
 
 This branch require LegoSorterWeb to be started before LegoSorterServer.
 
+## PL Native run Ubuntu + Linux
+https://gist.github.com/uiopak/691841ea5c2e1d6d57c8f959010a1b35
+
 ## How to run
 1. Download the repository
 ```commandline
@@ -91,22 +94,18 @@ $env:PYTHONPATH="."
 ```commandline
 python lego_sorter_server
 ```
-If LegoSorterWeb is running on different machine add `--web_address` option, example:
+If LegoSorterWeb is running on different machine/port set *LEGO_SORTER_WEB_ADDRESS* environmental variable
 
-```commandline
-python lego_sorter_server --web_address 'http://192.168.11.189:5002'
-```
-
-or set *LEGO_SORTER_WEB_ADDRESS* environmental variable
+LegoSorterWeb when run after publish will run on port 5000 default, but on 5002 if run in VS or using `dotnet run`
 
 Linux:
 ```bash
-export LEGO_SORTER_WEB_ADDRESS='http://192.168.11.189:5002'
+export LEGO_SORTER_WEB_ADDRESS='http://192.168.11.189:5000'
 ```
 
 Windows (PowerShell):
 ```powershell
-$env:LEGO_SORTER_WEB_ADDRESS='http://192.168.11.189:5002'
+$env:LEGO_SORTER_WEB_ADDRESS='http://192.168.11.189:5000'
 ```
 
 The server is now ready to handle requests. By default, the server listens on port *50051*, *50052*, *5151* and *5005*
