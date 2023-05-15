@@ -104,7 +104,7 @@ class LegoAnalysisFastRunner:
                 packet.id = id
                 packet.session = session
                 dictionary.append(packet)
-            self.sort_queue.add(CAPTURE_TAG, detection_results, classification_results, id, session)
+            self.sort_queue.add(CAPTURE_TAG, detection_results, classification_results, id, session, image.shape[0], image.shape[1])
             self.hub_connection.send("sendMessage", [dictionary])
 
         # return bb_list
