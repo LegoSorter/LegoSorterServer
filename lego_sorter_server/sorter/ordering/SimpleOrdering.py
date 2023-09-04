@@ -6,7 +6,6 @@ from typing import List
 
 
 class SimpleOrdering:
-    #TODO: move this variable to the separate config file and give it more appriopriate name
     BORDER_MARGIN = config.BORDER_MARGIN
 
     def __init__(self):

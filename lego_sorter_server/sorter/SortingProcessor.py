@@ -19,7 +19,6 @@ from lego_sorter_server.sorter.ordering.SimpleOrdering import SimpleOrdering
 
 
 class SortingProcessor:
-    #TODO: move this variable to the separate config file
     CLASSIFICATION_IN_ROW_MIN_COUNT = config.CLASSIFICATION_IN_ROW_MIN_COUNT
     CLASSIFICATION_BRICK_COUNT = config.CLASSIFICATION_IN_ROW_MIN_COUNT
 
@@ -57,8 +56,6 @@ class SortingProcessor:
             image = self.image_queue.get()
             logging.info(f"[SortingProcessor] Image was taken from the queue.")
             
-            #TODO: add some code which will analyze how many images are held in the queue compared to the last time and some set limiter and then clear out some of the images in queue if needed
-
             if self.running:
                 current_state = self.process_next_image_continuously(image)
 
