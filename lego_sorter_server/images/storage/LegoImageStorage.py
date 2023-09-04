@@ -70,7 +70,7 @@ class LegoImageStorage:
 
     def save_image_with_results(self, image: Image.Image, lego_class: str, brick_id: str, label: str, score: str, prefix: str = '') -> str:
         """Save the image as representation of specified lego_class. Returns a name of the saved image"""
-        target_directory = self.get_target_directory_for_lego_class(lego_class)
+        target_directory = self.get_target_directory_for_lego_class(label)
         filename = self.generate_file_name(lego_class, prefix=prefix)
 
         image = image.convert("RGB")

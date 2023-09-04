@@ -72,7 +72,7 @@ class SortingProcessor:
     def save_detected_image(self, image: Image):
         start_time_saving = time.time()
         #time_prefix = f"{int(start_time_saving * 10000) % 10000}"  # 10 seconds
-        time_prefix = datetime.now().strftime("%d-%m-%Y_%H-%M-%S_%f_")[:-3]
+        time_prefix = datetime.now().strftime("%d-%m-%Y_%H-%M-%S-%f")[:-3] + '_'
         for key, value in self.ordering.get_current_state().items():
             bounding_box = value[0]
             cropped_image = DetectionUtils.crop_with_margin(image, *bounding_box)
