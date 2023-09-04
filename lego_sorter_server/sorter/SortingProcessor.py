@@ -26,7 +26,7 @@ class SortingProcessor:
 
     def __init__(self, brickCategoryConfig: BrickCategoryConfig):
         self.image_queue: Queue = Queue()
-        self.running = True #False
+        self.running = False
         self.paused = False
         self.same_class_in_row_counter = 0
         self.brick_class_check_counter = 0
@@ -72,7 +72,7 @@ class SortingProcessor:
     def save_detected_image(self, image: Image):
         start_time_saving = time.time()
         #time_prefix = f"{int(start_time_saving * 10000) % 10000}"  # 10 seconds
-        time_prefix = datetime.now().strftime("%d-%m-%Y_%H:%M:%S.%f_")[:-3]
+        time_prefix = datetime.now().strftime("%d-%m-%Y_%H-%M-%S_%f_")[:-3]
         for key, value in self.ordering.get_current_state().items():
             bounding_box = value[0]
             cropped_image = DetectionUtils.crop_with_margin(image, *bounding_box)
@@ -116,11 +116,11 @@ class SortingProcessor:
 
         if save_image is True and len(current_results) > 0:
             self.save_detected_image(image)
+            self.storage.set_json_save_data_final_label(str(self.brick_classification_id))
+            self.storage.save_images_results_to_json()
 
         while self.ordering.get_count_of_results_to_send() > 0:
             # Clear out the queue of processed bricks
-            self.storage.set_json_save_data_final_label(str(self.brick_classification_id), str("MULTIPLE"))
-            self.storage.save_images_results_to_json()
             self._send_results_to_controller()
 
         return self.ordering.get_current_state()

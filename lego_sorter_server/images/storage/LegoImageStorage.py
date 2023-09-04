@@ -1,5 +1,6 @@
 import itertools
 import json
+import os
 from pathlib import Path
 from time import time
 from typing import List
@@ -13,6 +14,7 @@ class LegoImageStorage:
 
     def __init__(self, images_directory='./lego_sorter_server/images/storage/stored'):
         self.images_base_path = Path(images_directory)
+        self.full_server_path = os.getcwd()
         self.create_directory(self.images_base_path, parents=True)
 
         self.jsonSaveData = dict()
@@ -48,8 +50,11 @@ class LegoImageStorage:
 
         return self.create_directory(target_directory, parents=False)
 
-    def set_json_save_data_final_label(self, brick_id: str, label: str):
-        self.jsonSaveData[brick_id]["final_label"] = label
+    def set_json_save_data_final_label(self, brick_id: str, label: str = ''):
+        if label == '':
+            self.jsonSaveData[brick_id]["final_label"] = self.jsonSaveData[brick_id]["images"][0]["label"]
+        else:
+            self.jsonSaveData[brick_id]["final_label"] = label
 
     def save_image(self, image: Image.Image, lego_class: str, prefix: str = '') -> str:
         """Save the image as representation of specified lego_class. Returns a name of the saved image"""
@@ -73,7 +78,7 @@ class LegoImageStorage:
 
         if brick_id not in self.jsonSaveData:
             self.jsonSaveData[brick_id] = {"final_label": "", "images": []}
-        self.jsonSaveData[brick_id]['images'].append({"filePath": str(target_directory / filename), "label": label, "score": score})
+        self.jsonSaveData[brick_id]['images'].append({"filePath": str(self.full_server_path / target_directory / filename), "label": label, "score": score})
 
         logging.info(f"Saved the image {filename} of {lego_class} class\n")
 
@@ -81,7 +86,11 @@ class LegoImageStorage:
 
     def save_images_results_to_json(self):
         with open(self.images_base_path / 'classificationResults.json', mode='w+', encoding='utf-8') as feedsjson:
-            feeds = json.load(feedsjson)
+            try:
+                feeds = json.load(feedsjson)
+            except:
+                feeds = {}
+                
             for key, value in self.jsonSaveData.items():
                 if key not in feeds:
                     feeds[key] = value
@@ -89,6 +98,7 @@ class LegoImageStorage:
                     feeds[key]["images"].append(value["images"])
                     feeds[key]["final_label"] = value["final_label"]
             
+            feedsjson.truncate()
             json.dump(feeds, feedsjson)
 
         self.jsonSaveData.clear()
