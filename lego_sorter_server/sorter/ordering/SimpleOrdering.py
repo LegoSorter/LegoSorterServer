@@ -95,9 +95,11 @@ class SimpleOrdering:
 
     def _add_results_to_current_state(self, results, start_from: int):
         for index, result in enumerate(results):
-            history_of_brick = self.memorized_state.get(start_from + index, [])
+            #history_of_brick = self.memorized_state.get(start_from + index, [])
+            history_of_brick = self.memorized_state.get(start_from, [])
             history_of_brick.append(result)
-            self.memorized_state[start_from + index] = history_of_brick
+            #self.memorized_state[start_from + index] = history_of_brick
+            self.memorized_state[start_from] = history_of_brick
 
         logging.info(f"[SimpleOrdering] Added results, the current state is:"
                      f"\n {list(self.memorized_state.items())}")

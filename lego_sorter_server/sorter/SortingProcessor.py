@@ -479,5 +479,23 @@ class SortingProcessor:
 
     @staticmethod
     def get_best_result(results):
-        # TODO - max score, average score, max count?
-        return results[0]
+        predicted_class = None
+        parsed_data = {}
+        for prediction in results:
+            detection_box = prediction[0]
+            predicted_class = prediction[1]
+            predicted_value = prediction[2]
+
+            if predicted_class in parsed_data:
+                parsed_data[predicted_class][0] += 1
+                parsed_data[predicted_class][1] += predicted_value
+            else:
+                parsed_data[predicted_class] = [1, predicted_value]
+
+        max_value = 0
+        for brick_name, [count, value] in parsed_data.items():
+            if value > max_value:
+                max_value = value
+                predicted_class = brick_name
+
+        return (None, predicted_class, None)
