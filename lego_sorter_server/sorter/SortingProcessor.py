@@ -176,6 +176,7 @@ class SortingProcessor:
         if new_brick:
             self.brick_class_check_counter = 1
             self.brick_class_result.clear()
+            self.brick_classification_result.clear()
             self.brick_classification_result_counter.clear()
             self.brick_classification_id = round(time.time() * 1000)
         else:
