@@ -20,6 +20,11 @@ class LegoSorterStub(object):
                 request_serializer=Messages__pb2.ImageRequest.SerializeToString,
                 response_deserializer=LegoSorter__pb2.ListOfBoundingBoxesWithIndexes.FromString,
                 )
+        self.queueImage = channel.unary_unary(
+                '/sorter.LegoSorter/queueImage',
+                request_serializer=Messages__pb2.ImageRequest.SerializeToString,
+                response_deserializer=Messages__pb2.Empty.FromString,
+                )
         self.getConfiguration = channel.unary_unary(
                 '/sorter.LegoSorter/getConfiguration',
                 request_serializer=Messages__pb2.Empty.SerializeToString,
@@ -46,6 +51,12 @@ class LegoSorterServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def processNextImage(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def queueImage(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -82,6 +93,11 @@ def add_LegoSorterServicer_to_server(servicer, server):
                     servicer.processNextImage,
                     request_deserializer=Messages__pb2.ImageRequest.FromString,
                     response_serializer=LegoSorter__pb2.ListOfBoundingBoxesWithIndexes.SerializeToString,
+            ),
+            'queueImage': grpc.unary_unary_rpc_method_handler(
+                    servicer.queueImage,
+                    request_deserializer=Messages__pb2.ImageRequest.FromString,
+                    response_serializer=Messages__pb2.Empty.SerializeToString,
             ),
             'getConfiguration': grpc.unary_unary_rpc_method_handler(
                     servicer.getConfiguration,
@@ -127,6 +143,23 @@ class LegoSorter(object):
         return grpc.experimental.unary_unary(request, target, '/sorter.LegoSorter/processNextImage',
             Messages__pb2.ImageRequest.SerializeToString,
             LegoSorter__pb2.ListOfBoundingBoxesWithIndexes.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def queueImage(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/sorter.LegoSorter/queueImage',
+            Messages__pb2.ImageRequest.SerializeToString,
+            Messages__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

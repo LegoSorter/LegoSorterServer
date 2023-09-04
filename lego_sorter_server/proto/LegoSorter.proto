@@ -21,6 +21,7 @@ message SorterConfiguration {
 
 service LegoSorter {
   rpc processNextImage(common.ImageRequest) returns (ListOfBoundingBoxesWithIndexes);
+  rpc queueImage(common.ImageRequest) returns (common.Empty);
   rpc getConfiguration(common.Empty) returns (SorterConfiguration);
   rpc updateConfiguration(SorterConfiguration) returns (common.Empty);
   rpc startMachine(common.Empty) returns (common.Empty);

@@ -1,13 +1,15 @@
 import logging
 
 import requests
+import config
 
 from lego_sorter_server.service.BrickCategoryConfig import BrickCategoryConfig
 
 
 class LegoSorterController:
-    CONVEYOR_LOCAL_ADDRESS = "http://192.168.83.45:8000"
-    SORTER_LOCAL_ADDRESS = "http://192.168.83.45:8001"
+    #TODO: move both of these variables to the separate config file
+    CONVEYOR_LOCAL_ADDRESS = config.CONVEYOR_LOCAL_ADDRESS
+    SORTER_LOCAL_ADDRESS = config.SORTER_LOCAL_ADDRESS
 
     def __init__(self, brickCategoryConfig: BrickCategoryConfig):
         self.speed = 50

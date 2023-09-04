@@ -1,29 +1,66 @@
 import logging
+import config
 
 from collections import OrderedDict
 from typing import List
 
 
 class SimpleOrdering:
-    BORDER_MARGIN = 5
+    #TODO: move this variable to the separate config file and give it more appriopriate name
+    BORDER_MARGIN = config.BORDER_MARGIN
 
     def __init__(self):
         self.memorized_state: OrderedDict = OrderedDict()
         self.processed_bricks = []
         self.head_index = -1  # this indicates the index of the first brick on the tape
 
-    def process_current_results(self, results, image_height: int):
+    def detect_new_brick_appearence(self, results, image_height: int, border_image_excluded = False):
+        if len(results) == 0:
+            return False
+        
+        if not border_image_excluded:
+            results = self.discard_border_results(results, image_height)
+
+            if len(results) == 0:
+                return False
+
+        first_brick_from_history = self._get_first_brick()
+
+        if len(first_brick_from_history) == 0:
+            return True
+
+        first_brick_from_results = results[0]
+
+        if self._is_the_same_brick(first_brick_from_history, first_brick_from_results):
+            return False
+        else:
+            return True
+
+    def get_first_detected_brick(self, results, image_height: int, border_image_excluded = False):
+        if len(results) == 0:
+            return []
+        
+        if not border_image_excluded:
+            results = self.discard_border_results(results, image_height)
+
+            if len(results) == 0:
+                return []
+
+        return results[0]
+
+    def process_current_results(self, results, image_height: int, border_image_excluded = False):
         if len(results) == 0:
             logging.info("[SimpleOrdering] No bricks detected. It means that all bricks have surpassed the camera line")
             self._extract_processed_bricks(len(self.memorized_state))
             return
 
-        results = self.discard_border_results(results, image_height)
+        if not border_image_excluded:
+            results = self.discard_border_results(results, image_height)
 
-        if len(results) == 0:
-            logging.info("[SimpleOrdering] There is no bricks to process after skipping border results.")
-            self._extract_processed_bricks(len(self.memorized_state))
-            return
+            if len(results) == 0:
+                logging.info("[SimpleOrdering] There is no bricks to process after skipping border results.")
+                self._extract_processed_bricks(len(self.memorized_state))
+                return
 
         first_brick_from_history = self._get_first_brick()
 

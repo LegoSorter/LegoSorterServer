@@ -27,6 +27,19 @@ class LegoSorterService(LegoSorter_pb2_grpc.LegoSorterServicer):
 
         return response
 
+    #TODO: need another GRPC function, which will mimic the processNextImage function above and it will invoke self.sortingProcessor.queue_next_image function (already prepared) in order to queue image for processing
+
+    def queueImage(self, request: ImageRequest, context):
+        start_time = time.time()
+        logging.info("[LegoSorterService] Got an image request. Queue image...")
+        image = ImageProtoUtils.prepare_image(request)
+        current_state = self.sortingProcessor.queue_next_image(image)
+
+        elapsed_milliseconds = int(1000 * (time.time() - start_time))
+        logging.info(f"[LegoSorterService] Queue the image took {elapsed_milliseconds} milliseconds.")
+
+        return Empty()
+
     def startMachine(self, request: Empty, context):
         self.sortingProcessor.start_machine()
 
