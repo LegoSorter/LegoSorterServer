@@ -19,6 +19,10 @@ class LegoImageStorage:
 
         self.jsonSaveData = dict()
 
+        if (os.path.exists(self.images_base_path / 'classificationResults.json') == False):
+            f = open(self.images_base_path / 'classificationResults.json', "w")
+            f.close()
+
     @staticmethod
     def create_directory(directory, parents=True):
         if not directory.exists():
@@ -85,7 +89,7 @@ class LegoImageStorage:
         return filename
 
     def save_images_results_to_json(self):
-        with open(self.images_base_path / 'classificationResults.json', mode='w+', encoding='utf-8') as feedsjson:
+        with open(self.images_base_path / 'classificationResults.json', mode='r+', encoding='utf-8') as feedsjson:
             try:
                 feeds = json.load(feedsjson)
             except:
@@ -98,7 +102,8 @@ class LegoImageStorage:
                     feeds[key]["images"].append(value["images"])
                     feeds[key]["final_label"] = value["final_label"]
             
-            feedsjson.truncate()
+            feedsjson.truncate(0)
+            feedsjson.seek(0)
             json.dump(feeds, feedsjson)
 
         self.jsonSaveData.clear()

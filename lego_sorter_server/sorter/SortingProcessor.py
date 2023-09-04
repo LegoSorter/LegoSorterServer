@@ -31,17 +31,18 @@ class SortingProcessor:
         self.same_class_in_row_counter = 0
         self.brick_class_check_counter = 0
         self.prev_classification_result: ClassificationResults = None
+        self.brick_class_result = []
         self.brick_classification_result = []
         self.brick_classification_result_counter = []
         self.brick_classification_id = -1
         self.ordering: SimpleOrdering = SimpleOrdering()
+        self.storage: LegoImageStorage = LegoImageStorage()
+        self.sorter_controller: LegoSorterController = LegoSorterController(brickCategoryConfig)
 
         self.queue_handler_process: Process = Process(target=self._image_queue_handler_service, args=(), daemon=False)
         self.queue_handler_process.start()
 
         self.analysis_service: AnalysisService = AnalysisService()
-        self.sorter_controller: LegoSorterController = LegoSorterController(brickCategoryConfig)
-        self.storage: LegoImageStorage = LegoImageStorage()
         
 
     # Function which will be used exclusively by the additional process, to handle images that will be added from other sources
@@ -94,12 +95,12 @@ class SortingProcessor:
         if save_image is True and len(current_results) > 0:
             self.save_detected_image(image)
 
-        #while self.ordering.get_count_of_results_to_send() > 0 and self.same_class_in_row_counter == self.CLASSIFICATION_IN_ROW_MIN_COUNT:
-        while self.ordering.get_count_of_results_to_send() > 0 and self.brick_class_check_counter == self.CLASSIFICATION_BRICK_COUNT:
+        test = self.ordering.get_count_of_results_to_send()
+        while self.ordering.get_count_of_results_to_send() > 0 and self.brick_class_check_counter >= self.CLASSIFICATION_BRICK_COUNT:
             # Clear out the queue of processed bricks
             final_label_index = self.brick_classification_result_counter.index(max(self.brick_classification_result_counter))
 
-            self.storage.set_json_save_data_final_label(str(self.brick_classification_id), str(self.brick_classification_result[final_label_index]))
+            self.storage.set_json_save_data_final_label(str(self.brick_classification_id), str(self.brick_class_result[final_label_index]))
             self.storage.save_images_results_to_json()
             self._send_results_to_controller()
 
@@ -173,10 +174,12 @@ class SortingProcessor:
         # Check if new brick was detected and previous brick dissapeared
         new_brick = self.ordering.detect_new_brick_appearence(zipped_detection_results, image_height=image.height, border_image_excluded=True)
         if new_brick:
-            self.brick_class_check_counter = 0
-            self.brick_classification_result.clear()
+            self.brick_class_check_counter = 1
+            self.brick_class_result.clear()
             self.brick_classification_result_counter.clear()
             self.brick_classification_id = round(time.time() * 1000)
+        else:
+            self.brick_class_check_counter = self.brick_class_check_counter + 1
 
 
         # Check if current brick was already matched with certain class
@@ -199,7 +202,7 @@ class SortingProcessor:
             logging.info(f"[SortingProcessor] Skipped classyfiying bricks on the image.")
 
         # Prepare data that will be returned by function
-        detection_boxes = (zip(*zipped_detection_results))[0]
+        detection_boxes = list(zip(*(zipped_detection_results)))[0]
         zipped_results = list(zip(detection_boxes,
                                   classification_results.classification_classes,
                                   classification_results.classification_scores))
@@ -207,13 +210,14 @@ class SortingProcessor:
         # Count how many times in a row first brick was classified as the same class
         first_detected_brick = self.ordering.get_first_detected_brick(zipped_results, image_height=image.height)
         if first_detected_brick != []:
-            brick_class = first_detected_brick[1][0]
-            if self.brick_classification_result == [] or brick_class not in self.brick_classification_result:
+            brick_class = first_detected_brick[1]
+            if self.brick_class_result == [] or brick_class not in self.brick_class_result:
                 #self.same_class_in_row_counter = 1
-                self.brick_classification_result.append(brick_class)
+                self.brick_class_result.append(brick_class)
+                self.brick_classification_result.append(classification_results)
                 self.brick_classification_result_counter.append(1)
             else:
-                self.brick_classification_result_counter[self.brick_classification_result.index(brick_class)] += 1
+                self.brick_classification_result_counter[self.brick_class_result.index(brick_class)] += 1
 
         return zipped_results
 
@@ -258,7 +262,7 @@ class SortingProcessor:
         self.same_class_in_row_counter = 0
         self.prev_classification_result = None
         self.brick_class_check_counter = 0
-        self.brick_classification_result.clear()
+        self.brick_class_result.clear()
         self.brick_classification_result_counter.clear()
         self.brick_classification_id = -1
 
