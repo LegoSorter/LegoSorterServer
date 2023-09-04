@@ -95,7 +95,6 @@ class SortingProcessor:
         if save_image is True and len(current_results) > 0:
             self.save_detected_image(image)
 
-        test = self.ordering.get_count_of_results_to_send()
         while self.ordering.get_count_of_results_to_send() > 0 and self.brick_class_check_counter >= self.CLASSIFICATION_BRICK_COUNT:
             # Clear out the queue of processed bricks
             final_label_index = self.brick_classification_result_counter.index(max(self.brick_classification_result_counter))
