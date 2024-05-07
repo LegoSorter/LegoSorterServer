@@ -1,0 +1,21 @@
+{
+	"brick1": {
+		"position": 200,
+		"bricks": ["3001, "3003"]
+	},
+	"brick2": {
+		"position": 400,
+		"bricks": ["3021", "267165"]
+	},
+	"opony": {
+		"position": 600,
+		"bricks": ["2410", "3010"]
+	},
+	"plaskie_strukturalne": {
+		"position": 800,
+		"bricks": ["3810", "2012"]
+	},
+	"default": {
+		"position": 0
+	}
+}

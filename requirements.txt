@@ -1,0 +1,7 @@
+grpcio
+tensorflow
+opencv-python
+ipython
+psutil
+torchvision
+seaborn
